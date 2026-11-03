@@ -14,6 +14,7 @@ window.__ModuleLoader__.load({
 
     const zh = {
       panel: '插件上行',
+      back: '返回对话',
       title: '插件上行',
       subtitle: '择本地插件，成一库之索引；安装、说明与更新，随提交而新。',
       eyebrow: 'GITHUB · PLUGIN VAULT',
@@ -110,6 +111,19 @@ window.__ModuleLoader__.load({
       uploadCount: '上传 {count} 个插件',
       createAndUpload: '创建并上传',
       deleteCount: '将删除 {count} 个远端文件',
+      remotePlugins: '远端插件',
+      remoteCount: '{count} 个',
+      local: '本地',
+      remoteOnly: '仅远端',
+      deleteSelected: '删除所选',
+      deleteTitle: '从仓库删除插件',
+      deleteBody: '将删除 {count} 个插件的远端文件，并提交一次删除。',
+      deleteLocalWarn: '其中 {count} 个本地仍存在；若下次仍选中，会重新加入。',
+      rebuildIndex: '同时重建 README 索引',
+      deleteHint: '只删 GitHub 仓库中的文件，本地插件不动。',
+      deleteAction: '确认删除',
+      deleted: '已从仓库删除',
+      deleting: '删除中',
       footerNote: '令牌存于 Harness 凭据库；提交经 GitHub REST API 写入，不经本地 git。',
       scopes: '权限',
       repoLink: '打开仓库',
@@ -124,6 +138,7 @@ window.__ModuleLoader__.load({
 
     const en = {
       panel: 'Plugin Ascent',
+      back: 'Back to chat',
       title: 'Plugin Ascent',
       subtitle: 'Select local plugins, compose one repository index, and keep source, install notes, and docs in step.',
       eyebrow: 'GITHUB · PLUGIN VAULT',
@@ -220,6 +235,19 @@ window.__ModuleLoader__.load({
       uploadCount: 'Upload {count} plugins',
       createAndUpload: 'Create and upload',
       deleteCount: '{count} remote files will be deleted',
+      remotePlugins: 'Remote plugins',
+      remoteCount: '{count}',
+      local: 'Local',
+      remoteOnly: 'Remote only',
+      deleteSelected: 'Delete selected',
+      deleteTitle: 'Delete plugins from the repository',
+      deleteBody: 'Delete the remote files of {count} plugins and create one deletion commit.',
+      deleteLocalWarn: '{count} of them still exist locally and return if selected on the next upload.',
+      rebuildIndex: 'Rebuild the README index',
+      deleteHint: 'Only files in the GitHub repository are removed; local plugins stay untouched.',
+      deleteAction: 'Delete',
+      deleted: 'Removed from the repository',
+      deleting: 'Deleting',
       footerNote: 'The token stays in the Harness credential store; commits go through the GitHub REST API, not local git.',
       scopes: 'Scopes',
       repoLink: 'Open repository',
@@ -256,6 +284,21 @@ window.__ModuleLoader__.load({
 }
 .gv-page[data-gv-theme="dark"] { --gv-red: #c9564a; --gv-red-soft: rgba(201, 86, 74, .14); }
 .gv-page * { box-sizing: border-box; }
+.gv-launch {
+  display: inline-flex; flex: none; align-items: center; justify-content: center;
+  width: 24px; height: 20px; padding: 0; margin-right: -6px; box-sizing: border-box;
+  border: 1px solid rgba(166, 58, 46, .72); border-radius: 5px;
+  background: transparent; color: #a63a2e;
+  font-family: var(--dsw-font-family-text-default), "Segoe UI", sans-serif;
+  font-size: 10px; font-weight: 700; line-height: 1; letter-spacing: .03em;
+  cursor: pointer; opacity: 1;
+  transition: background .18s ease, color .18s ease, border-color .18s ease, opacity .18s ease;
+}
+.gv-launch:hover, .gv-launch:focus-visible {
+  background: #a63a2e; color: #f6f1e7; border-color: #a63a2e;
+}
+.gv-launch:focus-visible { outline: 2px solid #a63a2e; outline-offset: 1px; }
+.gv-launch:active { opacity: .82; }
 .gv-page button, .gv-page input, .gv-page textarea { font: inherit; }
 .gv-head { display: flex; align-items: flex-start; gap: 18px; padding: 19px 26px 13px; }
 .gv-brand { display: flex; gap: 14px; min-width: 0; }
@@ -433,6 +476,34 @@ window.__ModuleLoader__.load({
   font-size: 10.5px; cursor: pointer;
 }
 .gv-seg button[aria-pressed="true"] { background: var(--gv-ink); color: var(--dsw-alias-bg-base); }
+.gv-remotelist { max-height: 220px; overflow: auto; margin: 2px 0 8px; border: 1px solid var(--gv-line); }
+.gv-remoteitem {
+  display: grid; grid-template-columns: 15px minmax(0, 1fr) auto auto; align-items: center;
+  gap: 6px; padding: 5px 6px; cursor: pointer;
+}
+.gv-remoteitem:hover { background: color-mix(in srgb, var(--gv-ink) 5%, transparent); }
+.gv-remote-main { min-width: 0; }
+.gv-remote-title { display: block; overflow: hidden; font-size: 11.5px; font-weight: 550; white-space: nowrap; text-overflow: ellipsis; }
+.gv-remote-id {
+  display: block; overflow: hidden; color: var(--dsw-alias-label-tertiary);
+  font-family: var(--dsw-font-family-code-default); font-size: 9px; white-space: nowrap; text-overflow: ellipsis;
+}
+.gv-remote-tag { flex: none; padding: 0 4px; border: 1px solid var(--gv-line); color: var(--dsw-alias-label-secondary); font-size: 9px; line-height: 14px; }
+.gv-remote-tag.local { border-color: color-mix(in srgb, var(--gv-red) 42%, transparent); color: var(--gv-red); }
+.gv-remote-size { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 9px; text-align: right; font-variant-numeric: tabular-nums; }
+.gv-remoteactions { display: flex; justify-content: space-between; gap: 6px; }
+.gv-btn.danger { border-color: color-mix(in srgb, var(--gv-red) 42%, transparent); color: var(--gv-red); }
+.gv-btn.danger:hover { border-color: var(--gv-red); background: var(--gv-red); color: #fff; }
+.gv-btn.danger[disabled] { opacity: .42; background: transparent; color: var(--gv-red); }
+.gv-delete-list {
+  max-height: 160px; overflow: auto; margin: 8px 0 10px; padding: 8px 10px;
+  list-style: none; border: 1px solid var(--gv-line); background: var(--gv-paper);
+}
+.gv-delete-list li { font-family: var(--dsw-font-family-code-default); font-size: 10.5px; line-height: 1.7; }
+.gv-delete-warn {
+  margin: 0 0 8px; padding: 7px 9px; border-left: 2px solid var(--gv-red);
+  background: var(--gv-red-soft); color: var(--gv-ink); font-size: 10.5px; line-height: 1.6;
+}
 .gv-counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 10px; border: 1px solid var(--gv-line); background: var(--gv-line); }
 .gv-count { padding: 6px 3px; background: var(--dsw-alias-bg-layer-1); text-align: center; }
 .gv-count b { display: block; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -504,6 +575,10 @@ window.__ModuleLoader__.load({
         h('path', { d: 'M4 2.5h5l3 3V13H4zM9 2.5V6h3M6 8h4M6 10.5h4', strokeLinecap: 'round', strokeLinejoin: 'round' })),
       check: h('svg', { viewBox: '0 0 16 16', width: 12, height: 12, fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, 'aria-hidden': true },
         h('path', { d: 'm3 8.5 3 3 7-7', strokeLinecap: 'round', strokeLinejoin: 'round' })),
+      back: h('svg', { viewBox: '0 0 16 16', width: 13, height: 13, fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, 'aria-hidden': true },
+        h('path', { d: 'M13 8H3M7 4 3 8l4 4', strokeLinecap: 'round', strokeLinejoin: 'round' })),
+      trash: h('svg', { viewBox: '0 0 16 16', width: 12, height: 12, fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, 'aria-hidden': true },
+        h('path', { d: 'M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5M7 7v4M9 7v4', strokeLinecap: 'round', strokeLinejoin: 'round' })),
     };
 
     function svg(name) { return icons[name] || null; }
@@ -581,6 +656,10 @@ window.__ModuleLoader__.load({
       const [docTab, setDocTab] = useState('root');
       const [toast, setToast] = useState(null);
       const [confirm, setConfirm] = useState(null);
+      const [remoteSelected, setRemoteSelected] = useState({});
+      const [deleteConfirm, setDeleteConfirm] = useState(null);
+      const [deleting, setDeleting] = useState(false);
+      const [rebuildIndex, setRebuildIndex] = useState(true);
 
       const themeMode = useMemo(() => {
         try {
@@ -603,13 +682,16 @@ window.__ModuleLoader__.load({
       }, [toast]);
 
       useEffect(() => {
-        if (!confirm) return undefined;
+        if (!confirm && !deleteConfirm) return undefined;
         const onKey = (event) => {
-          if (event.key === 'Escape') setConfirm(null);
+          if (event.key === 'Escape') {
+            setConfirm(null);
+            setDeleteConfirm(null);
+          }
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-      }, [confirm]);
+      }, [confirm, deleteConfirm]);
 
       const plugins = scan && Array.isArray(scan.plugins) ? scan.plugins : [];
 
@@ -660,6 +742,8 @@ window.__ModuleLoader__.load({
           }
           setPreview(null);
           setConfirm(null);
+          setDeleteConfirm(null);
+          setRemoteSelected({});
         } catch (failure) {
           setError(failure.message);
         } finally {
@@ -784,6 +868,80 @@ window.__ModuleLoader__.load({
           }
         }
         return { added, changed, same, deleted };
+      }
+
+      function localById() {
+        const map = new Map();
+        for (const plugin of plugins) {
+          map.set(plugin.id, plugin);
+          for (const component of plugin.components || []) map.set(component.id, component);
+        }
+        return map;
+      }
+
+      function remotePlugins() {
+        const map = new Map();
+        for (const [repoPath, entry] of Object.entries((remote && remote.files) || {})) {
+          if (!repoPath.startsWith('plugins/')) continue;
+          const id = repoPath.split('/')[1];
+          if (!id) continue;
+          if (!map.has(id)) map.set(id, { id, count: 0, size: 0 });
+          const item = map.get(id);
+          item.count += 1;
+          item.size += Number(entry.size) || 0;
+        }
+        return [...map.values()].sort((a, b) => a.id.localeCompare(b.id));
+      }
+
+      function remoteTitle(id) {
+        const local = localById().get(id);
+        return local ? local.title : id;
+      }
+
+      function remoteIsLocal(id) {
+        return localById().has(id);
+      }
+
+      function remoteSelectedIds() {
+        return Object.keys(remoteSelected).filter((id) => remoteSelected[id]);
+      }
+
+      function toggleRemote(id, on) {
+        setRemoteSelected((previous) => ({ ...previous, [id]: on }));
+      }
+
+      function toggleAllRemote(on) {
+        const next = {};
+        for (const item of remotePlugins()) next[item.id] = on;
+        setRemoteSelected(next);
+      }
+
+      function startRemoteDelete() {
+        const ids = remoteSelectedIds();
+        if (ids.length === 0) return;
+        setRebuildIndex(true);
+        setDeleteConfirm({ ids });
+      }
+
+      async function performRemoteDelete() {
+        if (!deleteConfirm) return;
+        setDeleting(true);
+        setError('');
+        try {
+          const result = await api('/remote-delete', {
+            ids: deleteConfirm.ids,
+            rebuildIndex,
+          });
+          setDeleteConfirm(null);
+          setRemoteSelected({});
+          setToast({ kind: 'ok', text: t('deleted'), url: result.commit && result.commit.url });
+          await loadAll(false);
+        } catch (failure) {
+          setDeleteConfirm(null);
+          setError(failure.message);
+        } finally {
+          setDeleting(false);
+        }
       }
 
       async function submitLogin(event) {
@@ -981,6 +1139,17 @@ window.__ModuleLoader__.load({
               ? h('span', { className: 'gv-chip' }, t('private'))
               : null),
           h('div', { className: 'gv-headactions' },
+            h('button', {
+              type: 'button',
+              className: 'gv-btn small ghost',
+              onClick: () => {
+                try {
+                  ctx.layout.selectPanel('conversation');
+                } catch {
+                  /* conversation panel is owned by the shell */
+                }
+              },
+            }, svg('back'), t('back')),
             h('button', {
               type: 'button',
               className: 'gv-btn small',
@@ -1313,6 +1482,46 @@ window.__ModuleLoader__.load({
               saving ? h('span', { className: 'gv-spin' }) : svg('check'), t('save'))));
       }
 
+      function renderRemoteCard() {
+        const entries = remotePlugins();
+        if (!remote || !remote.exists || entries.length === 0) return null;
+        const ids = remoteSelectedIds();
+        const selectedCount = ids.length;
+        const allSelected = entries.length > 0 && entries.every((entry) => remoteSelected[entry.id]);
+        return h('div', { className: 'gv-card gv-remotecard' },
+          h('div', { className: 'gv-cardhead' },
+            h('span', { className: 'gv-cardtitle' }, t('remotePlugins')),
+            h('span', { className: 'gv-cardnote' }, t('remoteCount').replace('{count}', String(entries.length)))),
+          h('div', { className: 'gv-remotelist' },
+            entries.map((entry) => {
+              const isLocal = remoteIsLocal(entry.id);
+              return h('label', { className: 'gv-remoteitem', key: entry.id },
+                h('input', {
+                  type: 'checkbox',
+                  checked: Boolean(remoteSelected[entry.id]),
+                  onChange: (event) => toggleRemote(entry.id, event.target.checked),
+                  'aria-label': entry.id,
+                }),
+                h('span', { className: 'gv-remote-main' },
+                  h('span', { className: 'gv-remote-title' }, remoteTitle(entry.id)),
+                  h('span', { className: 'gv-remote-id' }, 'plugins/' + entry.id + '/')),
+                h('span', { className: 'gv-remote-tag' + (isLocal ? ' local' : '') }, isLocal ? t('local') : t('remoteOnly')),
+                h('span', { className: 'gv-remote-size' }, entry.count + ' · ' + fmtSize(entry.size)));
+            })),
+          h('div', { className: 'gv-remoteactions' },
+            h('button', {
+              type: 'button',
+              className: 'gv-btn small ghost',
+              onClick: () => toggleAllRemote(!allSelected),
+            }, allSelected ? t('selectNone') : t('selectAll')),
+            h('button', {
+              type: 'button',
+              className: 'gv-btn small danger',
+              onClick: startRemoteDelete,
+              disabled: selectedCount === 0 || deleting || uploading,
+            }, deleting ? h('span', { className: 'gv-spin' }) : svg('trash'), t('deleteSelected'))));
+      }
+
       function renderSyncCard() {
         const counts = preview ? preview.counts : null;
         const warnings = [];
@@ -1403,6 +1612,7 @@ window.__ModuleLoader__.load({
         return h('aside', { className: 'gv-side' },
           renderRepoCard(),
           settingsOpen ? renderSettings() : null,
+          renderRemoteCard(),
           renderSyncCard(),
           renderDocsCard());
       }
@@ -1441,6 +1651,42 @@ window.__ModuleLoader__.load({
             }, t('confirm')))));
       }
 
+      function renderDeleteConfirm() {
+        if (!deleteConfirm) return null;
+        const ids = deleteConfirm.ids;
+        const localCount = ids.filter((id) => remoteIsLocal(id)).length;
+        return h('div', {
+          className: 'gv-modal',
+          role: 'presentation',
+          onMouseDown: (event) => { if (event.target === event.currentTarget) setDeleteConfirm(null); },
+        },
+        h('div', { className: 'gv-modal-card', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('deleteTitle') },
+          h('h3', null, t('deleteTitle')),
+          h('p', null, t('deleteBody').replace('{count}', String(ids.length))),
+          h('ul', { className: 'gv-delete-list' },
+            ids.slice(0, 10).map((id) => h('li', { key: id }, h('code', null, 'plugins/' + id + '/'))),
+            ids.length > 10 ? h('li', { key: 'more' }, '…') : null),
+          localCount > 0
+            ? h('p', { className: 'gv-delete-warn' }, t('deleteLocalWarn').replace('{count}', String(localCount)))
+            : null,
+          h('label', { className: 'gv-checkrow' },
+            h('input', {
+              type: 'checkbox',
+              checked: rebuildIndex,
+              onChange: (event) => setRebuildIndex(event.target.checked),
+            }),
+            t('rebuildIndex')),
+          h('p', { className: 'gv-hint' }, t('deleteHint')),
+          h('div', { className: 'gv-modal-actions' },
+            h('button', { type: 'button', className: 'gv-btn', onClick: () => setDeleteConfirm(null), autoFocus: true }, t('cancel')),
+            h('button', {
+              type: 'button',
+              className: 'gv-btn primary',
+              onClick: performRemoteDelete,
+              disabled: deleting,
+            }, deleting ? h('span', { className: 'gv-spin' }) : svg('trash'), deleting ? t('deleting') : t('deleteAction')))));
+      }
+
       const content = !status && loading
         ? h('div', { className: 'gv-loading' }, h('span', { className: 'gv-spin' }), t('loading'))
         : !status
@@ -1459,13 +1705,8 @@ window.__ModuleLoader__.load({
         renderError(),
         content,
         renderToast(),
-        renderConfirm());
-    }
-
-    function PanelIcon() {
-      return h('svg', { viewBox: '0 0 20 20', width: 18, height: 18, fill: 'none', 'aria-hidden': true },
-        h('rect', { x: 3.2, y: 3.2, width: 13.6, height: 13.6, rx: 1.4, stroke: 'currentColor', strokeWidth: 1.4 }),
-        h('path', { d: 'M10 13.8V7M7.2 9.8 10 7l2.8 2.8', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'square' }));
+        renderConfirm(),
+        renderDeleteConfirm());
     }
 
     function apply(ctx) {
@@ -1480,23 +1721,39 @@ window.__ModuleLoader__.load({
       ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'github-vault: dictionaries');
       const t = ctx.locale.bind(NS);
 
+      function LaunchIcon() {
+        return h('button', {
+          type: 'button',
+          className: 'gv-launch',
+          title: t('panel'),
+          'aria-label': t('panel'),
+          onClick: () => {
+            try {
+              ctx.layout.selectPanel(PANEL);
+            } catch {
+              /* the main panel is registered by this plugin */
+            }
+          },
+        }, h('span', { 'aria-hidden': true }, 'UP'));
+      }
+
       ctx.slots.inject('main', () => ctx.slots.register({
         name: 'main',
         key: PANEL,
         locale: NS,
       }, (props) => h(Panel, { ...props, t, ctx })));
 
-      ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
-        name: 'sidebar.panellist',
+      ctx.slots.inject('conversation.input.right', () => ctx.slots.register({
+        name: 'conversation.input.right',
         id: PANEL,
-        order: 21,
+        order: 0,
         locale: NS,
         label: () => t('panel'),
-      }, PanelIcon));
+      }, LaunchIcon));
     }
 
     return {
-      inject: ['slots', 'locale', 'theme'],
+      inject: ['slots', 'locale', 'theme', 'layout'],
       apply,
     };
   },

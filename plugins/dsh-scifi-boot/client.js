@@ -237,14 +237,22 @@ window.__ModuleLoader__.load({
 .sb-sealbtn:hover .sb-ch,.sb-sealbtn:focus-visible .sb-ch{transform:scale(1.08)}
 .sb-sealbtn:active{transform:scale(.99)}
 
-/* 点下「启」时：一条朱砂流线沿方框内侧迅速绕行一周。 */
-.sb-ring{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);
-  pointer-events:none;overflow:visible}
+/* 点下「启」时：一条朱砂流线沿方框**内侧**绕行一周，走完随即隐去。
+   三点约束：
+   · inset 取正值——线必须在框内，落在框外就成了「多余的红线」；
+   · 用 animation 而非 transition——走完一圈要自己消失，不能停在终态；
+   · 关键帧末段同时把 opacity 归零，避免按钮卸载前留下半截线。 */
+.sb-ring{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);
+  pointer-events:none;overflow:visible;opacity:0}
 .sb-ring rect{fill:none;stroke:var(--sb-cinnabar);stroke-width:1.2;stroke-linecap:round;
   stroke-dasharray:1;stroke-dashoffset:1;vector-effect:non-scaling-stroke}
+@keyframes sb-flow{
+  0%{stroke-dashoffset:1;opacity:1}
+  78%{stroke-dashoffset:0;opacity:1}
+  100%{stroke-dashoffset:0;opacity:0}}
+.sb-sealbtn[data-firing="1"] .sb-ring{opacity:1}
 .sb-sealbtn[data-firing="1"] .sb-ring rect{
-  stroke-dashoffset:0;
-  transition:stroke-dashoffset .78s cubic-bezier(.35,.05,.25,1)}
+  animation:sb-flow .86s cubic-bezier(.35,.05,.25,1) forwards}
 
 .sb-foot{display:flex;align-items:baseline;justify-content:flex-end;min-width:0;
   border-top:1px solid var(--sb-hair);padding-top:clamp(8px,1.6vmin,16px);
@@ -770,21 +778,24 @@ window.__ModuleLoader__.load({
           seen = false;
         }
 
-        // 「初」小印紧挨模型名，尺寸很小，只在悬停时才有一点弹性反馈。
+        // 「初」小印紧挨模型名。字号小，必须加重字重、加深墨色、去掉半透明，
+        // 否则宋体细笔画在 11px 下会糊成一片。
         ctx.effect(() => {
           const el = document.createElement('style');
           el.setAttribute('data-scifi-boot-chop', '');
           el.textContent = `
 .sb-chop{
   display:inline-flex;align-items:center;justify-content:center;
-  width:20px;height:20px;padding:0;margin-left:2px;border-radius:6px;box-sizing:border-box;
-  background:transparent;border:1px solid rgba(166,58,46,.55);color:#A63A2E;
-  font-family:"Songti SC","STSong","SimSun",serif;font-size:11px;line-height:1;
-  cursor:pointer;transform:rotate(-4deg);opacity:.86;
+  width:22px;height:22px;padding:0;margin-left:2px;border-radius:6px;box-sizing:border-box;
+  background:transparent;border:1.4px solid #A63A2E;color:#A63A2E;
+  font-family:"Songti SC","STSong","SimSun",serif;
+  font-size:13px;font-weight:700;line-height:1;
+  -webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;
+  cursor:pointer;transform:rotate(-4deg);
   transition:transform .3s cubic-bezier(.2,1.6,.35,1),
-             background .2s ease,color .2s ease,border-color .2s ease,opacity .2s ease}
+             background .2s ease,color .2s ease,border-color .2s ease}
 .sb-chop:hover,.sb-chop:focus-visible{
-  background:#A63A2E;color:#F6F1E7;border-color:#A63A2E;outline:none;opacity:1;
+  background:#A63A2E;color:#F6F1E7;border-color:#A63A2E;outline:none;
   transform:rotate(0deg) scale(1.1)}
 .sb-chop:active{transform:rotate(0deg) scale(.94)}`;
           document.head.appendChild(el);

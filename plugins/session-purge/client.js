@@ -1,373 +1,499 @@
+// session-purge: CLIENT half (browser module-loader package).
+//
+// Two entry points, one dialog:
+//   conversation.session.header.actions   header danger button
+//   sidebar.workspaces.session.menu.item   sidebar session-row "..." menu row
+// Both open the SAME dialog, a root-scoped shell.overlay occupant fed by a
+// module-scoped request store, so the sidebar row never switches the
+// conversation.
+//
+// Everything here is either a slot entry or a slot-owned component: no DOM
+// injection outside a component, no `document.body` writes, no other plugin's
+// DOM or styles read. Only platform-baseline modules are required (react and
+// the host primitives), and every color comes from a `--dsw-alias-*` token.
+//
+// Locale, and why the `t` seat is never trusted blindly:
+//
+//   A component registered with `locale: NS` receives the locale service's
+//   bound translator as the `t` seat. That translator answers the KEY ITSELF
+//   when its namespace has no dictionary yet (`LocaleRuntime.translate` falls
+//   back to the key), and the namespace can legitimately be empty for a while:
+//   this plugin's own client half may materialize before its dictionaries are
+//   registered, and a losing registration race can leave them missing. Rendering
+//   that seat verbatim is exactly how a dialog once showed `dialog.title` /
+//   `dialog.deleteDesc` on the first open after start-up while a later reload
+//   showed real copy.
+//
+//   So `t` here is always wrapped: the seat wins only when it actually resolves
+//   a key, and the built-in zh/en dictionaries answer otherwise. Copy is still
+//   routed through the locale service — the built-in dictionaries are the
+//   documented fallback for a composition without it, and now also for a
+//   namespace that has not been registered yet.
+//
+// Bundle format (client-modules protocol): classic script registering a lazy
+// factory via `window.__ModuleLoader__.load({ id, factory })`; the factory
+// receives `require` and returns the plugin exports.
 window.__ModuleLoader__.load({
   id: '@local/session-purge',
   factory(require) {
-    const React = require('react');
-    const h = React.createElement;
-    const primitives = require('@deepseek-ai/dsh-client-ui-primitives');
+    const React = require('react')
+    const primitives = require('@deepseek-ai/dsh-client-ui-primitives')
+    const { Button, IconTrashOutlineRegular, MenuItemButton, Modal, Tooltip } = primitives
 
-    const NS = 'sessionPurge';
-    const ROUTE_INFO = '/api/session-purge/info';
-    const ROUTE_PURGE = '/api/session-purge/purge';
+    const HEADER_SLOT = 'conversation.session.header.actions'
+    const MENU_SLOT = 'sidebar.workspaces.session.menu.item'
+    const OVERLAY_SLOT = 'shell.overlay'
+    const HEADER_ID = 'session-purge.header'
+    const MENU_ID = 'session-purge.menu'
+    const DIALOG_ID = 'session-purge.dialog'
+    const ENDPOINT = '/api/session-purge/purge'
+    const NS = 'sessionPurge'
+
+    // --- copy -------------------------------------------------------------------
 
     const zh = {
-      'menu.label': '彻底删除对话…',
-      'menu.short': '彻底删除',
-      'dialog.title': '彻底删除这个对话？',
-      'dialog.desc': '“{title}”及其全部本地记录会被永久抹除，无法撤销、没有回收站。',
-      'dialog.loading': '正在清点这个对话留下的数据…',
-      'dialog.failed': '无法读取这个对话的删除范围：{message}',
-      'dialog.scope.logs': '会话日志',
-      'dialog.scope.logs.value': '{files} 个文件 · {size}',
-      'dialog.scope.children': '子会话',
-      'dialog.scope.children.value': '{n} 个，会一并删除',
-      'dialog.scope.cache': '投影缓存与工作区记录',
-      'dialog.scope.cache.value': '标题、统计、排序、归档与置顶状态',
-      'dialog.scope.attachments': '附件与文件缓存',
-      'dialog.scope.attachments.value': '仅删除不再被其他对话引用的对象',
-      'dialog.scope.workspace': '工作区文件',
-      'dialog.scope.workspace.value': '不会删除；只清除 DSH 的对话记录',
-      'dialog.live': '这个对话仍在内存中。删除会先停止它正在进行的工作。',
-      'dialog.ack': '我已了解：删除后无法恢复，也不会进入回收站。',
+      'button.title': '彻底删除会话',
+      'button.titleRunning': '彻底删除会话（运行中，删除将停止任务）',
+      'menu.delete': '彻底删除会话',
+      'dialog.title': '彻底删除这个会话？',
       'dialog.cancel': '取消',
       'dialog.confirm': '永久删除',
-      'dialog.deleting': '正在抹除…',
-      'dialog.done': '已删除，正在刷新界面…',
-      'dialog.pending': '部分文件被占用，已移出会话列表；剩余字节会在后台清理。',
-      'dialog.error': '删除失败：{message}',
-      'dialog.close': '关闭',
-      'error.network': '无法连接 Host（{message}）',
-      'error.not-found': '这个对话已经不存在了',
-    };
+      'dialog.confirming': '正在抹除…',
+      'dialog.untitled': '未命名会话',
+      'dialog.session': '会话：',
+      'dialog.sessionId': '序列号：',
+      'dialog.runningWarn': '⚠ 会话正在运行',
+      'dialog.runningDesc': '该会话正在运行。删除会先停止并释放它的任务，再永久删除；正在进行的操作将中断且无法恢复。',
+      'dialog.deleteDesc': '将永久删除该会话及其全部本地记录：会话日志（写零后删除）、投影缓存、工作区记账，以及它拥有的子代理会话。分叉出的独立分支不会被连带删除。附件只在没有其他会话引用时回收。此操作不可恢复。',
+      'dialog.busy': '正在抹除…',
+      'dialog.failed': '删除失败：{reason}',
+    }
 
     const en = {
-      'menu.label': 'Erase conversation permanently…',
-      'menu.short': 'Erase permanently',
-      'dialog.title': 'Erase this conversation permanently?',
-      'dialog.desc': '“{title}” and every local record of it will be destroyed. There is no undo and no trash.',
-      'dialog.loading': 'Inspecting what this conversation left behind…',
-      'dialog.failed': 'Could not inspect the deletion scope: {message}',
-      'dialog.scope.logs': 'Session logs',
-      'dialog.scope.logs.value': '{files} files · {size}',
-      'dialog.scope.children': 'Subagent sessions',
-      'dialog.scope.children.value': '{n}, erased with it',
-      'dialog.scope.cache': 'Projection cache and workspace records',
-      'dialog.scope.cache.value': 'Titles, statistics, order, archive and pin state',
-      'dialog.scope.attachments': 'Attachments and file cache',
-      'dialog.scope.attachments.value': 'Only objects no other conversation references',
-      'dialog.scope.workspace': 'Workspace files',
-      'dialog.scope.workspace.value': 'Untouched; only DSH conversation records are cleared',
-      'dialog.live': 'This conversation is still live in memory. Erasing it stops its running work first.',
-      'dialog.ack': 'I understand this cannot be undone and does not go to a trash bin.',
+      'button.title': 'Erase session permanently',
+      'button.titleRunning': 'Erase session (running — deleting stops the task)',
+      'menu.delete': 'Erase session permanently',
+      'dialog.title': 'Erase this session permanently?',
       'dialog.cancel': 'Cancel',
       'dialog.confirm': 'Erase permanently',
-      'dialog.deleting': 'Erasing…',
-      'dialog.done': 'Erased. Reloading the page…',
-      'dialog.pending': 'Some files were still open. The conversation is out of the list; the rest is cleaned in the background.',
-      'dialog.error': 'Erase failed: {message}',
-      'dialog.close': 'Close',
-      'error.network': 'Cannot reach the Host ({message})',
-      'error.not-found': 'This conversation no longer exists',
-    };
-
-    let t = (key) => key;
-
-    const css = [
-      '.sp-danger-text{color:var(--dsw-alias-state-error-primary)}',
-      '.sp-danger-icon{color:var(--dsw-alias-state-error-primary);display:inline-flex;align-items:center}',
-      '.sp-dialog{display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:22px;color:var(--dsw-alias-label-primary)}',
-      '.sp-dialog-summary{color:var(--dsw-alias-label-secondary);margin:0;font-size:13px;line-height:20px}',
-      '.sp-purge-scope{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--dsw-alias-border-l2)}',
-      '.sp-purge-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--dsw-alias-border-l2)}',
-      '.sp-purge-row dt{color:var(--dsw-alias-label-primary);font-size:13px;line-height:20px;flex:none}',
-      '.sp-purge-row dd{margin:0;color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px;text-align:right}',
-      '.sp-purge-live{margin:0;padding:8px 10px;border:1px solid var(--dsw-alias-border-l3);color:var(--dsw-alias-label-secondary);font-size:12px;line-height:18px}',
-      '.sp-purge-ack{display:flex;align-items:flex-start;gap:8px;color:var(--dsw-alias-label-secondary);font-size:12px;line-height:18px;cursor:pointer}',
-      '.sp-purge-ack input{margin:2px 0 0;accent-color:var(--dsw-alias-state-error-primary);flex:none}',
-      '.sp-purge-error{color:var(--dsw-alias-state-error-primary);font-size:12px;line-height:18px;overflow-wrap:anywhere}',
-      '.sp-purge-status{color:var(--dsw-alias-label-secondary);font-size:12px;line-height:18px}',
-      '.sp-purge-danger:not(:disabled){color:var(--dsw-alias-state-error-primary)}',
-    ].join('');
-
-    if (typeof document !== 'undefined' && document.querySelector('style[data-plugin-css="session-purge"]') === null) {
-      const tag = document.createElement('style');
-      tag.dataset.plugin = '@local/session-purge';
-      tag.dataset.pluginCss = 'session-purge';
-      tag.textContent = css;
-      document.head.appendChild(tag);
+      'dialog.confirming': 'Erasing…',
+      'dialog.untitled': 'Untitled session',
+      'dialog.session': 'Session: ',
+      'dialog.sessionId': 'Session ID: ',
+      'dialog.runningWarn': '⚠ Session is running',
+      'dialog.runningDesc': 'This session is running. Deleting stops and releases its task first, then removes it permanently; work in progress is interrupted and cannot be recovered.',
+      'dialog.deleteDesc': 'This permanently deletes the session and all of its local records: the session log (zero-overwritten, then unlinked), projection cache, workspace accounting, and the subagent sessions it owns. Forked branches are independent and never touched. Attachments are reclaimed only when no other session references them. This cannot be undone.',
+      'dialog.busy': 'Erasing…',
+      'dialog.failed': 'Delete failed: {reason}',
     }
 
-    // The request bridge between the row menu (which unmounts when the menu
-    // closes) and the overlay dialog (which is mounted for the page lifetime).
-    const bridge = (() => {
-      let current = null;
-      const listeners = new Set();
-      return {
-        get: () => current,
-        set(next) {
-          current = next;
-          for (const listener of listeners) listener();
-        },
-        subscribe(listener) {
-          listeners.add(listener);
-          return () => listeners.delete(listener);
-        },
-      };
-    })();
+    // Client-scope service handles, refreshed by deferred injection when the
+    // service was not ready at apply time.
+    let localeService = null
+    let uiWorkspaceService = null
 
-    function usePurgeRequest() {
-      return React.useSyncExternalStore(bridge.subscribe, bridge.get, bridge.get);
+    function builtinLang() {
+      if (typeof navigator === 'undefined') return 'zh'
+      const tags = [].concat(navigator.languages || [], [navigator.language])
+      for (const tag of tags) {
+        const primary = String(tag || '').toLowerCase().split('-')[0]
+        if (primary === 'zh' || primary === 'en') return primary
+      }
+      return 'zh'
     }
 
-    function PurgeMenuItem({ sessionId, displayTitle, useMenuOpenState }) {
-      const menu = useMenuOpenState === undefined ? null : useMenuOpenState();
-      const closeMenu = () => {
-        if (Array.isArray(menu) && typeof menu[1] === 'function') menu[1](false);
-      };
-      return h(
-        primitives.MenuItemButton,
-        {
-          icon: h(
-            'span',
-            { className: 'sp-danger-icon' },
-            h(primitives.IconTrashOutlineRegular, { size: 14 }),
-          ),
-          onSelect: () => {
-            bridge.set({ sessionId, title: displayTitle || sessionId, nonce: Date.now() });
-            closeMenu();
-          },
-        },
-        h('span', { className: 'sp-danger-text' }, t('menu.label')),
-      );
+    function builtinText(key, values) {
+      const dict = builtinLang() === 'en' ? en : zh
+      const template = dict[key]
+      if (template === undefined) return key
+      if (values === undefined) return template
+      return template.replace(/\{(\w+)\}/g, (whole, name) => (name in values ? String(values[name]) : whole))
     }
 
-    function PurgeOverlay() {
-      const request = usePurgeRequest();
-      if (request === null) return null;
-      return h(PurgeDialog, { key: `${request.sessionId}:${request.nonce}`, request });
+    /** The locale seat when the renderer supplied one, else null. */
+    function seatOf(props) {
+      return props !== null && props !== undefined && typeof props.t === 'function' ? props.t : null
     }
 
-    function PurgeDialog({ request }) {
-      const [phase, setPhase] = React.useState('loading');
-      const [info, setInfo] = React.useState(null);
-      const [error, setError] = React.useState(null);
-      const [ack, setAck] = React.useState(false);
-      const [busy, setBusy] = React.useState(false);
-      const [done, setDone] = React.useState(false);
-      const [notice, setNotice] = React.useState(null);
-
-      React.useEffect(() => {
-        let live = true;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 20_000);
-        fetchJson(`${ROUTE_INFO}?sessionId=${encodeURIComponent(request.sessionId)}`, {
-          method: 'GET',
-          signal: controller.signal,
-        })
-          .then((payload) => {
-            if (!live) return;
-            if (payload?.ok !== true) {
-              setPhase('error');
-              setError(payload?.error === 'session-not-found' ? t('error.not-found') : payload?.message || payload?.error || 'unknown');
-              return;
-            }
-            setInfo(payload.info);
-            setPhase('ready');
-          })
-          .catch((reason) => {
-            if (!live) return;
-            setPhase('error');
-            setError(t('error.network', { message: reasonText(reason) }));
-          })
-          .finally(() => clearTimeout(timer));
-        return () => {
-          live = false;
-          controller.abort();
-          clearTimeout(timer);
-        };
-      }, [request.sessionId]);
-
-      const close = () => {
-        if (busy) return;
-        bridge.set(null);
-      };
-
-      const confirm = () => {
-        if (busy || !ack) return;
-        setBusy(true);
-        setError(null);
-        fetchJson(ROUTE_PURGE, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-dsh-session-purge': '1',
-          },
-          body: JSON.stringify({ sessionId: request.sessionId, confirm: true }),
-        })
-          .then((payload) => {
-            if (payload?.ok !== true) {
-              setBusy(false);
-              setError(t('dialog.error', { message: payload?.message || payload?.error || 'unknown' }));
-              return;
-            }
-            setDone(true);
-            if (Array.isArray(payload.pending) && payload.pending.length > 0) setNotice(t('dialog.pending'));
-            setTimeout(() => window.location.reload(), 700);
-          })
-          .catch((reason) => {
-            setBusy(false);
-            setError(t('dialog.error', { message: reasonText(reason) }));
-          });
-      };
-
-      const title = info?.title || request.title || request.sessionId;
-      const size = info === null ? '' : formatBytes(info.bytes);
-      const rows = [];
-      if (info !== null) {
-        rows.push(['dialog.scope.logs', 'dialog.scope.logs.value', { files: info.files, size }]);
-        if (info.descendants > 0) {
-          rows.push(['dialog.scope.children', 'dialog.scope.children.value', { n: info.descendants }]);
+    /**
+     * Resolve one visible string.
+     *
+     * The locale seat wins only when it actually translates: a seat bound to a
+     * namespace without a dictionary yet answers with the key, and rendering
+     * that is the bug this function exists to prevent.
+     */
+    function resolveText(seat, key, values) {
+      if (seat !== null) {
+        try {
+          const text = seat(key, values)
+          if (typeof text === 'string' && text !== '' && text !== key) return text
+        } catch {
+          /* a broken seat must not blank the copy */
         }
-        rows.push(['dialog.scope.cache', 'dialog.scope.cache.value', {}]);
-        rows.push(['dialog.scope.attachments', 'dialog.scope.attachments.value', {}]);
-        rows.push(['dialog.scope.workspace', 'dialog.scope.workspace.value', {}]);
       }
-
-      const body = h(
-        'div',
-        { className: 'sp-dialog' },
-        h('p', { className: 'sp-dialog-summary' }, t('dialog.desc', { title })),
-        phase === 'loading' && h('div', { className: 'sp-purge-status', role: 'status' }, t('dialog.loading')),
-        info !== null &&
-          h(
-            'dl',
-            { className: 'sp-purge-scope' },
-            rows.map(([label, value, vars]) =>
-              h(
-                'div',
-                { className: 'sp-purge-row', key: label },
-                h('dt', null, t(label)),
-                h('dd', null, t(value, vars)),
-              ),
-            ),
-          ),
-        info?.live === true && h('p', { className: 'sp-purge-live' }, t('dialog.live')),
-        phase === 'error' && error !== null && h('div', { className: 'sp-purge-error', role: 'alert' }, error),
-        phase !== 'error' &&
-          info !== null &&
-          h(
-            'label',
-            { className: 'sp-purge-ack' },
-            h('input', {
-              type: 'checkbox',
-              checked: ack,
-              disabled: busy || done,
-              onChange: (event) => setAck(event.target.checked),
-            }),
-            h('span', null, t('dialog.ack')),
-          ),
-        error !== null && phase !== 'error' && h('div', { className: 'sp-purge-error', role: 'alert' }, error),
-        notice !== null && h('div', { className: 'sp-purge-status', role: 'status' }, notice),
-        done && h('div', { className: 'sp-purge-status', role: 'status' }, t('dialog.done')),
-        busy && !done && h('div', { className: 'sp-purge-status', role: 'status' }, t('dialog.deleting')),
-      );
-
-      const footer = h(
-        React.Fragment,
-        null,
-        h(
-          primitives.Button,
-          { variant: 'outline', disabled: busy, onClick: close },
-          t('dialog.cancel'),
-        ),
-        h(
-          primitives.Button,
-          {
-            variant: 'outline',
-            className: 'sp-purge-danger',
-            disabled: !ack || busy || done || info === null || phase === 'error',
-            onClick: confirm,
-          },
-          busy && !done ? t('dialog.deleting') : t('dialog.confirm'),
-        ),
-      );
-
-      return h(
-        primitives.Modal,
-        {
-          open: true,
-          onClose: close,
-          closeLabel: t('dialog.close'),
-          title: t('dialog.title'),
-          footer,
-        },
-        body,
-      );
+      return builtinText(key, values)
     }
 
-    function formatBytes(value) {
-      const bytes = Number(value) || 0;
-      if (bytes < 1024) return `${bytes} B`;
-      const units = ['KB', 'MB', 'GB', 'TB'];
-      let size = bytes / 1024;
-      let unit = 0;
-      while (size >= 1024 && unit < units.length - 1) {
-        size /= 1024;
-        unit += 1;
+    // --- shared dialog request store ---------------------------------------------
+
+    // One request at a time: the header button and the sidebar row both open the
+    // same dialog and the last request wins. Every mounted component subscribes,
+    // so the dialog occupant never depends on which entry dispatched.
+    const listeners = new Set()
+    let request = null
+    let revision = 0
+
+    function setRequest(next) {
+      request = next
+      revision += 1
+      for (const listener of [...listeners]) {
+        try {
+          listener(revision)
+        } catch {
+          /* one broken subscriber must not break the others */
+        }
       }
-      return `${size >= 10 ? size.toFixed(0) : size.toFixed(1)} ${units[unit]}`;
     }
 
-    function reasonText(reason) {
-      if (reason instanceof Error) return reason.message;
-      return String(reason);
+    function subscribe(listener) {
+      listeners.add(listener)
+      return () => {
+        listeners.delete(listener)
+      }
     }
 
-    async function fetchJson(url, options) {
-      const response = await fetch(url, { cache: 'no-store', credentials: 'same-origin', ...options });
-      const text = await response.text();
-      let payload;
+    function useRequest() {
+      const [value, setValue] = React.useState(request)
+      React.useEffect(() => subscribe(() => setValue(request)), [])
+      return value
+    }
+
+    // --- post-delete view repair -------------------------------------------------
+
+    // The sidebar LIST needs no help: the Host announces `api-session/removed`
+    // after a clean delete and the session controller applies it. The MAIN VIEW
+    // is a different thing — list membership and view selection are separate,
+    // and nothing in the shipped composition closes the view when its session
+    // leaves the list, so a deleted open session would keep rendering with its
+    // title fallen back to a bare id.
+    //
+    // `uiWorkspace` is reached through `ctx.inject`, never `ctx.get`: its fiber
+    // builds that service asynchronously at activation and `ctx.get` is
+    // strict-gated on the provider fiber already being active.
+    //
+    // The subject is read from `uiWorkspace.mainReference` — the field
+    // `replaceMain()` assigns a retained reference to and `clearMain()` empties;
+    // the reference carries `sessionId`. There is no public equivalent, so an
+    // unexpected shape degrades to "nothing is open" and the view is untouched.
+    // Deliberately NO `sessions.refresh()`: a second writer for the list races
+    // the workspace-accounting removal into an "Ungrouped" row.
+
+    function idCore(value) {
+      const text = String(value ?? '')
+      return text.startsWith('session-') ? text.slice('session-'.length) : text
+    }
+
+    function repairViewAfterDelete(deletedSessionId) {
       try {
-        payload = text === '' ? {} : JSON.parse(text);
+        const workspace = uiWorkspaceService
+        if (workspace === null || workspace === undefined) return
+        const reference = workspace.mainReference
+        const openId = reference === null || reference === undefined ? undefined : reference.sessionId
+        if (typeof openId !== 'string' || openId.length === 0) return
+        if (idCore(openId) !== idCore(deletedSessionId)) return
+        // Clear, do not start: `startSession()` is the New Session flow and
+        // creates a fresh Session, so calling it here left an extra (untitled)
+        // Session behind on every delete. `clearMain()` is what the shipped code
+        // does when the current Session leaves the list (see
+        // `clearArchivedCurrent()` behind the archive paths), and deletion is
+        // the same situation: it empties the view without minting a Session.
+        if (typeof workspace.clearMain !== 'function') return
+        workspace.clearMain()
       } catch {
-        payload = { ok: false, error: 'bad-response' };
+        /* cleanup must never surface as an unhandled error in a slot entry */
       }
-      if (!response.ok && payload?.ok !== false) {
-        return { ok: false, error: `HTTP ${response.status}`, message: text.slice(0, 200) };
-      }
-      return payload;
     }
+
+    // --- dialog ------------------------------------------------------------------
+
+    function DeleteSessionDialog(props) {
+      const seat = seatOf(props)
+      const t = (key, values) => resolveText(seat, key, values)
+      const current = useRequest()
+      const [busy, setBusy] = React.useState(false)
+      const [error, setError] = React.useState(null)
+
+      // Every new request clears the last outcome.
+      React.useEffect(() => {
+        setBusy(false)
+        setError(null)
+      }, [current === null ? null : current.requestId])
+
+      const close = React.useCallback(() => {
+        if (busy) return
+        setRequest(null)
+      }, [busy])
+
+      const confirm = React.useCallback(() => {
+        const target = current
+        if (target === null || busy) return
+        setBusy(true)
+        setError(null)
+        fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ sessionId: target.sessionId }),
+        })
+          .then(async (response) => {
+            let payload = {}
+            try {
+              payload = await response.json()
+            } catch {
+              /* an empty or non-JSON body keeps the HTTP status as the reason */
+            }
+            if (!response.ok || payload?.ok !== true) {
+              throw new Error(payload?.error || `HTTP ${response.status}`)
+            }
+            setRequest(null)
+            repairViewAfterDelete(target.sessionId)
+          })
+          .catch((reason) => {
+            setBusy(false)
+            setError(reason?.message ?? String(reason))
+          })
+      }, [current, busy])
+
+      if (current === null) return null
+
+      const title = current.displayTitle || t('dialog.untitled')
+      const description = current.running === true ? t('dialog.runningDesc') : t('dialog.deleteDesc')
+
+      // Follow the host's own confirm dialog instead of inventing chrome.
+      //
+      // The host builds "are you sure" surfaces out of exactly three things
+      // (see `ui-workspace`'s SessionArchiveConfirmDialog and the primitives'
+      // RiskConfirmation stylesheet): `Modal` with `title` + `description`, a
+      // plain `outline` Cancel, and a plain `primary` confirm. Their warning row
+      // is neutral text with only the ICON in the error color, and their confirm
+      // button carries no danger styling at all — the risk is in the words.
+      //
+      // So: no acknowledgement checkbox (opening the dialog and pressing Delete
+      // is already the deliberate two-step gesture, and the data-level guards
+      // live in the Host), no hand-rolled danger button, and the warning row is
+      // shown only when it says something the description does not — i.e. when
+      // the session is running.
+      return React.createElement(Modal, {
+        open: true,
+        onClose: close,
+        title: t('dialog.title'),
+        closeLabel: t('dialog.cancel'),
+        description,
+        footer: [
+          React.createElement(Button, {
+            key: 'cancel',
+            variant: 'outline',
+            onClick: close,
+            disabled: busy,
+          }, t('dialog.cancel')),
+          React.createElement(Button, {
+            key: 'confirm',
+            variant: 'outline',
+            style: DANGER_TEXT,
+            onClick: confirm,
+            disabled: busy,
+          }, busy ? t('dialog.confirming') : t('dialog.confirm')),
+        ],
+      }, React.createElement('div', { style: metaStyle },
+        t('dialog.session'), title,
+        React.createElement('br'),
+        t('dialog.sessionId'), current.sessionId,
+        current.running === true
+          ? React.createElement('div', { style: runningRowStyle }, t('dialog.runningWarn'))
+          : null,
+        busy ? React.createElement('div', { style: statusStyle }, t('dialog.busy')) : null,
+        error !== null
+          ? React.createElement('div', { style: errorStyle, role: 'alert' }, t('dialog.failed', { reason: error }))
+          : null),
+      )
+    }
+
+    // The destructive confirm is an OUTLINE button whose TEXT carries the error
+    // color — exactly the host's own rule for a destructive confirm:
+    //
+    //   ui-workspace: .deleteAction:not(:disabled) { color: var(--dsw-alias-state-error-primary) }
+    //   (used as <Button variant="outline" className={deleteAction}>)
+    //
+    // The primitives publish no danger variant, and a plugin cannot import the
+    // host's CSS module, so the token is applied directly. This is the ONE
+    // deliberate departure from "use the primitives as-is"; it is copied from the
+    // host's rule rather than invented, and it degrades to a plain outline button
+    // if the token ever disappears.
+    const DANGER_TEXT = { color: 'var(--dsw-alias-state-error-primary)' }
+
+    // The running hint. The copy already opens with a warning glyph, so this row
+    // carries no icon of its own — the host's `.warning` body text is neutral,
+    // and a second marker would just shout twice.
+    const runningRowStyle = {
+      marginTop: 10,
+      color: 'var(--dsw-alias-label-secondary)',
+      fontSize: 13,
+      lineHeight: '20px',
+    }
+
+    const metaStyle = {
+      color: 'var(--dsw-alias-label-secondary)',
+      fontSize: 13,
+      lineHeight: '20px',
+      overflowWrap: 'anywhere',
+    }
+
+    const statusStyle = {
+      color: 'var(--dsw-alias-label-secondary)',
+      fontSize: 12,
+      lineHeight: '16px',
+      marginTop: 6,
+    }
+
+    const errorStyle = {
+      color: 'var(--dsw-alias-state-error-primary)',
+      fontSize: 12,
+      lineHeight: '16px',
+      marginTop: 6,
+    }
+
+    // --- header danger button ----------------------------------------------------
+
+    /** The live client summary for one session, or undefined. */
+    function useSummaryOf(useSessions, sessionId) {
+      if (typeof useSessions !== 'function' || sessionId === undefined || sessionId === null) return undefined
+      // The selector runs inside the store's own hook, so a missing row must
+      // resolve to undefined rather than throw out of the slot entry.
+      return useSessions((state) => (state && state.byId ? state.byId[sessionId] : undefined))
+    }
+
+    function DeleteSessionButton(props) {
+      const sessionId = props.sessionId
+      const seat = seatOf(props)
+      const t = (key, values) => resolveText(seat, key, values)
+      const summary = useSummaryOf(props.useSessions, sessionId)
+      const running = summary?.running === true
+      const displayTitle = summary?.displayTitle ?? summary?.title ?? null
+      const label = running ? t('button.titleRunning') : t('button.title')
+
+      const open = React.useCallback(() => {
+        setRequest({ requestId: `${Date.now()}:${sessionId}`, sessionId, displayTitle, running })
+      }, [sessionId, displayTitle, running])
+
+      return React.createElement(Tooltip, {
+        label,
+        side: 'bottom',
+        align: 'end',
+        delayMs: 500,
+        children: React.createElement(Button, {
+          variant: 'ghost',
+          size: 'sm',
+          'aria-label': label,
+          onClick: open,
+          icon: React.createElement(IconTrashOutlineRegular, { size: 16 }),
+        }),
+      })
+    }
+
+    // --- sidebar session-row menu row --------------------------------------------
+
+    function DeleteSessionMenuItem(props) {
+      const sessionId = props.sessionId
+      const seat = seatOf(props)
+      const t = (key, values) => resolveText(seat, key, values)
+      const summary = useSummaryOf(props.useSessions, sessionId)
+      const running = summary?.running === true
+      const displayTitle = props.displayTitle ?? summary?.displayTitle ?? null
+      const openMenuState = props.useMenuOpenState
+      const menu = typeof openMenuState === 'function' ? openMenuState() : undefined
+      const closeMenu = menu && typeof menu[1] === 'function' ? menu[1] : null
+
+      const select = React.useCallback(() => {
+        if (closeMenu !== null) closeMenu(false)
+        setRequest({ requestId: `${Date.now()}:${sessionId}`, sessionId, displayTitle, running })
+      }, [closeMenu, sessionId, displayTitle, running])
+
+      return React.createElement(MenuItemButton, {
+        danger: true,
+        separatorBefore: true,
+        icon: React.createElement(IconTrashOutlineRegular, { size: 14 }),
+        onSelect: select,
+      }, t('menu.delete'))
+    }
+
+    // --- apply ------------------------------------------------------------------
 
     function apply(ctx) {
-      ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'session-purge: dictionaries');
-      t = ctx.locale.bind(NS);
+      // Locale: dictionaries are registered whenever the service is available,
+      // and a registration that loses a race is retried on subscription. The
+      // components never depend on the timing because `resolveText` falls back
+      // to the built-in dictionaries.
+      const adoptLocale = (locale) => {
+        if (locale === null || locale === undefined) return
+        localeService = locale
+        if (typeof locale.register !== 'function') return
+        ctx.effect(() => {
+          const disposer = locale.register(NS, { zh, en })
+          // A dictionary that landed after the first render leaves components
+          // showing their built-in copy; nudge every subscriber to re-render so
+          // the seat starts answering.
+          setRequest(request)
+          return disposer
+        }, 'session-purge: dictionaries')
+      }
+      adoptLocale(ctx.get('locale'))
+      if (localeService === null) ctx.inject(['locale'], (sub) => adoptLocale(sub.locale))
 
-      ctx.slots.inject('sidebar.workspaces.session.menu.item', () =>
-        ctx.slots.register(
-          {
-            name: 'sidebar.workspaces.session.menu.item',
-            id: 'session-purge',
-            order: 500,
-            locale: NS,
-          },
-          PurgeMenuItem,
-        ),
-      );
-      ctx.slots.inject('shell.overlay', () =>
-        ctx.slots.register(
-          {
-            name: 'shell.overlay',
-            id: 'session-purge',
-            locale: NS,
-          },
-          PurgeOverlay,
-        ),
-      );
+      // The workspace service owns the main view: `mainReference` names the
+      // session it holds and `clearMain()` empties it. Neither is in the published
+      // service type — both are reached as class members, the same risk this file
+      // already took to repair the view after a delete. An unexpected shape means
+      // the view is left alone rather than a phantom Session created.
+      uiWorkspaceService = ctx.get('uiWorkspace') ?? null
+      if (uiWorkspaceService === null) {
+        ctx.inject(['uiWorkspace'], (sub) => {
+          uiWorkspaceService = sub.uiWorkspace ?? null
+        })
+      }
+
+      // `useSessions` (running state, display title) and a session-scoped
+      // `sessionId` are STANDARD props the renderer injects for every entry, so
+      // only the row owner's `useMenuOpenState` has to be contributed here.
+      const menuInjected = (standard, hookContext) => ({
+        hooks: {
+          menuOpenState: () => (typeof hookContext === 'function' ? hookContext : () => [false, () => {}]),
+        },
+      })
+
+      ctx.slots.inject(HEADER_SLOT, () => ctx.slots.register({
+        name: HEADER_SLOT,
+        id: HEADER_ID,
+        order: 30,
+        locale: NS,
+      }, DeleteSessionButton))
+
+      ctx.slots.inject(MENU_SLOT, () => ctx.slots.register({
+        name: MENU_SLOT,
+        id: MENU_ID,
+        order: 500,
+        locale: NS,
+        inject: menuInjected,
+      }, DeleteSessionMenuItem))
+
+      ctx.slots.inject(OVERLAY_SLOT, () => ctx.slots.register({
+        name: OVERLAY_SLOT,
+        id: DIALOG_ID,
+        order: 100,
+        locale: NS,
+      }, DeleteSessionDialog))
     }
 
-    return {
-      inject: ['slots', 'locale'],
-      apply,
-      __test: { bridge, PurgeMenuItem, PurgeDialog },
-    };
+    // `slots` is the hard dependency; `locale` is optional by design, because
+    // the built-in dictionaries already cover a composition without it.
+    return { apply, inject: ['slots'] }
   },
-});
+})

@@ -707,8 +707,140 @@ export function apply(ctx) {
     };
   }
 
+  async function performRemoteDelete(input) {
+    if (uploadInFlight) throw new AppError(409, 'write-busy', '正在写入 GitHub，请稍候。');
+    uploadInFlight = true;
+    try {
+      const token = await requireToken();
+      const gh = new Github(token);
+      const user = await gh.getUser();
+      let config = await loadConfig();
+      const root = await resolveRoot(config);
+      const local = await scanPlugins(root);
+      const owner = config.owner || user.login;
+      if (!config.owner) config = await saveConfig({ ...config, owner: user.login });
+
+      const repo = await gh.getRepo(owner, config.repo);
+      if (!repo) throw new AppError(400, 'repo-missing', '远端仓库不存在，无法删除。');
+      const remote = await remoteSnapshot(gh, config, owner, repo);
+      if (!remote.exists || remote.empty) throw new AppError(400, 'repo-empty', '远端仓库没有可删除的插件。');
+
+      const rawIds = input && Array.isArray(input.ids) ? input.ids : [];
+      const ids = [...new Set(rawIds.filter((id) => typeof id === 'string' && id.trim()).map((id) => id.trim()))];
+      if (ids.length === 0) throw new AppError(400, 'delete-empty', '请选择要删除的远端插件。');
+      if (ids.length > 50) throw new AppError(400, 'delete-large', '一次最多删除 50 个插件。');
+      for (const id of ids) {
+        if (!safeId(id)) throw new AppError(400, 'delete-id', `远端目录名不合法：${id}`);
+      }
+
+      const remoteDirs = new Set();
+      for (const repoPath of Object.keys(remote.files || {})) {
+        if (!repoPath.startsWith('plugins/')) continue;
+        const dir = repoPath.split('/')[1];
+        if (dir) remoteDirs.add(dir);
+      }
+      for (const id of ids) {
+        if (!remoteDirs.has(id)) throw new AppError(404, 'delete-missing', `远端没有插件目录：${id}`);
+      }
+      const deletions = Object.keys(remote.files || {}).filter((repoPath) => (
+        ids.some((id) => repoPath.startsWith(`plugins/${id}/`))
+      ));
+      if (deletions.length === 0) throw new AppError(400, 'delete-empty', '所选插件没有可删除的文件。');
+
+      const remainingIds = new Set([...remoteDirs].filter((id) => !ids.includes(id)));
+      const rebuildIndex = !input || input.rebuildIndex !== false;
+      const warnings = [];
+      const localIds = new Set(local.plugins.map((plugin) => plugin.id));
+      const localDeleted = ids.filter((id) => localIds.has(id));
+      if (localDeleted.length > 0) {
+        warnings.push(`本地仍保留 ${localDeleted.length} 个插件；若下次上传仍选中，会重新加入。`);
+      }
+
+      const docsEntries = [];
+      if (rebuildIndex) {
+        const children = new Map();
+        for (const plugin of local.plugins) {
+          if (!plugin.parentId) continue;
+          if (!children.has(plugin.parentId)) children.set(plugin.parentId, []);
+          children.get(plugin.parentId).push(plugin);
+        }
+        const topLocal = local.plugins.filter((plugin) => !plugin.parentId);
+        const chosen = topLocal
+          .filter((plugin) => remainingIds.has(plugin.id))
+          .map((plugin) => ({ ...plugin, components: children.get(plugin.id) || [] }));
+        const chosenIds = new Set(chosen.map((plugin) => plugin.id));
+        const preservedDirs = [...remainingIds]
+          .filter((id) => !chosenIds.has(id))
+          .sort((a, b) => a.localeCompare(b));
+        const selectedByPlugin = new Map();
+        for (const plugin of chosen) {
+          selectedByPlugin.set(plugin.id, new Set(plugin.files.map((file) => file.path)));
+          for (const component of plugin.components) {
+            selectedByPlugin.set(component.id, new Set(component.files.map((file) => file.path)));
+          }
+        }
+        const docs = generateDocs({
+          plugins: chosen,
+          selectedByPlugin,
+          owner,
+          repo: config.repo,
+          preservedDirs,
+        });
+        docsEntries.push({ path: 'README.md', content: docs.readme });
+        for (const doc of docs.perPlugin) {
+          docsEntries.push({ path: doc.path, content: doc.content });
+        }
+      } else {
+        warnings.push('根 README 未重建；需要时再上传同步。');
+      }
+
+      const head = await resolveHead(gh, repo, owner, config.repo, config.branch);
+      if (!head.sha || !head.branchExists) {
+        throw new AppError(409, 'delete-branch', '目标分支不存在，无法删除。请先在仓库设置中检查分支。');
+      }
+      const parent = await gh.getCommit(owner, config.repo, head.sha);
+      const baseTree = parent.tree && parent.tree.sha ? parent.tree.sha : null;
+
+      const treeEntries = [];
+      await runPool(docsEntries, 4, async (entry) => {
+        const buffer = Buffer.from(entry.content, 'utf8');
+        const blobSha = await gh.createBlob(owner, config.repo, buffer.toString('base64'));
+        treeEntries.push({ path: entry.path, mode: '100644', type: 'blob', sha: blobSha });
+      });
+      for (const repoPath of deletions) {
+        treeEntries.push({ path: repoPath, mode: '100644', type: 'blob', sha: null });
+      }
+
+      const treeSha = await gh.createTree(owner, config.repo, treeEntries, baseTree);
+      const message = cleanText(input && input.message, 500)
+        || `chore(plugins): 删除 ${ids.length} 个插件`;
+      const commit = await gh.createCommit(owner, config.repo, message, treeSha, [head.sha]);
+      await gh.updateRef(owner, config.repo, config.branch, commit.sha);
+
+      log(`deleted ${deletions.length} files from ${owner}/${config.repo} (${ids.join(', ')})`);
+      return {
+        ok: true,
+        noChanges: false,
+        branch: config.branch,
+        commit: {
+          sha: commit.sha,
+          url: `https://github.com/${owner}/${config.repo}/commit/${commit.sha}`,
+          message,
+        },
+        counts: {
+          plugins: ids.length,
+          files: deletions.length,
+          docs: docsEntries.length,
+        },
+        warnings,
+      };
+    } finally {
+      uploadInFlight = false;
+    }
+  }
+
   async function performUpload(input) {
-    if (uploadInFlight) throw new AppError(409, 'upload-busy', '正在上传，请稍候。');
+    if (uploadInFlight) throw new AppError(409, 'write-busy', '正在写入 GitHub，请稍候。');
     uploadInFlight = true;
     try {
       const token = await requireToken();
@@ -949,6 +1081,10 @@ export function apply(ctx) {
             remote,
             config: { ...config, owner: ensured.owner },
           });
+          return;
+        }
+        if (action === 'remote-delete') {
+          send(res, 200, await performRemoteDelete(body));
           return;
         }
         if (action === 'upload') {

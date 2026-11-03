@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-scifi-boot",
-  "version": "1.7.2",
+  "version": "1.7.4",
   "private": true,
   "type": "module",
   "description": "Taichu (太初) opening: the cosmogony of Liezi, set as a printed page for the DeepSeek Harness Web UI.",

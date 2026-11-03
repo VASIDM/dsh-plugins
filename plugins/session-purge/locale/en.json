@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Erase Conversation",
-    "description": "Adds a destructive eraser to the session row menu: permanently removes one conversation and its local traces — logs, subagent sessions, projection cache, workspace accounting, unshared attachments and file-cache records."
+    "description": "Permanently erase a conversation from the header or the sidebar row menu: release a running agent, zero-overwrite and remove the log, cascade into subagent sessions, and clean projection cache, workspace accounting and unshared attachments. No undo."
   }
 }
