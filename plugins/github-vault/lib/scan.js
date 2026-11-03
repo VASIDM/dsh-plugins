@@ -160,7 +160,49 @@ function collectNames(source, pattern) {
 }
 
 function collectPatchRows(text) {
-  return collectNames(text, /^\s*-\s+id:\s*['"]?([A-Za-z0-9_.@/-]+)/gm);
+  const rows = [];
+  for (const block of String(text).split(/^\s*-\s+/m)) {
+    const id = block.match(/(?:^|\s)id:\s*['"]?([A-Za-z0-9_.@/-]+)/);
+    if (!id) continue;
+    const name = block.match(/(?:^|\s)name:\s*['"]?([^'"\s#]+)/);
+    rows.push({ id: id[1], name: name ? name[1] : '' });
+  }
+  return rows;
+}
+
+/**
+ * A bundle whose patch references sibling packages with the same name prefix
+ * owns those packages as components. Paper Ink is the canonical case:
+ * @local/paper-ink references @local/paper-ink-theme, -type, -layout, -design.
+ */
+function groupComponents(plugins) {
+  const byName = new Map(plugins.map((plugin) => [plugin.name, plugin]));
+  for (const parent of plugins) {
+    if (parent.parentId) continue;
+    for (const row of parent.rowEntries) {
+      if (!row.name) continue;
+      const child = byName.get(row.name);
+      if (!child || child === parent || child.parentId) continue;
+      const sameFamily = child.name.startsWith(`${parent.name}-`) || child.id.startsWith(`${parent.id}-`);
+      if (!sameFamily) continue;
+      child.parentId = parent.id;
+      parent.componentIds.push(child.id);
+    }
+  }
+  for (const plugin of plugins) {
+    if (plugin.parentId) {
+      plugin.repoPrefix = `plugins/${plugin.parentId}/components/${plugin.id}/`;
+    } else {
+      plugin.repoPrefix = `plugins/${plugin.id}/`;
+    }
+  }
+  for (const plugin of plugins) {
+    plugin.componentIds.sort((a, b) => {
+      const left = plugins.find((entry) => entry.id === a);
+      const right = plugins.find((entry) => entry.id === b);
+      return (left ? left.title : a).localeCompare(right ? right.title : b, 'zh-Hans-CN');
+    });
+  }
 }
 
 async function walkFiles(root, pluginId, pluginDir, budget, skipped) {
@@ -268,7 +310,8 @@ async function inspectPlugin(root, id, budget, skipped) {
   const clientSource = await readText(path.join(dir, 'client.js')) || '';
   const tools = collectNames(indexSource, /ctx\.tools\.register\s*\(\s*\{[\s\S]{0,600}?\bname:\s*['"]([^'"]+)['"]/g);
   const slots = collectNames(clientSource, /ctx\.slots\.register\s*\(\s*\{[\s\S]{0,400}?\bname:\s*['"]([^'"]+)['"]/g);
-  const rows = hasPatch ? collectPatchRows(patchText) : [];
+  const rowEntries = hasPatch ? collectPatchRows(patchText) : [];
+  const rows = rowEntries.map((row) => row.id);
 
   const { files, warning } = await walkFiles(root, id, dir, budget, skipped);
   const fileMap = new Map(files.map((file) => [file.path, file]));
@@ -291,6 +334,10 @@ async function inspectPlugin(root, id, budget, skipped) {
     tools,
     slots,
     rows,
+    rowEntries,
+    parentId: null,
+    componentIds: [],
+    repoPrefix: '',
     path: dir,
     fileCount: files.length,
     size: files.reduce((total, file) => total + file.size, 0),
@@ -325,6 +372,7 @@ export async function scanPlugins(root) {
     }
   }
   plugins.sort((a, b) => a.title.localeCompare(b.title, 'zh-Hans-CN'));
+  groupComponents(plugins);
   return { root, plugins, skipped, warnings };
 }
 
@@ -336,6 +384,12 @@ export async function listPluginDirs(root) {
 }
 
 export function publicPlugin(plugin) {
-  const { fileMap, ...rest } = plugin;
-  return rest;
+  const { fileMap, rowEntries, ...rest } = plugin;
+  return {
+    ...rest,
+    files: plugin.files.map((file) => ({
+      ...file,
+      repoPath: `${plugin.repoPrefix}${file.path}`,
+    })),
+  };
 }

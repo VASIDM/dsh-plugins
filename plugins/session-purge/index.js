@@ -278,9 +278,8 @@ export function apply(ctx) {
     let files = 0;
     const directories = [];
     for (const id of ids) {
-      const log = await resolveLog(id);
-      if (log === undefined) continue;
-      const directory = dirname(log);
+      const directory = await resolveLogDir(id);
+      if (directory === undefined) continue;
       directories.push(directory);
       const size = await treeSize(directory);
       bytes += size.bytes;
@@ -350,6 +349,34 @@ export function apply(ctx) {
     }
   }
 
+  /**
+   * Resolve the session-owned directory for any generation, including the
+   * historical v0–v3 layouts that `resolveCurrentLog` deliberately reports as
+   * undefined. A directory scan is safe here: ids are validated and their
+   * encoded segment is identical for the ordinary `session-<uuid>` shape.
+   */
+  async function resolveLogDir(id) {
+    const log = await resolveLog(id);
+    if (log !== undefined) return dirname(log);
+    const backend = persistence();
+    if (!backend?.root) return undefined;
+    try {
+      const projects = await fs.readdir(backend.root, { withFileTypes: true });
+      for (const project of projects) {
+        if (!project.isDirectory()) continue;
+        const candidate = join(backend.root, project.name, id);
+        try {
+          if ((await fs.stat(candidate)).isDirectory()) return candidate;
+        } catch {
+          /* not in this project */
+        }
+      }
+    } catch {
+      /* root is unreadable */
+    }
+    return undefined;
+  }
+
   // ---------------------------------------------------------------------------
   // Purge
   // ---------------------------------------------------------------------------
@@ -403,12 +430,12 @@ export function apply(ctx) {
       const pendingIds = [];
       let busyTarget = null;
       for (const id of ids) {
-        const log = await resolveLog(id);
-        if (log === undefined) {
+        const directory = await resolveLogDir(id);
+        if (directory === undefined) {
           removed.push({ sessionId: id, status: 'no-artifact' });
           continue;
         }
-        const outcome = await purgeDirectory(dirname(log));
+        const outcome = await purgeDirectory(directory);
         if (outcome.ok) {
           removed.push({ sessionId: id, status: 'deleted', bytes: outcome.bytes, files: outcome.files });
         } else if (outcome.busy) {
@@ -763,6 +790,7 @@ export function apply(ctx) {
   // ---------------------------------------------------------------------------
 
   async function sweep() {
+    if (inflight.size > 0) return { directories: 0, caches: 0, skipped: true };
     const backend = persistence();
     if (!backend?.root) return { directories: 0, caches: 0 };
     let directories = 0;
@@ -783,7 +811,8 @@ export function apply(ctx) {
         continue;
       }
       for (const child of children) {
-        if (!child.isDirectory() || !child.name.includes(PURGE_SUFFIX)) continue;
+        if (!child.isDirectory()) continue;
+        if (!/\.purged-\d+-[0-9a-f]{8}$/.test(child.name)) continue;
         const result = await removeTree(join(projectPath, child.name));
         if (!result.pending) directories += 1;
       }
@@ -791,9 +820,9 @@ export function apply(ctx) {
     const queue = await loadPending();
     for (const id of [...queue]) {
       try {
-        const log = await resolveLog(id);
-        if (log !== undefined) {
-          const outcome = await purgeDirectory(dirname(log));
+        const directory = await resolveLogDir(id);
+        if (directory !== undefined) {
+          const outcome = await purgeDirectory(directory);
           if (!outcome.ok && !outcome.missing) continue;
         }
         await dropProjectionRow(id);
@@ -802,6 +831,22 @@ export function apply(ctx) {
         pendingDirty = true;
       } catch {
         /* keep it queued */
+      }
+    }
+
+    // A live title/checkpoint write can recreate a session artifact after the
+    // purge. Keep erased identities suppressed for this Host lifetime and
+    // delete any artifact that reappears.
+    for (const id of suppressed) {
+      try {
+        const directory = await resolveLogDir(id);
+        if (directory !== undefined) {
+          await purgeDirectory(directory);
+          directories += 1;
+        }
+        await dropProjectionRow(id);
+      } catch {
+        /* retried by the next sweep */
       }
     }
     await savePending();
@@ -843,6 +888,17 @@ export function apply(ctx) {
   ctx.on('session/disposed', (session) => {
     const id = session?.id;
     if (typeof id !== 'string') return;
+    if (suppressed.has(id)) {
+      const timer = setTimeout(() => {
+        (async () => {
+          const directory = await resolveLogDir(id);
+          if (directory !== undefined) await purgeDirectory(directory);
+          await dropProjectionRow(id);
+        })().catch(() => {});
+      }, 1_500);
+      timer.unref?.();
+      return;
+    }
     loadPending()
       .then((set) => {
         if (!set.has(id)) return;

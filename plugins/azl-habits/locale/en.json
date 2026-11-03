@@ -1,9 +1,0 @@
-{
-  "meta": {
-    "title": "Habit Memory",
-    "description": "Learns your durable preferences from every conversation and injects them into each task as a standing preset, editable from the sidebar."
-  },
-  "panel": "Habit memory",
-  "title": "Habit memory",
-  "description": "Standing preferences learned across conversations."
-}

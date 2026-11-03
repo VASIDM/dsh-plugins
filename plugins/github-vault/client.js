@@ -15,7 +15,7 @@ window.__ModuleLoader__.load({
     const zh = {
       panel: '插件上行',
       title: '插件上行',
-      subtitle: '择本地插件，成一库之索引；源码、安装与说明，随提交而新。',
+      subtitle: '择本地插件，成一库之索引；安装、说明与更新，随提交而新。',
       eyebrow: 'GITHUB · PLUGIN VAULT',
       connect: '连接 GitHub',
       connectHint: '令牌只入本机凭据库，Harness 进程内取用，不回传页面。',
@@ -61,6 +61,10 @@ window.__ModuleLoader__.load({
       noPlugins: '未发现插件',
       noPluginsHint: '目录下须有含 dsh.bundle、dsh.client 或 cordis.patch.yml 的 package.json。',
       filesCount: '{count} 个文件',
+      componentsCount: '{count} 个组件',
+      mainPackage: '主包',
+      components: '组件',
+      groupedHint: '组件随插件整体上传，不单独选择。',
       sync: '增量同步',
       syncHint: '只写所选；未选插件原样保留。',
       replace: '完全替换',
@@ -167,6 +171,10 @@ window.__ModuleLoader__.load({
       noPlugins: 'No plugins found',
       noPluginsHint: 'A package needs package.json with dsh.bundle or dsh.client, or a cordis.patch.yml.',
       filesCount: '{count} files',
+      componentsCount: '{count} components',
+      mainPackage: 'Main package',
+      components: 'Components',
+      groupedHint: 'Components upload with the plugin; they are not selected separately.',
       sync: 'Incremental',
       syncHint: 'Write the selection only; unselected plugins stay untouched.',
       replace: 'Full replace',
@@ -360,7 +368,7 @@ window.__ModuleLoader__.load({
 .gv-num.change { color: var(--gv-ink); }
 .gv-num.del, .gv-num.same { color: var(--dsw-alias-label-tertiary); }
 .gv-caret { flex: none; width: 18px; color: var(--dsw-alias-label-secondary); text-align: center; transition: transform .16s ease; }
-.gv-plugin.open .gv-caret { transform: rotate(90deg); }
+.gv-plugin.open > .gv-plugin-head .gv-caret { transform: rotate(90deg); }
 .gv-plugin-body { padding: 8px 11px 11px 34px; border-top: 1px dashed var(--gv-line); }
 .gv-intro { margin: 0 0 8px; color: var(--dsw-alias-label-secondary); font-size: 11.5px; line-height: 1.6; }
 .gv-filelist { display: flex; flex-direction: column; gap: 1px; max-height: 250px; overflow: auto; }
@@ -373,6 +381,27 @@ window.__ModuleLoader__.load({
 .gv-fsize, .gv-fstat { color: var(--dsw-alias-label-tertiary); font-size: 9.5px; text-align: right; }
 .gv-fstat.added { color: var(--gv-red); }
 .gv-fstat.changed { color: var(--gv-ink); }
+.gv-check-static { display: inline-flex; align-items: center; justify-content: center; width: 14px; color: var(--dsw-alias-label-tertiary); font-size: 11px; }
+.gv-file-static { cursor: default; }
+.gv-subgroup { margin-top: 10px; }
+.gv-subhead { display: flex; align-items: baseline; gap: 7px; padding: 2px 3px 4px; color: var(--dsw-alias-label-secondary); font-size: 9.5px; letter-spacing: .06em; }
+.gv-subcount { margin-left: auto; font-size: 9.5px; }
+.gv-submeta { overflow: hidden; font-family: var(--dsw-font-family-code-default); font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
+.gv-filelist-static { margin-top: 2px; }
+.gv-tree { margin-left: 3px; padding-left: 7px; border-left: 1px solid var(--gv-line); }
+.gv-comp-head {
+  display: flex; align-items: center; gap: 6px; width: 100%; padding: 3px 4px;
+  border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer;
+}
+.gv-comp-head:hover { background: color-mix(in srgb, var(--gv-ink) 5%, transparent); }
+.gv-comp-head:focus-visible { outline: 2px solid var(--gv-red); outline-offset: -1px; }
+.gv-branch { flex: none; width: 12px; color: var(--dsw-alias-label-tertiary); font-family: var(--dsw-font-family-code-default); font-size: 10px; }
+.gv-comp-title { flex: none; font-size: 11.5px; font-weight: 550; }
+.gv-comp-meta { min-width: 0; overflow: hidden; color: var(--dsw-alias-label-secondary); font-family: var(--dsw-font-family-code-default); font-size: 9.5px; white-space: nowrap; text-overflow: ellipsis; }
+.gv-comp-count { flex: none; margin-left: auto; color: var(--dsw-alias-label-tertiary); font-size: 9.5px; }
+.gv-comp-files { margin: 2px 0 5px 18px; padding-left: 8px; border-left: 1px dashed var(--gv-line); }
+.gv-comp-head .gv-caret { width: 14px; }
+.gv-comp-head[aria-expanded="true"] .gv-caret { transform: rotate(90deg); }
 .gv-plugin-warn { margin: 7px 0 0; color: var(--dsw-alias-state-warn-primary); font-size: 10.5px; }
 .gv-empty { padding: 34px 18px; border: 1px dashed var(--gv-line-strong); color: var(--dsw-alias-label-secondary); text-align: center; font-size: 12px; }
 .gv-empty strong { display: block; margin-bottom: 5px; color: var(--gv-ink); font-size: 14px; font-weight: 550; }
@@ -545,6 +574,7 @@ window.__ModuleLoader__.load({
       const [workspaces, setWorkspaces] = useState([]);
       const [selected, setSelected] = useState({});
       const [expanded, setExpanded] = useState({});
+      const [expandedComponents, setExpandedComponents] = useState({});
       const [mode, setMode] = useState('sync');
       const [message, setMessage] = useState('');
       const [preview, setPreview] = useState(null);
@@ -637,16 +667,36 @@ window.__ModuleLoader__.load({
         }
       }
 
+      function groupFiles(plugin) {
+        return [
+          ...plugin.files,
+          ...(plugin.components || []).flatMap((component) => component.files),
+        ];
+      }
+
+      function groupForms(plugin) {
+        const forms = new Set(plugin.forms || []);
+        for (const component of plugin.components || []) {
+          for (const form of component.forms || []) forms.add(form);
+        }
+        return forms.size ? [...forms] : ['插件包'];
+      }
+
       function fileStatus(plugin, file) {
         if (!remote || !remote.exists || remote.empty) return 'added';
-        const entry = remote.files && remote.files['plugins/' + plugin.id + '/' + file.path];
+        const repoPath = file.repoPath || ('plugins/' + plugin.id + '/' + file.path);
+        const entry = remote.files && remote.files[repoPath];
         if (!entry) return 'added';
         return entry.sha === file.sha ? 'same' : 'changed';
       }
 
       function pluginSelectedCount(plugin) {
         const entry = selected[plugin.id] || {};
-        return plugin.files.filter((file) => entry[file.path] !== false).length;
+        const own = plugin.files.filter((file) => entry[file.path] !== false).length;
+        if ((plugin.components || []).length > 0) {
+          return own > 0 ? groupFiles(plugin).length : 0;
+        }
+        return own;
       }
 
       function isPluginSelected(plugin) {
@@ -690,6 +740,10 @@ window.__ModuleLoader__.load({
         const selection = [];
         for (const plugin of plugins) {
           const entry = selected[plugin.id] || {};
+          if ((plugin.components || []).length > 0) {
+            if (plugin.files.some((file) => entry[file.path] !== false)) selection.push({ id: plugin.id });
+            continue;
+          }
           const files = plugin.files.filter((file) => entry[file.path] !== false).map((file) => file.path);
           if (files.length > 0) selection.push({ id: plugin.id, files });
         }
@@ -698,15 +752,19 @@ window.__ModuleLoader__.load({
 
       const selection = selectionPayload();
       const selectedPlugins = selection.length;
-      const selectedFiles = selection.reduce((total, item) => total + item.files.length, 0);
+      const selectedFiles = plugins
+        .filter((plugin) => isPluginSelected(plugin))
+        .reduce((total, plugin) => total + pluginSelectedCount(plugin), 0);
 
       function pluginDelta(plugin) {
         let added = 0;
         let changed = 0;
         let same = 0;
+        const grouped = (plugin.components || []).length > 0;
         const entry = selected[plugin.id] || {};
-        for (const file of plugin.files) {
-          if (entry[file.path] === false) continue;
+        const files = groupFiles(plugin);
+        for (const file of files) {
+          if (!grouped && entry[file.path] === false) continue;
           const state = fileStatus(plugin, file);
           if (state === 'added') added += 1;
           else if (state === 'changed') changed += 1;
@@ -714,11 +772,15 @@ window.__ModuleLoader__.load({
         }
         let deleted = 0;
         if (remote && remote.exists && isPluginSelected(plugin)) {
-          const prefix = 'plugins/' + plugin.id + '/';
+          const prefixes = new Set([plugin.repoPrefix || ('plugins/' + plugin.id + '/')]);
+          for (const component of plugin.components || []) {
+            prefixes.add('plugins/' + component.id + '/');
+            prefixes.add(component.repoPrefix);
+          }
+          const selectedPaths = new Set(files.map((file) => file.repoPath || (plugin.repoPrefix + file.path)));
           for (const repoPath of Object.keys(remote.files || {})) {
-            if (!repoPath.startsWith(prefix)) continue;
-            const rel = repoPath.slice(prefix.length);
-            if (entry[rel] === false) deleted += 1;
+            if (![...prefixes].some((prefix) => repoPath.startsWith(prefix))) continue;
+            if (!selectedPaths.has(repoPath)) deleted += 1;
           }
         }
         return { added, changed, same, deleted };
@@ -993,21 +1055,78 @@ window.__ModuleLoader__.load({
               h('div', { className: 'gv-versionline' }, t('footerNote')))));
       }
 
-      function renderFileRow(plugin, file) {
+      function renderFileRow(plugin, file, locked) {
         const entry = selected[plugin.id] || {};
         const on = entry[file.path] !== false;
         const state = fileStatus(plugin, file);
         const stateLabel = state === 'added' ? t('added') : state === 'changed' ? t('changed') : t('same');
-        return h('label', { className: 'gv-file', key: file.path },
-          h('input', {
-            type: 'checkbox',
-            checked: on,
-            onChange: (event) => toggleFile(plugin, file, event.target.checked),
-            'aria-label': file.path,
-          }),
+        const children = [
+          locked
+            ? h('span', { className: 'gv-check-static', 'aria-hidden': true }, '·')
+            : h('input', {
+              type: 'checkbox',
+              checked: on,
+              onChange: (event) => toggleFile(plugin, file, event.target.checked),
+              'aria-label': file.path,
+            }),
           h('span', { className: 'gv-fpath', title: file.path }, file.path),
           h('span', { className: 'gv-fsize' }, fmtSize(file.size)),
-          h('span', { className: 'gv-fstat ' + state }, stateLabel));
+          h('span', { className: 'gv-fstat ' + state }, stateLabel),
+        ];
+        if (locked) {
+          return h('div', {
+            className: 'gv-file gv-file-static',
+            key: file.repoPath || file.path,
+          }, ...children);
+        }
+        return h('label', {
+          className: 'gv-file',
+          key: file.repoPath || file.path,
+        }, ...children);
+      }
+
+      function renderComponent(component, index, total) {
+        const open = Boolean(expandedComponents[component.id]);
+        return h('div', { className: 'gv-comp', key: component.id },
+          h('button', {
+            type: 'button',
+            className: 'gv-comp-head',
+            onClick: () => setExpandedComponents((previous) => ({
+              ...previous,
+              [component.id]: !open,
+            })),
+            'aria-expanded': open,
+          },
+            h('span', { className: 'gv-branch', 'aria-hidden': true }, index === total - 1 ? '└' : '├'),
+            h('span', { className: 'gv-comp-title' }, component.title),
+            h('span', { className: 'gv-comp-meta' }, component.name),
+            h('span', { className: 'gv-comp-count' }, t('filesCount').replace('{count}', String(component.files.length))),
+            h('span', { className: 'gv-caret', 'aria-hidden': true }, svg('chevron'))),
+          open
+            ? h('div', { className: 'gv-comp-files' },
+              component.files.map((file) => renderFileRow(component, file, true)),
+              (component.warnings || []).map((warning) => h('p', { className: 'gv-plugin-warn', key: warning }, warning)))
+            : null);
+      }
+
+      function renderGroupBody(plugin) {
+        const components = plugin.components || [];
+        return h('div', null,
+          plugin.files.length
+            ? h('div', { className: 'gv-subgroup' },
+              h('div', { className: 'gv-subhead' },
+                h('span', null, t('mainPackage')),
+                h('span', { className: 'gv-submeta' }, plugin.name),
+                h('span', { className: 'gv-subcount' }, t('filesCount').replace('{count}', String(plugin.files.length)))),
+              h('div', { className: 'gv-filelist gv-filelist-static' },
+                plugin.files.map((file) => renderFileRow(plugin, file, true))))
+            : null,
+          h('div', { className: 'gv-subgroup' },
+            h('div', { className: 'gv-subhead' },
+              h('span', null, t('components')),
+              h('span', { className: 'gv-submeta' }, t('groupedHint'))),
+            h('div', { className: 'gv-tree' },
+              components.map((component, index) => renderComponent(component, index, components.length)))));
       }
 
       function renderPlugin(plugin) {
@@ -1015,6 +1134,8 @@ window.__ModuleLoader__.load({
         const on = pluginAllSelected(plugin);
         const any = isPluginSelected(plugin);
         const delta = pluginDelta(plugin);
+        const components = plugin.components || [];
+        const grouped = components.length > 0;
         return h('div', {
           className: 'gv-plugin' + (any ? ' on' : '') + (open ? ' open' : ''),
           key: plugin.id,
@@ -1035,9 +1156,11 @@ window.__ModuleLoader__.load({
             title: open ? t('collapse') : t('expand'),
           },
             h('span', { className: 'gv-plugin-titletext' }, plugin.title),
-            h('span', { className: 'gv-plugin-meta' }, plugin.name + ' · v' + (plugin.version || '—')),
+            h('span', { className: 'gv-plugin-meta' },
+              plugin.name + ' · v' + (plugin.version || '—')
+              + (grouped ? ' · ' + t('componentsCount').replace('{count}', String(components.length)) : '')),
             h('span', { className: 'gv-forms' },
-              (plugin.forms || []).map((form) => h('span', { className: 'gv-form', key: form }, form)))),
+              groupForms(plugin).map((form) => h('span', { className: 'gv-form', key: form }, form)))),
           h('div', { className: 'gv-nums' },
             delta.added ? h('span', { className: 'gv-num add' }, '+' + delta.added) : null,
             delta.changed ? h('span', { className: 'gv-num change' }, '~' + delta.changed) : null,
@@ -1047,7 +1170,9 @@ window.__ModuleLoader__.load({
         open
           ? h('div', { className: 'gv-plugin-body' },
             plugin.intro ? h('p', { className: 'gv-intro' }, plugin.intro) : null,
-            h('div', { className: 'gv-filelist' }, plugin.files.map((file) => renderFileRow(plugin, file))),
+            grouped
+              ? renderGroupBody(plugin)
+              : h('div', { className: 'gv-filelist' }, plugin.files.map((file) => renderFileRow(plugin, file, false))),
             (plugin.warnings || []).map((warning) => h('p', { className: 'gv-plugin-warn', key: warning }, warning)))
           : null);
       }
@@ -1064,11 +1189,15 @@ window.__ModuleLoader__.load({
             h('p', null, scan.root),
             h('p', null, t('noPluginsHint')));
         }
+        const componentCount = plugins.reduce((total, plugin) => total + (plugin.components || []).length, 0);
         return h('div', null,
           h('div', { className: 'gv-toolbar' },
             h('span', { className: 'gv-root', title: scan.root }, t('scanRoot') + ' · ' + scan.root),
             h('span', { className: 'spacer' }),
-            h('span', { className: 'gv-cardnote' }, t('pluginsCount').replace('{count}', String(plugins.length)) + ' · ' + t('selectedCount').replace('{count}', String(selectedPlugins))),
+            h('span', { className: 'gv-cardnote' },
+              t('pluginsCount').replace('{count}', String(plugins.length))
+              + (componentCount ? ' · ' + t('componentsCount').replace('{count}', String(componentCount)) : '')
+              + ' · ' + t('selectedCount').replace('{count}', String(selectedPlugins))),
             h('button', { type: 'button', className: 'gv-btn small ghost', onClick: () => selectAll(true) }, t('selectAll')),
             h('button', { type: 'button', className: 'gv-btn small ghost', onClick: () => selectAll(false) }, t('selectNone'))),
           plugins.map(renderPlugin),

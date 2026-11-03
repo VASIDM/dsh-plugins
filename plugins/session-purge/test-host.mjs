@@ -14,6 +14,7 @@ const projectDir = join(sessionsRoot, project);
 
 const headers = new Map();
 const events = new Map();
+const historical = new Set();
 const cacheDeletes = [];
 
 function addSession(id, header, eventList, fileName = 'session.v4.jsonl.zstd') {
@@ -115,6 +116,7 @@ const persistence = {
     return [...headers.values()].map((header) => ({ header }));
   },
   async resolveCurrentLog(id) {
+    if (historical.has(id)) return undefined;
     const file = join(projectDir, id, 'session.v4.jsonl.zstd');
     return existsSync(file) ? file : undefined;
   },
@@ -242,6 +244,17 @@ async function call(handler, body, extra) {
   }
 }
 
+// Historical generation: resolveCurrentLog reports undefined, directory scan must find it.
+{
+  const oldDir = addSession('session-old', { version: 3, createdAt: 8, cwd: 'C:\\Users\\Test\\Workspace', isSeeded: false }, []);
+  historical.add('session-old');
+  const result = await call(routes.get('/api/session-purge/purge'), { sessionId: 'session-old', confirm: true });
+  assert.equal(result.status, 200, JSON.stringify(result.body));
+  assert.equal(result.body.ok, true);
+  assert.ok(!existsSync(oldDir), 'historical format directory removed');
+  console.log('historical format: ok');
+}
+
 // Real purge.
 {
   const result = await call(routes.get('/api/session-purge/purge'), { sessionId: 'session-demo', confirm: true });
@@ -255,7 +268,7 @@ async function call(handler, body, extra) {
   assert.ok(!existsSync(uniqueObject), 'exclusive attachment object removed');
   assert.ok(existsSync(sharedObject), 'shared attachment object kept');
   assert.ok(!existsSync(childObject), 'child-only attachment object removed');
-  assert.deepEqual(cacheDeletes.sort(), ['session-child', 'session-demo']);
+  assert.deepEqual(cacheDeletes.sort(), ['session-child', 'session-demo', 'session-old']);
   assert.deepEqual(detached.sort(), ['session-child', 'session-demo']);
   assert.ok(!archived.has('session-demo'), 'archive flag cleared');
   assert.ok(!pinned.has('session-demo'), 'pin flag cleared');

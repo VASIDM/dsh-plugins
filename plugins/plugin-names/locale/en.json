@@ -1,6 +1,0 @@
-{
-  "meta": {
-    "title": "Plugin names",
-    "description": "Rename locally linked plugins in Settings → Plugins; the name is written into the package locale files and shows after a refresh."
-  }
-}

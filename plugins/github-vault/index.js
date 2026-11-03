@@ -24,7 +24,7 @@ const RECORD_KEY = 'github-vault/token';
 const MAX_BODY = 512 * 1024;
 const DEFAULT_REPO = 'dsh-plugins';
 const DEFAULT_BRANCH = 'main';
-const REPO_DESCRIPTION = '插件 · DeepSeek Harness 插件源码合集';
+const REPO_DESCRIPTION = '插件 · DeepSeek Harness 插件合集';
 const REPO_TOPICS = ['dsh', 'dsh-plugin', 'deepseek-harness', 'cordis'];
 
 export const inject = ['webServer', 'credentials'];
@@ -64,7 +64,6 @@ function summarizeRepo(repo) {
     defaultBranch: repo.default_branch,
     htmlUrl: repo.html_url,
     size: repo.size,
-    empty: repo.size === 0,
     permissions: repo.permissions || null,
     canPush: !repo.permissions || repo.permissions.push !== false,
   };
@@ -88,8 +87,13 @@ function normalizeSelection(input, plugins) {
     if (seen.has(id)) continue;
     seen.add(id);
     const plugin = byId.get(id);
+    if (plugin.parentId) {
+      throw new AppError(400, 'component-selection', `「${plugin.title}」是组件，随所属插件一并上传。`);
+    }
     let files;
-    if (Array.isArray(raw.files)) {
+    if (plugin.componentIds.length > 0) {
+      files = plugin.files.map((file) => file.path);
+    } else if (Array.isArray(raw.files)) {
       files = [...new Set(raw.files.filter((file) => typeof file === 'string'))];
       if (files.length === 0) throw new AppError(400, 'files-empty', `插件「${plugin.title}」未选择任何文件。`);
       for (const file of files) {
@@ -108,14 +112,35 @@ function normalizeSelection(input, plugins) {
 
 function makePlan({ plugins, selection, remote, config, owner, mode }) {
   const byId = new Map(plugins.map((plugin) => [plugin.id, plugin]));
+  const componentsByParent = new Map();
+  for (const plugin of plugins) {
+    if (!plugin.parentId) continue;
+    if (!componentsByParent.has(plugin.parentId)) componentsByParent.set(plugin.parentId, []);
+    componentsByParent.get(plugin.parentId).push(plugin);
+  }
+  for (const components of componentsByParent.values()) {
+    components.sort((a, b) => a.title.localeCompare(b.title, 'zh-Hans-CN'));
+  }
+
   const chosen = [];
   const selectedByPlugin = new Map();
   for (const item of selection) {
     const plugin = byId.get(item.id);
     if (!plugin) throw new AppError(400, 'plugin-unknown', `未找到插件：${item.id}`);
-    const selected = new Set(item.files);
-    selectedByPlugin.set(item.id, selected);
-    chosen.push(item.intro ? { ...plugin, intro: item.intro } : plugin);
+    const components = componentsByParent.get(plugin.id) || [];
+    chosen.push({
+      ...plugin,
+      ...(item.intro ? { intro: item.intro } : {}),
+      components,
+    });
+    if (plugin.componentIds.length > 0) {
+      selectedByPlugin.set(plugin.id, new Set(plugin.files.map((file) => file.path)));
+      for (const component of components) {
+        selectedByPlugin.set(component.id, new Set(component.files.map((file) => file.path)));
+      }
+    } else {
+      selectedByPlugin.set(plugin.id, new Set(item.files));
+    }
   }
 
   const remoteFiles = remote && remote.exists && !remote.empty ? remote.files : {};
@@ -150,6 +175,21 @@ function makePlan({ plugins, selection, remote, config, owner, mode }) {
         pluginId: plugin.id,
         rel: file,
       });
+    }
+    for (const component of plugin.components) {
+      for (const file of selectedByPlugin.get(component.id)) {
+        const local = component.fileMap.get(file);
+        if (!local) throw new AppError(400, 'file-unknown', `组件「${component.title}」中不存在文件：${file}`);
+        desired.set(`plugins/${plugin.id}/components/${component.id}/${file}`, {
+          kind: 'file',
+          abs: path.join(component.path, file),
+          size: local.size,
+          sha: local.sha,
+          pluginId: plugin.id,
+          componentId: component.id,
+          rel: file,
+        });
+      }
     }
   }
   for (const doc of docs.perPlugin) {
@@ -204,8 +244,21 @@ function makePlan({ plugins, selection, remote, config, owner, mode }) {
   if (remote && remote.exists && remote.repo && remote.repo.canPush === false) {
     warnings.push('当前令牌对该仓库没有写权限。');
   }
+  const topIds = new Set(chosen.map((plugin) => plugin.id));
+  const flatComponents = deleted.filter((item) => selectedByPlugin.has(item.pluginId) && !topIds.has(item.pluginId));
+  if (flatComponents.length > 0) {
+    warnings.push(`检测到旧版平铺组件 ${flatComponents.length} 个文件，将迁移至父插件的 components/ 目录。`);
+  }
+  const packageTargets = [];
   for (const plugin of chosen) {
-    const selected = selectedByPlugin.get(plugin.id);
+    packageTargets.push({ plugin, selected: selectedByPlugin.get(plugin.id) });
+    for (const component of plugin.components) {
+      packageTargets.push({ plugin: component, selected: selectedByPlugin.get(component.id) });
+    }
+  }
+  for (const target of packageTargets) {
+    const { plugin, selected } = target;
+    if (!selected) continue;
     if (!selected.has('package.json')) warnings.push(`插件「${plugin.title}」未选择 package.json，安装可能失败。`);
     if (plugin.files.some((file) => file.path === 'cordis.patch.yml') && !selected.has('cordis.patch.yml')) {
       warnings.push(`插件「${plugin.title}」未选择 cordis.patch.yml，bundle 可能无法装载。`);
@@ -578,11 +631,39 @@ export function apply(ctx) {
   async function scanForClient(config) {
     const root = await resolveRoot(config);
     const result = await scanPlugins(root);
+    const children = new Map();
+    for (const plugin of result.plugins) {
+      if (!plugin.parentId) continue;
+      if (!children.has(plugin.parentId)) children.set(plugin.parentId, []);
+      children.get(plugin.parentId).push(plugin);
+    }
+    const plugins = result.plugins
+      .filter((plugin) => !plugin.parentId)
+      .map((plugin) => {
+        const components = (children.get(plugin.id) || [])
+          .slice()
+          .sort((a, b) => a.title.localeCompare(b.title, 'zh-Hans-CN'))
+          .map(publicPlugin);
+        const groupFileCount = plugin.files.length
+          + components.reduce((total, component) => total + component.files.length, 0);
+        const groupSize = plugin.size
+          + components.reduce((total, component) => total + component.size, 0);
+        return {
+          ...publicPlugin(plugin),
+          components,
+          groupFileCount,
+          groupSize,
+        };
+      });
     return {
       ok: true,
       root,
       scannedAt: Date.now(),
-      plugins: result.plugins.map(publicPlugin),
+      plugins,
+      counts: {
+        plugins: plugins.length,
+        components: plugins.reduce((total, plugin) => total + plugin.components.length, 0),
+      },
       skipped: result.skipped,
       warnings: result.warnings,
     };

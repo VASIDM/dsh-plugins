@@ -7,21 +7,17 @@
 ## 安装
 
 ```sh
-dsh plugin --profile <profile> add "dsh-plugins/plugins/dsh-scifi-boot"
+dsh plugin --profile <profile> add "./dsh-plugins/plugins/dsh-scifi-boot"
 ```
 
-## 源码
+## 组成
 
-本目录为包根，清单见 `package.json`。
-
-## 入口
-
-- Web：`client.js`。
-- Host：`index.js`。
-- 组合：`cordis.patch.yml`。
-- 行：`scifi-boot`。
-- 槽位：`shell.overlay`、`conversation.input.activity`。
+- Web 入口：`client.js`
+- Host 入口：`index.js`
+- 组合层：`cordis.patch.yml`
+- 行：`scifi-boot`
+- 槽位：`shell.overlay`、`conversation.input.activity`
 
 ## 仓库
 
-源码合集：https://github.com/VASIDM/dsh-plugins
+[`VASIDM/dsh-plugins`](https://github.com/VASIDM/dsh-plugins)

@@ -1,4 +1,0 @@
-# Plugin names: rename locally linked plugins from Settings → Plugins.
-- insert:
-    - id: plugin-names
-      name: '@local/plugin-names'
