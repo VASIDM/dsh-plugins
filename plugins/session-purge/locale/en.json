@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Erase Conversation",
+    "description": "Adds a destructive eraser to the session row menu: permanently removes one conversation and its local traces — logs, subagent sessions, projection cache, workspace accounting, unshared attachments and file-cache records."
+  }
+}

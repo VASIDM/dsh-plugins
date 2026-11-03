@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "title": "碧蓝航线 L2D VIEWER",
+    "description": "在侧边栏浏览全部碧蓝航线 Live2D 皮肤，实时渲染，支持视线跟随、点击动作、缩放与拖拽。"
+  },
+  "panel": "碧蓝 L2D",
+  "title": "碧蓝航线 L2D",
+  "description": "浏览并互动所有 Live2D 皮肤。"
+}

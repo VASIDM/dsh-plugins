@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Plugin Ascent",
+    "description": "Connect GitHub, select local DSH plugins, generate the index and docs, and sync them to one repository."
+  }
+}

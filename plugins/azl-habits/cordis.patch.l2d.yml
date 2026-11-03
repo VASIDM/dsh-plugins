@@ -1,0 +1,8 @@
+# Optional second patch layer: same two rows, kept separate so the L2D viewer
+# can be enabled or retuned without touching the habit-memory row.
+- insert:
+    - id: azl-l2d
+      name: '@local/azl-habits/l2d'
+      config:
+        source: 'ddddbug/Live2d-model'
+        allowNetwork: true

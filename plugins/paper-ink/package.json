@@ -1,0 +1,10 @@
+{
+  "name": "@local/paper-ink",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "纸墨：一个插件，四个独立组件（配色 / 字体 / 布局 / 设计）。",
+  "exports": { ".": "./index.js", "./locale/*.json": "./locale/*.json", "./icon": "./icon.svg" },
+  "files": ["index.js", "cordis.patch.yml", "locale/*.json", "icon.svg"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

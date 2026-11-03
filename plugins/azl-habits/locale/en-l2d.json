@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "title": "Azur Lane L2D Viewer",
+    "description": "Browse every Azur Lane Live2D skin from the sidebar with live rendering, eye tracking, tap motions, zoom and drag."
+  },
+  "panel": "Azur Lane L2D",
+  "title": "Azur Lane L2D",
+  "description": "Browse and interact with every Live2D skin."
+}

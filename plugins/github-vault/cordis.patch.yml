@@ -1,0 +1,4 @@
+# Plugin Ascent: GitHub sync for the local DSH plugin collection.
+- insert:
+    - id: github-vault
+      name: '@local/github-vault'

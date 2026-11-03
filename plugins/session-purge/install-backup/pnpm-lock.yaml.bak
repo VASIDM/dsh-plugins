@@ -1,0 +1,40 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@local/azl-habits':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/azl-habits
+        version: link:../../../Documents/deepseek-harness/default-workspace/azl-habits
+      '@local/dsh-scifi-boot':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/dsh-scifi-boot
+        version: link:../../../Documents/deepseek-harness/default-workspace/dsh-scifi-boot
+      '@local/github-vault':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/github-vault
+        version: link:../../../Documents/deepseek-harness/default-workspace/github-vault
+      '@local/paper-ink':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink
+        version: link:../../../Documents/deepseek-harness/default-workspace/paper-ink
+      '@local/paper-ink-design':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-design
+        version: link:../../../Documents/deepseek-harness/default-workspace/paper-ink-design
+      '@local/paper-ink-layout':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-layout
+        version: link:../../../Documents/deepseek-harness/default-workspace/paper-ink-layout
+      '@local/paper-ink-theme':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-theme
+        version: link:../../../Documents/deepseek-harness/default-workspace/paper-ink-theme
+      '@local/paper-ink-type':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-type
+        version: link:../../../Documents/deepseek-harness/default-workspace/paper-ink-type
+      '@local/plugin-names':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/plugin-names
+        version: link:../../../Documents/deepseek-harness/default-workspace/plugin-names
+      '@local/usage-center':
+        specifier: link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/usage-center
+        version: link:../../../Documents/deepseek-harness/default-workspace/usage-center

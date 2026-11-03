@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "插件上行",
+    "description": "连接 GitHub，择取本地 DSH 插件，生成索引与说明，同步至单一仓库。"
+  }
+}

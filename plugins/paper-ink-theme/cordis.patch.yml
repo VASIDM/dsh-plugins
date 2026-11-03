@@ -1,0 +1,4 @@
+# 纸墨 · 配色: one Paper & Ink layer.
+- insert:
+    - id: paper-ink-theme
+      name: '@local/paper-ink-theme'
