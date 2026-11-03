@@ -1,0 +1,5 @@
+# Sudoku — a local, token-free game window.
+- insert:
+    - id: sudoku
+      name: '@local/sudoku'
+      config: {}

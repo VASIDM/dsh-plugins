@@ -12,6 +12,10 @@
  * written, and no credential ever reaches the browser.
  */
 
+import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
 const name = '@local/usage-center';
 
 export const inject = ['webServer'];
@@ -27,7 +31,23 @@ const DEFAULT_LINKS = {
   topUpUrl: 'https://platform.deepseek.com/top_up',
 };
 
-const PERIODS = new Set(['today', '7d', '30d', 'all']);
+const PERIODS = new Set(['today', '7d', '30d', '1y', 'all']);
+const DAY_SECONDS = 24 * 60 * 60;
+const MAX_PLATFORM_SPAN_DAYS = 365;
+const MIN_PLATFORM_SPAN_DAYS = 7;
+const PLATFORM_EARLIEST = Date.UTC(2024, 3, 26);
+
+/** Last-resort platform token: the same grant the account service stores. */
+function storedPlatformToken() {
+  try {
+    const home = process.env.DSH_HOME || join(homedir(), '.dsh');
+    const text = readFileSync(join(home, '.credentials.yaml'), 'utf8');
+    const match = text.match(/deepseek-account-platform\/default:[\s\S]*?token:\s*(\S+)/);
+    return match ? match[1] : '';
+  } catch {
+    return '';
+  }
+}
 
 /**
  * CNY per one million tokens. The table follows the same public price periods
@@ -180,7 +200,7 @@ function periodWindow(period, now, tzOffset) {
   if (period === 'today') {
     return { id: 'today', start: startOfLocalDay(now, tzOffset), end: now };
   }
-  const days = period === '30d' ? 30 : 7;
+  const days = period === '1y' ? 365 : period === '30d' ? 30 : 7;
   return {
     id: period,
     start: startOfLocalDay(now - (days - 1) * DAY_MS, tzOffset),
@@ -281,7 +301,7 @@ function buildSeries(records, window, tzOffset) {
   }
   if (isAll && firstTime === 0) firstTime = window.end - 30 * DAY_MS;
   const spanDays = Math.max(1, (window.end - firstTime) / DAY_MS);
-  const useMonths = isAll && spanDays > 120;
+  const useMonths = (isAll || window.id === '1y') && spanDays > 120;
 
   const buckets = new Map();
   const order = [];
@@ -333,11 +353,35 @@ function buildSeries(records, window, tzOffset) {
 }
 
 export function apply(ctx) {
-  const sessions = ctx.get('sessions');
-  const persistence = ctx.get('sessionPersistence');
-  const sessionQuery = ctx.get('sessionQuery');
-  const account = ctx.get('deepseekAccount');
-  const credentials = ctx.get('credentials');
+  let sessions = ctx.get('sessions');
+  let persistence = ctx.get('sessionPersistence');
+  let sessionQuery = ctx.get('sessionQuery');
+  let account = ctx.get('deepseekAccount');
+  let credentials = ctx.get('credentials');
+
+  // A host row can be applied before an async provider has finished its
+  // service init; ctx.get() is a strict snapshot and returns undefined in that
+  // window. Keep the optional services live instead of freezing "signed out"
+  // and empty statistics for the whole page lifetime.
+  if (!sessions) ctx.inject(['sessions'], (sub) => { sessions = sub.sessions; });
+  if (!persistence) ctx.inject(['sessionPersistence'], (sub) => { persistence = sub.sessionPersistence; });
+  if (!sessionQuery) ctx.inject(['sessionQuery'], (sub) => { sessionQuery = sub.sessionQuery; });
+  if (!account) ctx.inject(['deepseekAccount'], (sub) => { account = sub.deepseekAccount; });
+  if (!credentials) ctx.inject(['credentials'], (sub) => { credentials = sub.credentials; });
+
+  /** The account service when ready, otherwise the stored platform grant. */
+  async function platformSession() {
+    if (account && typeof account.getPlatformSession === 'function') {
+      try {
+        const session = await withTimeout(account.getPlatformSession(), MAX_ACCOUNT_WAIT_MS, 'platform session');
+        if (session && session.origin && session.token) return session;
+      } catch {
+        /* fall through to the stored grant */
+      }
+    }
+    const token = storedPlatformToken();
+    return token ? { origin: 'https://platform.deepseek.com', token, requestHeaders: {} } : undefined;
+  }
 
   const liveCache = new Map();
   const persistedCache = new Map();
@@ -348,6 +392,8 @@ export function apply(ctx) {
   let platformCache = { at: 0, value: null };
   /** @type {Promise<any> | null} */
   let platformInFlight = null;
+  const usageCache = new Map();
+  const usageInFlight = new Map();
 
   function liveRecords(session) {
     try {
@@ -574,12 +620,9 @@ export function apply(ctx) {
   }
 
   async function fetchPlatformOverview() {
-    if (!account || typeof account.getPlatformSession !== 'function') {
-      return { ok: false, error: 'account-service-missing' };
-    }
     try {
-      const session = await withTimeout(account.getPlatformSession(), MAX_ACCOUNT_WAIT_MS, 'platform session');
-      if (!session || !session.origin || !session.token) return { ok: false, error: 'signed-out' };
+      const session = await platformSession();
+      if (!session) return { ok: false, error: account ? 'signed-out' : 'account-service-missing' };
       const url = new URL('/api/v0/users/get_user_summary', session.origin);
       const response = await withTimeout(fetch(url, {
         headers: {
@@ -598,18 +641,19 @@ export function apply(ctx) {
     }
   }
 
-  async function fetchPlatformUsage(path, window, tzOffset) {
-    if (!account || typeof account.getPlatformSession !== 'function') {
-      return { ok: false, error: 'account-service-missing' };
-    }
+  function platformBounds(window, tzOffset) {
+    const endSec = Math.floor((startOfLocalDay(window.end, tzOffset) + DAY_MS) / 1000);
+    const startSec = window.start === 0
+      ? Math.floor(startOfLocalDay(PLATFORM_EARLIEST, tzOffset) / 1000)
+      : Math.floor(window.start / 1000);
+    return { startSec, endSec };
+  }
+
+  async function fetchPlatformUsageRange(path, startSec, endSec, tzOffset) {
     try {
-      const session = await withTimeout(account.getPlatformSession(), MAX_ACCOUNT_WAIT_MS, 'platform session');
-      if (!session || !session.origin || !session.token) return { ok: false, error: 'signed-out' };
+      const session = await platformSession();
+      if (!session) return { ok: false, error: account ? 'signed-out' : 'account-service-missing' };
       const url = new URL(path, session.origin);
-      const startSec = window.start === 0
-        ? Math.floor((startOfLocalDay(window.end - 365 * DAY_MS, tzOffset)) / 1000)
-        : Math.floor(window.start / 1000);
-      const endSec = Math.floor((startOfLocalDay(window.end, tzOffset) + DAY_MS) / 1000);
       url.searchParams.set('start', String(startSec));
       url.searchParams.set('end', String(endSec));
       url.searchParams.set('tz', String(tzOffset * 60));
@@ -627,6 +671,11 @@ export function apply(ctx) {
       console.error('[usage-center] platform usage failed', path, error);
       return { ok: false, error: 'request-failed' };
     }
+  }
+
+  async function fetchPlatformUsage(path, window, tzOffset) {
+    const { startSec, endSec } = platformBounds(window, tzOffset);
+    return fetchPlatformUsageRange(path, startSec, endSec, tzOffset);
   }
 
   async function getPlatformOverview() {
@@ -816,12 +865,165 @@ export function apply(ctx) {
     return tasks.map((task) => ({ ...task, title: titles.get(task.id) || null }));
   }
 
-  async function fetchPlatformUsagePair(window, tzOffset) {
+  function mergePlatformUsage(parts) {
+    const valid = parts.filter(Boolean);
+    if (valid.length === 0) return null;
+
+    const seriesByKey = new Map();
+    const modelsByKey = new Map();
+    const totals = emptyTotals();
+
+    for (const part of valid) {
+      for (const point of part.series) {
+        let entry = seriesByKey.get(point.key);
+        if (!entry) {
+          entry = { ...point };
+          seriesByKey.set(point.key, entry);
+        } else {
+          entry.totalTokens += point.totalTokens;
+          entry.inputTokens += point.inputTokens;
+          entry.outputTokens += point.outputTokens;
+          entry.cacheReadTokens += point.cacheReadTokens;
+          entry.cacheWriteTokens += point.cacheWriteTokens;
+          entry.reasoningTokens += point.reasoningTokens;
+          entry.cost += point.cost;
+          entry.requests += point.requests;
+        }
+      }
+      for (const model of part.models) {
+        let entry = modelsByKey.get(model.model);
+        if (!entry) {
+          entry = { ...model };
+          modelsByKey.set(model.model, entry);
+        } else {
+          entry.tokens += model.tokens;
+          entry.requests += model.requests;
+          entry.input += model.input;
+          entry.output += model.output;
+          entry.cacheRead += model.cacheRead;
+          entry.cost += model.cost;
+        }
+      }
+      totals.totalTokens += part.totals.totalTokens;
+      totals.inputTokens += part.totals.inputTokens;
+      totals.outputTokens += part.totals.outputTokens;
+      totals.cacheReadTokens += part.totals.cacheReadTokens;
+      totals.cacheWriteTokens += part.totals.cacheWriteTokens;
+      totals.reasoningTokens += part.totals.reasoningTokens;
+      totals.cost += part.totals.cost;
+      totals.requests += part.totals.requests;
+    }
+
+    return {
+      bucket: valid[0].bucket,
+      series: Array.from(seriesByKey.values()).sort((a, b) => a.time - b.time),
+      models: Array.from(modelsByKey.values()).sort((a, b) => b.tokens - a.tokens),
+      totals,
+    };
+  }
+
+  function aggregatePlatformByMonth(usage, tzOffset) {
+    const months = new Map();
+    for (const point of usage.series) {
+      const shifted = new Date((point.time + tzOffset * 60) * 1000);
+      const year = shifted.getUTCFullYear();
+      const month = pad2(shifted.getUTCMonth() + 1);
+      const key = year + '-' + month;
+      let entry = months.get(key);
+      if (!entry) {
+        entry = {
+          key,
+          time: Math.floor(startOfLocalMonth(point.time * 1000, tzOffset) / 1000),
+          label: key,
+          totalTokens: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0,
+          reasoningTokens: 0,
+          cost: 0,
+          requests: 0,
+        };
+        months.set(key, entry);
+      }
+      entry.totalTokens += point.totalTokens;
+      entry.inputTokens += point.inputTokens;
+      entry.outputTokens += point.outputTokens;
+      entry.cacheReadTokens += point.cacheReadTokens;
+      entry.cacheWriteTokens += point.cacheWriteTokens;
+      entry.reasoningTokens += point.reasoningTokens;
+      entry.cost += point.cost;
+      entry.requests += point.requests;
+    }
+    return {
+      ...usage,
+      bucket: 'month',
+      series: Array.from(months.values()).sort((a, b) => a.time - b.time),
+    };
+  }
+
+  async function fetchPlatformChunk(startSec, endSec, tzOffset) {
     const [cost, amount] = await Promise.all([
-      fetchPlatformUsage('/api/v0/usage/by_api_key/cost', window, tzOffset),
-      fetchPlatformUsage('/api/v0/usage/by_api_key/amount', window, tzOffset),
+      fetchPlatformUsageRange('/api/v0/usage/by_api_key/cost', startSec, endSec, tzOffset),
+      fetchPlatformUsageRange('/api/v0/usage/by_api_key/amount', startSec, endSec, tzOffset),
     ]);
-    return parsePlatformUsage(cost, amount, tzOffset);
+    if (!cost.ok || !amount.ok) return null;
+    const parsed = parsePlatformUsage(cost, amount, tzOffset);
+    if (parsed) return parsed;
+
+    const spanDays = Math.floor((endSec - startSec) / DAY_SECONDS);
+    if (spanDays <= MIN_PLATFORM_SPAN_DAYS) return null;
+    const leftDays = Math.max(1, Math.floor(spanDays / 2));
+    const middle = startSec + leftDays * DAY_SECONDS;
+    if (middle <= startSec || middle >= endSec) return null;
+    const [left, right] = await Promise.all([
+      fetchPlatformChunk(startSec, middle, tzOffset),
+      fetchPlatformChunk(middle, endSec, tzOffset),
+    ]);
+    return mergePlatformUsage([left, right]);
+  }
+
+  async function fetchPlatformUsagePair(window, tzOffset) {
+    const now = Date.now();
+    const stamp = window.id === 'today'
+      ? Math.floor(now / 60_000)
+      : Math.floor(window.start / DAY_MS);
+    const key = window.id + ':' + tzOffset + ':' + stamp;
+    const ttl = window.id === '1y' || window.id === 'all' ? 300_000 : 60_000;
+    const cached = usageCache.get(key);
+    if (cached && now - cached.at < (cached.value ? ttl : 60_000)) return cached.value;
+    if (usageInFlight.has(key)) return usageInFlight.get(key);
+
+    const pending = (async () => {
+      const { startSec, endSec } = platformBounds(window, tzOffset);
+      const chunks = [];
+      for (let cursor = startSec; cursor < endSec && chunks.length < 16;) {
+        const next = Math.min(endSec, cursor + MAX_PLATFORM_SPAN_DAYS * DAY_SECONDS);
+        chunks.push([cursor, next]);
+        cursor = next;
+      }
+      const parts = await Promise.all(chunks.map(([start, end]) => fetchPlatformChunk(start, end, tzOffset)));
+      const merged = mergePlatformUsage(parts);
+      if (!merged) return null;
+      return window.id === '1y' || window.id === 'all'
+        ? aggregatePlatformByMonth(merged, tzOffset)
+        : merged;
+    })()
+      .then((value) => {
+        usageCache.set(key, { at: Date.now(), value });
+        return value;
+      })
+      .catch((error) => {
+        console.error('[usage-center] platform usage pair failed', error);
+        usageCache.set(key, { at: Date.now(), value: null });
+        return null;
+      })
+      .finally(() => {
+        usageInFlight.delete(key);
+      });
+
+    usageInFlight.set(key, pending);
+    return pending;
   }
 
   async function buildSummary({ period, tzOffset, locale, debug }) {
@@ -832,12 +1034,10 @@ export function apply(ctx) {
       readBalance(locale, tzOffset),
       collectRecords(),
       getPlatformOverview(),
-      period === 'all'
-        ? Promise.resolve(null)
-        : fetchPlatformUsagePair(window, tzOffset).catch((error) => {
-          console.error('[usage-center] platform usage pair failed', error);
-          return null;
-        }),
+      fetchPlatformUsagePair(window, tzOffset).catch((error) => {
+        console.error('[usage-center] platform usage pair failed', error);
+        return null;
+      }),
     ]);
     const platform = normalizePlatformOverview(platformResult);
     let balance = accountBalance;
@@ -909,7 +1109,7 @@ export function apply(ctx) {
       }));
 
     const localSeries = buildSeries(records, window, tzOffset);
-    const usePlatform = period !== 'all' && platformUsage !== null;
+    const usePlatform = platformUsage !== null;
     const finalTotals = usePlatform ? platformUsage.totals : totals;
     const finalModels = usePlatform ? platformUsage.models : modelList;
     const finalSeries = usePlatform ? platformUsage.series : localSeries.series;

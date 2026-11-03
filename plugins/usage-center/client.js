@@ -7,7 +7,7 @@ window.__ModuleLoader__.load({
 
     const NS = 'usage.center';
     const PANEL_ID = 'usage-center';
-    const PERIODS = ['today', '7d', '30d'];
+    const PERIODS = ['today', '7d', '30d', '1y', 'all'];
     const PERIOD_KEY = 'usage-center.period';
     const REFRESH_MS = 45_000;
 
@@ -23,7 +23,8 @@ window.__ModuleLoader__.load({
       'period.today': '今日',
       'period.7d': '近 7 天',
       'period.30d': '近 30 天',
-      'period.all': '全部',
+      'period.1y': '年记',
+      'period.all': '总计',
       'balance.title': '账户余额',
       'balance.subtitle': 'DeepSeek 账户实时余额',
       'balance.recharge': '充值余额',
@@ -113,7 +114,8 @@ window.__ModuleLoader__.load({
       'period.today': 'Today',
       'period.7d': '7 days',
       'period.30d': '30 days',
-      'period.all': 'All time',
+      'period.1y': '1 year',
+      'period.all': 'Total',
       'balance.title': 'Account balance',
       'balance.subtitle': 'Live balance for your DeepSeek account',
       'balance.recharge': 'Top-up balance',
@@ -709,7 +711,8 @@ window.__ModuleLoader__.load({
       .uc-segmented {
         display: flex;
         align-items: center;
-        gap: 22px;
+        flex-wrap: wrap;
+        gap: 8px 22px;
         padding: 0;
         border: 0;
         border-bottom: 1px solid var(--uc-hair);

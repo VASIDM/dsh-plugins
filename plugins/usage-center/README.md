@@ -6,7 +6,7 @@ DeepSeek Harness 侧边栏插件：在侧边栏打开一个与 DeepSeek 开放�
 
 - **账户余额**：优先读取当前登录的 DeepSeek 账户余额；未登录时回退到 `DEEPSEEK_API_KEY` 的 `/user/balance`。
 - **累计消费**：直接读取开放平台 `get_user_summary` 的 `total_costs`，与平台账单一致。
-- **本期消费 / Token**：今日 / 近 7 天 / 近 30 天，直接读取平台 `usage/by_api_key/amount` 和 `usage/by_api_key/cost`。
+- **本期消费 / Token**：今日 / 近 7 天 / 近 30 天 / 年记 / 总计，直接读取平台 `usage/by_api_key/amount` 和 `usage/by_api_key/cost`；长区间按 365 天分段拉取，失败时回退本地日志。
 - **柱状趋势图**：鼠标悬停每根柱子，同时显示该时间桶的 Token 消耗、实际金额和请求数。
 - **Token 明细**：输入、输出、缓存读取、缓存写入、缓存命中率、请求数、会话数。
 - **模型明细**：按模型拆分 Token、请求数、实际消费和占比。

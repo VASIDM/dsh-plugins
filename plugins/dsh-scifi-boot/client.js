@@ -56,11 +56,12 @@ window.__ModuleLoader__.load({
       return Math.min(1, step / n);
     }
 
-    /** 汉字是主视觉；英文与拉丁文是刊本上的小字注，不替代它。 */
-    const COPY = {
-      zh: { enter: '启' },
-      en: { enter: 'Begin' },
-    };
+    /**
+     * 「启」固定为汉字，不随界面语言切换。
+     * 这一枚字是整个页面的唯一动作，翻成 Begin 会让整页的古典语汇断掉；
+     * 英文只出现在小字注里（Primordium / not yet complete），不进入主视觉。
+     */
+    const ENTER = '启';
 
     /** 五帧：太易 → 太初 → 太始 → 太素 → 启户。 */
     const BOOT_LINES = [
@@ -76,17 +77,10 @@ window.__ModuleLoader__.load({
       ['破壳 · 气行', 'II', 'the shell gives way'],
       ['渡虚 · 有线', 'III', 'a line across the void'],
       ['元日 · 初动', 'IV', 'the first day moves'],
-      ['既济 · 在', 'V', 'it is here'],
+      ['未济 · 生生', 'V', 'not yet complete'],
     ];
 
     /** 天头只留书名与时间；阶段名不再显示在右上角。 */
-
-    function isZh(snapshot) {
-      const id = String(
-        (snapshot && (snapshot.active || snapshot.locale || snapshot.id || snapshot.current)) || 'zh',
-      );
-      return id.toLowerCase().startsWith('zh');
-    }
 
     const CSS = `
 .sb-root{
@@ -161,15 +155,22 @@ window.__ModuleLoader__.load({
 .sb-stage{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);
   align-items:center;gap:clamp(16px,5vmin,96px);min-height:0;min-width:0;
   overflow:auto;overscroll-behavior:contain;padding-right:2px}
-.sb-lockup{display:flex;flex-direction:column;align-items:center;gap:clamp(8px,2vmin,20px);
-  justify-self:end;padding-right:clamp(0px,2vw,24px);min-width:0}
-.sb-mandala{width:clamp(48px,9vmin,120px);height:clamp(48px,9vmin,120px);display:block;overflow:visible}
-.sb-rot-slow{transform-origin:100px 100px;animation:sb-rot 150s linear infinite}
-.sb-rot-rev{transform-origin:100px 100px;animation:sb-rot 80s linear infinite reverse}
+/* 字号只在此定义一次；圆光按它换算直径，两者永远同源，
+   不会再出现「圈比字大一圈」或「圈压到右边注文」。 */
+.sb-lockup{position:relative;display:flex;flex-direction:column;align-items:center;
+  justify-self:end;padding-right:clamp(0px,2vw,24px);min-width:0;
+  --sb-char-size:clamp(40px,11.5vmin,168px)}
+.sb-glyphs{position:relative;display:flex;flex-direction:column;align-items:center;min-width:0}
+/* 圆光：直径 = 一个字身 ×1.08，正好套住两字相接的那道缝；
+   宽度不超过一列，因此不可能压到右侧的引文与进度。 */
+.sb-mandala{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:calc(var(--sb-char-size) * 1.08);height:calc(var(--sb-char-size) * 1.08);
+  display:block;overflow:visible;pointer-events:none;z-index:0}
+.sb-rot-slow{transform-origin:200px 200px;animation:sb-rot 220s linear infinite}
 @keyframes sb-rot{to{transform:rotate(360deg)}}
 
-.sb-char{margin:0;font-family:${DISPLAY};font-weight:300;
-  font-size:clamp(40px,11.5vmin,168px);line-height:1;letter-spacing:.1em;
+.sb-char{position:relative;z-index:1;margin:0;font-family:${DISPLAY};font-weight:300;
+  font-size:var(--sb-char-size);line-height:1;letter-spacing:.1em;
   color:var(--sb-bone);display:flex;flex-direction:column;gap:0}
 .sb-char span{display:block}
 .sb-char i{font-style:normal;display:block;font-family:${MONO};font-size:clamp(7.5px,1vw,11px);
@@ -272,24 +273,27 @@ window.__ModuleLoader__.load({
 .sb-launch{display:flex;flex-direction:column;gap:clamp(8px,2.2vmin,24px);max-width:660px;min-width:0}
 .sb-state{position:relative;display:grid;margin:0;font-family:${DISPLAY};font-weight:300;
   font-size:clamp(26px,5vmin,68px);line-height:1.08;letter-spacing:.14em;color:var(--sb-bone)}
-/* 「启户」与「既济」叠在同一格，交叉淡入淡出，不做硬切。 */
+/* 「启户」与「未济」叠在同一格，交叉淡入淡出，不做硬切。 */
 .sb-state span{grid-area:1/1;transition:opacity .95s cubic-bezier(.4,0,.2,1),transform .95s cubic-bezier(.4,0,.2,1)}
 .sb-state span[data-on="0"]{opacity:0;transform:translateY(10px)}
 .sb-state span[data-on="1"]{opacity:1;transform:none}
 .sb-state em{font-style:normal;color:var(--sb-cinnabar)}
 .sb-begun{margin:0;font-family:${SERIF};font-style:italic;font-size:clamp(11px,1.6vmin,19px);
   letter-spacing:.18em;color:var(--sb-bone-2);animation:sb-up .8s cubic-bezier(.4,0,.2,1) both}
+/* 收尾句后的出处小注：破外层的斜体，回到等宽直立体。 */
+.sb-begun-note{font-family:${MONO};font-style:normal;font-size:.72em;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--sb-mute-2)}
 @keyframes sb-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 @media (prefers-reduced-motion:reduce){
-  .sb-rot-slow,.sb-rot-rev{animation:none}
+  .sb-rot-slow{animation:none}
   .sb-rule,.sb-state,.sb-begun,.sb-action,.sb-tie{animation:none}
 }
 @media (max-width:900px){
   .sb-stage{grid-template-columns:1fr;gap:clamp(12px,3vmin,22px);align-content:center}
   .sb-lockup{justify-self:center;flex-direction:row;align-items:flex-end;gap:clamp(12px,3vmin,24px);
     padding-right:0}
-  .sb-mandala{display:none}
+  /* 单栏时字号缩小，圆光随 --sb-char-size 一起缩，无需另行覆盖尺寸。 */
 }
 `;
 
@@ -319,13 +323,15 @@ window.__ModuleLoader__.load({
       // 两个与进度有关的属性都走 style：presentation attribute 的过渡在部分引擎里
       // 不会触发，写成 CSS 属性最稳。
       return h('circle', {
-        cx: 100,
-        cy: 100,
+        cx: 200,
+        cy: 200,
         r,
         fill: 'none',
         stroke: 'var(--sb-cinnabar)',
         strokeWidth: props.width || 1.4,
-        transform: 'rotate(-90 100 100)',
+        strokeLinecap: 'round',
+        transform: 'rotate(-90 200 200)',
+        opacity: props.opacity === undefined ? 1 : props.opacity,
         style: {
           strokeDasharray: `${c}`,
           strokeDashoffset: `${c * (1 - pct)}`,
@@ -349,31 +355,37 @@ window.__ModuleLoader__.load({
       );
     }
 
-    /** 朱印旁的圆环：三圈静态细线 + 一段由 Arc 驱动的朱砂弧。 */
+    /**
+     * 圆光：一枚极淡的墨圆，作为「太初」二字的底纹，而不是立在上方的小徽标。
+     *
+     * 原先它是一个 120px 的小环悬在字上，像一个项目符号，和 168px 的宋体抢位置——
+     * 小而不精，反而显得是没处理干净的装饰。改成水印后：
+     *   · 直径放到 46vmin，几乎与两字同高，字压在上面，形成「月轮托字」的构图；
+     *   · 全部笔画透明度压到 0.05—0.08，只在近处能看出纸上有圆；
+     *   · 唯一不透明的是那段朱砂进度弧（0.55），它沿圆光边缘生长，兼作进度指示。
+     * 于是一个元素同时担起构图与状态，不必再额外立一个小圆。
+     */
     function Mandala(props) {
       return h(
         'svg',
-        { className: 'sb-mandala', viewBox: '0 0 200 200', style: { color: 'var(--sb-mute-2)' }, 'aria-hidden': true },
-        h('circle', { cx: 100, cy: 100, r: 94, fill: 'none', stroke: 'currentColor', strokeOpacity: 0.22, strokeWidth: 0.8 }),
+        { className: 'sb-mandala', viewBox: '0 0 400 400', preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': true },
+        h('circle', {
+          cx: 200, cy: 200, r: 190, fill: 'none',
+          stroke: 'var(--sb-bone)', strokeOpacity: 0.055, strokeWidth: 1,
+        }),
         h(
           'g',
           { className: 'sb-rot-slow' },
-          h('circle', { cx: 100, cy: 100, r: 86, fill: 'none', stroke: 'currentColor', strokeOpacity: 0.34, strokeWidth: 0.9, strokeDasharray: '1 9' }),
+          h('circle', {
+            cx: 200, cy: 200, r: 176, fill: 'none',
+            stroke: 'var(--sb-bone)', strokeOpacity: 0.075, strokeWidth: 1, strokeDasharray: '1 13',
+          }),
         ),
-        h(
-          'g',
-          { className: 'sb-rot-rev' },
-          h('circle', { cx: 100, cy: 100, r: 74, fill: 'none', stroke: 'var(--sb-bone-2)', strokeOpacity: 0.26, strokeWidth: 0.9, strokeDasharray: '62 400' }),
-        ),
-        h('circle', { cx: 100, cy: 100, r: 50, fill: 'none', stroke: 'currentColor', strokeOpacity: 0.12, strokeWidth: 0.8 }),
-        h(Arc, { value: props.value, duration: props.duration, r: 64, width: 1.4 }),
         h('circle', {
-          cx: 100,
-          cy: 100,
-          r: props.pulse ? 3.2 : 2.2,
-          fill: 'var(--sb-cinnabar)',
-          style: { transition: `r 800ms ${EASE}` },
+          cx: 200, cy: 200, r: 150, fill: 'none',
+          stroke: 'var(--sb-bone)', strokeOpacity: 0.04, strokeWidth: 1,
         }),
+        h(Arc, { value: props.value, duration: props.duration, r: 190, width: 1, opacity: 0.55 }),
       );
     }
 
@@ -594,7 +606,7 @@ window.__ModuleLoader__.load({
               { className: 'sb-state', 'aria-live': 'polite' },
               // 两个状态叠在同一格交叉淡变：不做硬切。
               h('span', { 'data-on': finished ? '0' : '1' }, '启户'),
-              h('span', { 'data-on': finished ? '1' : '0' }, h('em', null, '既济')),
+              h('span', { 'data-on': finished ? '1' : '0' }, h('em', null, '未济')),
             ),
             h(
               'ul',
@@ -615,7 +627,14 @@ window.__ModuleLoader__.load({
               duration,
               text: `${String(launchCount).padStart(2, '0')} / ${String(props.launchLines.length).padStart(2, '0')}`,
             }),
-            finished ? h('p', { className: 'sb-begun' }, 'Ex nihilo, primordium.') : null,
+            finished
+              ? h(
+                  'p',
+                  { className: 'sb-begun' },
+                  '生生之谓易',
+                  h('span', { className: 'sb-begun-note' }, ' 未济 · not yet complete'),
+                )
+              : null,
           )
         : h(
             'div',
@@ -689,13 +708,17 @@ window.__ModuleLoader__.load({
             h(
               'div',
               { className: 'sb-lockup' },
-              h(Mandala, { value: pct, duration, pulse: phase === 'ready' }),
               h(
-                'h1',
-                { className: 'sb-char' },
-                h('span', null, '太'),
-                h('span', null, '初'),
-                h('i', null, 'TAI CHU'),
+                'div',
+                { className: 'sb-glyphs' },
+                h(Mandala, { value: pct, duration }),
+                h(
+                  'h1',
+                  { className: 'sb-char' },
+                  h('span', null, '太'),
+                  h('span', null, '初'),
+                  h('i', null, 'TAI CHU'),
+                ),
               ),
             ),
             body,
@@ -714,32 +737,6 @@ window.__ModuleLoader__.load({
       const { ctx } = props;
       const [run, setRun] = React.useState(0);
       const [visible, setVisible] = React.useState(() => props.auto !== false);
-      const [lang, setLang] = React.useState('zh');
-
-      React.useEffect(() => {
-        let alive = true;
-        const read = () => {
-          if (!alive) return;
-          let zh = true;
-          try {
-            zh = isZh(ctx.locale.getSnapshot());
-          } catch {
-            zh = true;
-          }
-          setLang(zh ? 'zh' : 'en');
-        };
-        read();
-        let stop = () => {};
-        try {
-          stop = ctx.locale.subscribe(read) || stop;
-        } catch {
-          /* locale is optional; verbs fall back to Chinese */
-        }
-        return () => {
-          alive = false;
-          stop();
-        };
-      }, [ctx]);
 
       React.useEffect(() => {
         const onReplay = () => {
@@ -753,7 +750,7 @@ window.__ModuleLoader__.load({
       if (!visible) return null;
       return h(BootSequence, {
         key: `boot-${run}`,
-        verbs: COPY[lang] || COPY.zh,
+        verbs: { enter: ENTER },
         bootLines: BOOT_LINES,
         launchLines: LAUNCH_LINES,
         onClose: () => setVisible(false),
@@ -803,36 +800,36 @@ window.__ModuleLoader__.load({
         });
 
         // 全帧浮层：开机这一刻由它独占。
-        ctx.slots.register(
-          { name: 'shell.overlay', id: 'scifi-boot.overlay', order: -1000 },
-          (props) => h(BootHost, { ...props, ctx, auto: !seen }),
+        // 必须 inject 对应 slot 再 register：slot 的声明由 ui-layout /
+        // ui-conversation 建立，先 register 会因 slot 尚未存在而让整个
+        // Client entry 激活失败。
+        ctx.slots.inject('shell.overlay', () =>
+          ctx.slots.register(
+            { name: 'shell.overlay', id: 'scifi-boot.overlay', order: -1000 },
+            (props) => h(BootHost, { ...props, ctx, auto: !seen }),
+          ),
         );
 
         // 模型名右侧的紧凑位：与模型选择器同一行，不占任何操作位。
-        ctx.slots.register(
-          { name: 'conversation.input.activity' },
-          () => {
-            let zh = true;
-            try {
-              zh = isZh(ctx.locale.getSnapshot());
-            } catch {
-              zh = true;
-            }
-            return h(
-              'button',
-              {
-                type: 'button',
-                className: 'sb-chop',
-                onClick: () => {
-                  markSeen();
-                  window.dispatchEvent(new CustomEvent(REPLAY_EVENT));
+        ctx.slots.inject('conversation.input.activity', () =>
+          ctx.slots.register(
+            { name: 'conversation.input.activity' },
+            () =>
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'sb-chop',
+                  onClick: () => {
+                    markSeen();
+                    window.dispatchEvent(new CustomEvent(REPLAY_EVENT));
+                  },
+                  title: '重播「太初」',
+                  'aria-label': '重播「太初」',
                 },
-                title: zh ? '重播「太初」' : 'Replay Taichu',
-                'aria-label': zh ? '重播「太初」' : 'Replay Taichu',
-              },
-              h('span', { 'aria-hidden': true }, zh ? '初' : 'T'),
-            );
-          },
+                h('span', { 'aria-hidden': true }, '初'),
+              ),
+          ),
         );
       },
     };
