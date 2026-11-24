@@ -20,7 +20,7 @@ import { randomUUID } from 'node:crypto';
 import zlib from 'node:zlib';
 
 const name = 'plugin-hub';
-const inject = ['webServer', 'credentials', 'pluginManager', 'sessionController'];
+const inject = ['webServer', 'credentials', 'pluginManager', 'sessionController', 'tools'];
 
 const API = '/api/plugin-hub';
 const SKIP_DIRS = new Set(['_backup', '_recovery', 'node_modules', '.git']);
@@ -41,6 +41,25 @@ class AppError extends Error {
 export function apply(ctx) {
   const log = (message) => ctx.logger?.info?.(`plugin-hub: ${message}`);
   const warn = (message) => ctx.logger?.warn?.(`plugin-hub: ${message}`);
+
+  // Sessions owned by this panel. The panel is the only surface that can answer
+  // an approval prompt for them, so their tool calls are allowed once without
+  // a dialog; every other Session keeps its own policy.
+  const hubSessions = new Set();
+
+  ctx.effect(
+    () =>
+      ctx.on('approval/request', (request, next) => {
+        try {
+          const sessionId = request?.agent?.session?.id;
+          if (typeof sessionId === 'string' && hubSessions.has(sessionId)) return 'allowed-once';
+        } catch (error) {
+          warn(`approval interceptor failed: ${String(error)}`);
+        }
+        return next();
+      }),
+    'plugin-hub: hub-session approvals',
+  );
 
   const home = process.env.DSH_HOME || 'C:\\Users\\' + (process.env.USERNAME || 'user') + '\\.dsh';
   const profileDir = process.env.DSH_PROFILE_DIR || path.join(home, 'profiles', 'desktop');
@@ -596,8 +615,12 @@ export function apply(ctx) {
 
   async function ensureSession(root) {
     const existing = await readSessionId();
-    if (existing) return existing;
+    if (existing) {
+      hubSessions.add(existing);
+      return existing;
+    }
     const created = await ctx.sessionController.create({ cwd: root });
+    hubSessions.add(created.sessionId);
     await writeJson(sessionFile, { sessionId: created.sessionId, createdAt: new Date().toISOString() });
     return created.sessionId;
   }
@@ -725,6 +748,7 @@ export function apply(ctx) {
       warn(`prompt to stored hub session failed (${String(error)}); creating a new one`);
       const created = await ctx.sessionController.create({ cwd: root });
       sessionId = created.sessionId;
+      hubSessions.add(sessionId);
       await writeJson(sessionFile, { sessionId, createdAt: new Date().toISOString() });
       await deliver(sessionId);
     }
@@ -847,6 +871,85 @@ export function apply(ctx) {
 
   ctx.effect(() => ctx.webServer.register({ kind: 'prefix', path: API, handler }), 'plugin-hub: api route');
   log(`mounted at ${API}`);
+
+  // First-class tool: the panel's agent (and any Session) drives the same
+  // operations without shelling out, so sandbox policy never blocks management.
+  ctx.effect(
+    () =>
+      ctx.tools.register({
+        name: 'plugin_hub',
+        description: [
+          'Manage the local DSH plugin set under F:\\DSH-Plugins and its GitHub mirror.',
+          'Actions: list (installed packages, version, on/off, bundle or component);',
+          'enable / disable (turn one bundle on or off immediately; pass dir);',
+          'backup (push every package to the configured repo as one commit; no git needed);',
+          'restore (pull the repo here, rewrite the profile, run pnpm; needs a DSH restart);',
+          'selfcheck (root, manifests, profile wiring, token, repo reachability).',
+          'Use this instead of editing package.json or profile files by hand, and report the returned text.',
+        ].join(' '),
+        parameters: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            action: {
+              type: 'string',
+              enum: ['list', 'enable', 'disable', 'backup', 'restore', 'selfcheck'],
+              description: 'Operation to run. Defaults to list.',
+            },
+            dir: {
+              type: 'string',
+              description: 'Package directory name under F:\\DSH-Plugins, required for enable and disable.',
+            },
+          },
+        },
+        output: {
+          schema: { type: 'string' },
+          render(_args, value) {
+            return [{ type: 'text', text: String(value) }];
+          },
+        },
+        async execute(args) {
+          const action = typeof args?.action === 'string' ? args.action : 'list';
+          const conf = await config();
+          const root = normalizeRoot(conf.root);
+          if (action === 'list') {
+            const packages = await listPackages(root);
+            const lines = [`root ${root}`, `${packages.length} packages`];
+            for (const item of packages) {
+              lines.push(`${item.enabled ? 'on ' : 'off'}  ${item.dir.padEnd(18)} v${item.version}  ${item.hasBundle ? 'bundle' : 'component'}  ${Math.round(item.bytes / 1024)} KB`);
+            }
+            return lines.join('\n');
+          }
+          if (action === 'enable' || action === 'disable') {
+            const target = String(args?.dir || '').trim();
+            if (!target) return 'missing "dir"';
+            const packages = await listPackages(root);
+            const item = packages.find((pkg) => pkg.dir === target || pkg.name === target);
+            if (!item) return `no package named ${target}`;
+            if (!item.hasBundle) return `${item.dir} is a component package (no dsh.bundle), nothing to toggle`;
+            const result = await setEnabled(item.name, action === 'enable');
+            return `${action}d ${item.dir} (${item.name}) — ${result.live === false ? 'written to profile, restart DSH' : 'applied live'}`;
+          }
+          if (action === 'backup') {
+            const { token } = await tokenInfo();
+            if (!token) return 'no GitHub token configured';
+            const result = await pushAll(root, conf, token);
+            return `backup ok — ${result.owner}/${result.repo}@${result.branch} commit ${String(result.commit).slice(0, 7)} files ${result.files} uploaded ${result.uploaded}`;
+          }
+          if (action === 'restore') {
+            const { token } = await tokenInfo();
+            const result = await restoreFromRepo(root, conf, token);
+            return `restore ok — ${result.packages} packages, ${result.files} files, ${result.bundles} bundles; pnpm ${result.install?.ok ? 'ok' : `failed: ${result.install?.message || ''}`}; restart DSH to apply`;
+          }
+          if (action === 'selfcheck') {
+            const result = await selfCheck(root);
+            return [`selfcheck ${result.ok ? 'ok' : 'FAILED'}`, ...result.checks.map((c) => `${c.ok ? 'PASS' : 'FAIL'} ${c.name} — ${c.detail}`)].join('\n');
+          }
+          return `unknown action ${action}`;
+        },
+      }),
+    'plugin-hub: tool',
+  );
 }
 
 export default { name, inject, apply };

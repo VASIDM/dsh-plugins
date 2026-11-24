@@ -37,6 +37,7 @@ window.__ModuleLoader__.load({
       'chat.thinking': '正在处理…',
       'chat.empty': '在这里直接说要做什么，它会调用工具替你改。',
       'chat.slow': '还在跑，可以继续等，或者去主对话看它的过程。',
+      'chat.autoapprove': '本面板会话内的工具调用自动放行，其它会话不受影响。',
       'busy.backup': '正在推送…',
       'busy.restore': '正在拉取并重连…',
       'error.prefix': '出错：',
@@ -74,6 +75,7 @@ window.__ModuleLoader__.load({
       'chat.thinking': 'Working…',
       'chat.empty': 'Describe the change here and it will do it with tools.',
       'chat.slow': 'Still running. You can keep waiting or watch it in the main conversation.',
+      'chat.autoapprove': 'Tool calls in this panel session are auto-approved; other sessions keep their policy.',
       'busy.backup': 'Pushing…',
       'busy.restore': 'Pulling and rewiring…',
       'error.prefix': 'Error: ',
@@ -469,7 +471,14 @@ window.__ModuleLoader__.load({
             h(
               'div',
               { className: 'ph-msgs', ref: msgsRef },
-              messages.length === 0 ? h('div', { className: 'ph-dim' }, t('chat.empty')) : null,
+              messages.length === 0
+                ? h(
+                    'div',
+                    { className: 'ph-dim' },
+                    h('div', null, t('chat.empty')),
+                    h('div', { style: { marginTop: '4px', fontSize: '10px' } }, t('chat.autoapprove')),
+                  )
+                : null,
               messages.map((message, index) =>
                 h('div', { className: `ph-msg ${message.role === 'user' ? 'user' : 'bot'}`, key: `${message.role}-${index}` }, message.text),
               ),
