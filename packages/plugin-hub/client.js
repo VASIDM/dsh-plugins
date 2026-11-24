@@ -41,6 +41,7 @@ window.__ModuleLoader__.load({
       'ok.restore': '已恢复',
       'ok.needRestart': '，请重启 DSH 生效',
       'restart.hint': '插件启停已即时生效；新增包需要重启 DSH。',
+      'restore.warn': '恢复会用仓库里的同名文件覆盖本地 F:\\DSH-Plugins，先备份再恢复。',
     };
 
     const en = {
@@ -74,6 +75,7 @@ window.__ModuleLoader__.load({
       'ok.restore': 'Restored',
       'ok.needRestart': ', restart DSH to apply',
       'restart.hint': 'Toggles apply live; newly added packages need a DSH restart.',
+      'restore.warn': 'Restoring overwrites same-name files under F:\\DSH-Plugins — back up first.',
     };
 
     const CSS = `
@@ -364,6 +366,14 @@ window.__ModuleLoader__.load({
               h('button', { type: 'button', className: 'ph-btn', disabled: Boolean(busy), onClick: saveToken }, t('token.save')),
             ),
             state && !state.hasToken ? h('div', { className: 'ph-dim' }, t('token.hint')) : null,
+            h('div', { className: 'ph-dim' }, t('restore.warn')),
+            state
+              ? h(
+                  'div',
+                  { className: 'ph-dim ph-mono' },
+                  `${state.repo.owner}/${state.repo.repo}@${state.repo.branch} · token ${state.hasToken ? 'on' : 'off'} · ${state.packages.length} pkgs`,
+                )
+              : null,
             busy && busy !== t('chat.thinking') ? h('div', { className: 'ph-note' }, busy) : null,
             note ? h('div', { className: 'ph-note' }, note) : null,
             error ? h('div', { className: 'ph-note err' }, `${t('error.prefix')}${error}`) : null,
