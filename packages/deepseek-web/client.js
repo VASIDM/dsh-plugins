@@ -9,6 +9,15 @@ window.__ModuleLoader__.load({
     const KIND = 'deepseek-web';
     const TAB_ID = '@local/deepseek-web';
     const TARGET = 'https://chat.deepseek.com/';
+
+    /** The guest's real engine with every Electron/app token removed. */
+    function plainChromeUserAgent() {
+      const raw = globalThis.navigator?.userAgent || '';
+      const chrome = /Chrome\/([\d.]+)/.exec(raw)?.[1] || '138.0.0.0';
+      const mac = /Macintosh|Mac OS X/.test(raw);
+      const platform = mac ? 'Macintosh; Intel Mac OS X 10_15_7' : 'Windows NT 10.0; Win64; x64';
+      return `Mozilla/5.0 (${platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chrome} Safari/537.36`;
+    }
     /** Storage account handed to the desktop guest channel; one login serves every Session. */
     const STORAGE_ACCOUNT = 'deepseek-web';
     /** Persisted skin preference: the guest borrows the Harness palette unless switched off. */
@@ -739,6 +748,10 @@ a { color: var(--dsw-alias-link) !important; text-underline-offset: 2px }
             element.className = 'dsw-guest';
             element.setAttribute('name', reservation.lease);
             element.setAttribute('partition', reservation.partition);
+            // chat.deepseek.com flags an Electron guest as a risky environment.
+            // Present the plain Chrome identity the site expects: same engine,
+            // no Electron/ or app-name tokens in the UA string.
+            element.setAttribute('useragent', plainChromeUserAgent());
             element.setAttribute('allowpopups', '');
             element.setAttribute('src', 'about:blank#' + reservation.lease);
             element.addEventListener(

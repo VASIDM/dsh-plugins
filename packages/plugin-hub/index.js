@@ -319,6 +319,20 @@ export function apply(ctx) {
     await fs.writeFile(manifestPath, manifestBuffer);
     uploads.push({ rel: 'manifest.json', abs: manifestPath });
 
+    // Repo-root helper files: the new-machine bootstrap ships with every backup.
+    const syncDir = path.join(root, '_sync');
+    try {
+      for (const entry of await fs.readdir(syncDir, { withFileTypes: true })) {
+        if (!entry.isFile() || entry.name.startsWith('.')) continue;
+        const abs = path.join(syncDir, entry.name);
+        const stat = await fs.stat(abs);
+        if (stat.size > MAX_FILE) continue;
+        uploads.push({ rel: entry.name, abs });
+      }
+    } catch {
+      // No helper directory: backups still work.
+    }
+
     const existing = new Map();
     if (head) {
       const commit = await gh.send('GET', `/repos/${owner}/${repo.repo}/git/commits/${head}`);
