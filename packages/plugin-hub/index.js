@@ -157,8 +157,67 @@ export function apply(ctx) {
     };
   }
 
-  async function setEnabled(packageName, enabled) {
-    if (typeof packageName !== 'string' || !packageName) throw new AppError(400, 'bad-name', '缺少插件包名。');
+  // ---------------------------------------------------------------- self check
+  async function selfCheck(root) {
+    const checks = [];
+    const add = (name, ok, detail) => checks.push({ name, ok: Boolean(ok), detail: String(detail ?? '') });
+
+    let rootOk = false;
+    try {
+      rootOk = (await fs.stat(root)).isDirectory();
+    } catch {
+      rootOk = false;
+    }
+    add('插件目录', rootOk, root);
+
+    let packages = [];
+    const broken = [];
+    try {
+      packages = await listPackages(root);
+      for (const item of packages) {
+        const manifest = await readJson(path.join(root, item.dir, 'package.json'), null);
+        if (!manifest || !manifest.name) broken.push(item.dir);
+      }
+    } catch (error) {
+      broken.push(String(error.message || error));
+    }
+    add('包清单', packages.length > 0 && broken.length === 0, `${packages.length} 个包${broken.length ? `，异常：${broken.join(', ')}` : ''}`);
+
+    let bundles = [];
+    const unlinked = [];
+    try {
+      const profile = await readProfile();
+      bundles = profile.dsh?.profile?.bundles || [];
+      for (const bundle of bundles.filter((item) => String(item).startsWith('@local/'))) {
+        const linkPath = path.join(profileDir, 'node_modules', ...String(bundle).split('/'));
+        if (!existsSync(linkPath)) unlinked.push(bundle);
+      }
+    } catch (error) {
+      unlinked.push(String(error.message || error));
+    }
+    add('profile 接线', bundles.length > 0 && unlinked.length === 0, `${bundles.length} 个 bundle${unlinked.length ? `，缺链接：${unlinked.join(', ')}` : ''}`);
+
+    const { token, key } = await tokenInfo();
+    add('GitHub 令牌', Boolean(token), token ? `来源 ${key}` : '未配置');
+
+    const conf = await config();
+    let repoOk = false;
+    let repoDetail = '';
+    try {
+      const response = await fetch(`${GH}/repos/${conf.owner}/${conf.repo}`, {
+        headers: { 'user-agent': 'dsh-plugin-hub', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      });
+      repoOk = response.ok;
+      repoDetail = `${conf.owner}/${conf.repo} HTTP ${response.status}`;
+    } catch (error) {
+      repoDetail = String(error.message || error);
+    }
+    add('仓库可达', repoOk, repoDetail);
+
+    return { ok: checks.every((check) => check.ok), checks };
+  }
+
+  async function setEnabled(packageName, enabled) {    if (typeof packageName !== 'string' || !packageName) throw new AppError(400, 'bad-name', '缺少插件包名。');
     const manager = ctx.pluginManager;
     if (manager && typeof manager.setBundleEnabled === 'function') {
       const result = await manager.setBundleEnabled(packageName, Boolean(enabled));
@@ -716,6 +775,10 @@ export function apply(ctx) {
       if (req.method === 'GET') {
         if (action === 'state') {
           send(res, 200, await statePayload());
+          return;
+        }
+        if (action === 'selfcheck') {
+          send(res, 200, await selfCheck(root));
           return;
         }
         throw new AppError(404, 'unknown-action', `未知接口：${action}`);

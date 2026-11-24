@@ -15,6 +15,8 @@ window.__ModuleLoader__.load({
       'guide.title': '插件管家',
       'guide.description': '一个面板管理所有插件：启停、备份到 GitHub、换机一键恢复，还能直接对话让它动手。',
       'bar.refresh': '刷新',
+      'bar.selfcheck': '自检',
+      'selfcheck.title': '自检结果',
       'stat.plugins': '插件',
       'stat.enabled': '已启用',
       'bar.backup': '备份到 GitHub',
@@ -49,6 +51,8 @@ window.__ModuleLoader__.load({
       'guide.title': 'Plugin Hub',
       'guide.description': 'One panel for every plugin: toggle, back up to GitHub, restore on a new machine, and just ask.',
       'bar.refresh': 'Refresh',
+      'bar.selfcheck': 'Self-check',
+      'selfcheck.title': 'Self-check',
       'stat.plugins': 'Plugins',
       'stat.enabled': 'Enabled',
       'bar.backup': 'Back up to GitHub',
@@ -192,6 +196,7 @@ window.__ModuleLoader__.load({
       const [error, setError] = useState('');
       const [note, setNote] = useState('');
       const [busy, setBusy] = useState('');
+      const [checks, setChecks] = useState(null);
       const [token, setToken] = useState('');
       const [messages, setMessages] = useState([]);
       const [draft, setDraft] = useState('');
@@ -276,6 +281,22 @@ window.__ModuleLoader__.load({
         }
       }, [load, t]);
 
+      const selfcheck = useCallback(async () => {
+        setError('');
+        setNote('');
+        setChecks(null);
+        setBusy(t('bar.selfcheck'));
+        try {
+          const result = await api('selfcheck');
+          setChecks(result.checks || []);
+          if (result.ok) setNote(`${t('selfcheck.title')}: OK`);
+        } catch (failure) {
+          setError(String(failure.message || failure));
+        } finally {
+          setBusy('');
+        }
+      }, [t]);
+
       const restore = useCallback(async () => {
         setError('');
         setNote('');
@@ -352,6 +373,11 @@ window.__ModuleLoader__.load({
                 { type: 'button', className: 'ph-btn', disabled: Boolean(busy), onClick: restore },
                 t('bar.restore'),
               ),
+              h(
+                'button',
+                { type: 'button', className: 'ph-btn', disabled: Boolean(busy), onClick: selfcheck },
+                t('bar.selfcheck'),
+              ),
             ),
             h(
               'div',
@@ -376,6 +402,15 @@ window.__ModuleLoader__.load({
               : null,
             busy && busy !== t('chat.thinking') ? h('div', { className: 'ph-note' }, busy) : null,
             note ? h('div', { className: 'ph-note' }, note) : null,
+            checks
+              ? h(
+                  'div',
+                  { className: 'ph-note ph-mono' },
+                  checks.map((check) =>
+                    h('div', { key: check.name }, `${check.ok ? '✓' : '✗'} ${check.name} — ${check.detail}`),
+                  ),
+                )
+              : null,
             error ? h('div', { className: 'ph-note err' }, `${t('error.prefix')}${error}`) : null,
           ),
           h(
