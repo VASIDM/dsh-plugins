@@ -446,7 +446,13 @@ export function apply(ctx) {
     const savedDeps = manifest.profile?.dependencies || null;
     for (const pkg of manifest.packages) {
       if (!pkg.name || !pkg.dir) continue;
-      profile.dependencies[pkg.name] = savedDeps?.[pkg.name] || `link:${root.replace(/\\/g, '/')}/${pkg.dir}`;
+      // With a captured source profile, reproduce it exactly: a package the
+      // source never wired as a dependency must stay unwired here too.
+      if (savedDeps) {
+        if (savedDeps[pkg.name]) profile.dependencies[pkg.name] = savedDeps[pkg.name];
+      } else {
+        profile.dependencies[pkg.name] = `link:${root.replace(/\\/g, '/')}/${pkg.dir}`;
+      }
     }
     // Reproduce the source profile's exact working set: a bundle the source kept
     // off stays off here, and DSH built-ins are preserved as they are.

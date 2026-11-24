@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-24T15:23:51.287Z",
+ "generatedAt": "2026-11-24T15:24:30.189Z",
  "host": "plugin-hub",
  "bundles": [
   "@local/deepseek-web",
@@ -21,18 +21,16 @@
   "bundles": [
    "@deepseek-ai/dsh-base",
    "@deepseek-ai/dsh-web-app",
-   "@local/deepseek-web",
    "@local/dsh-scifi-boot",
-   "@local/github-vault",
    "@local/l",
-   "@local/olympiad",
-   "@local/paper-ink",
-   "@local/paper-ink-user",
-   "@local/plugin-names",
-   "@local/poetry",
    "@local/session-purge",
-   "@local/sudoku",
+   "@local/paper-ink",
    "@local/usage-center",
+   "@local/poetry",
+   "@local/github-vault",
+   "@local/olympiad",
+   "@local/deepseek-web",
+   "@local/sudoku",
    "@local/plugin-hub"
   ],
   "dependencies": {
@@ -50,9 +48,7 @@
    "@local/poetry": "link:F:/DSH-Plugins/poetry",
    "@local/session-purge": "link:F:/DSH-Plugins/session-purge",
    "@local/sudoku": "link:F:/DSH-Plugins/sudoku",
-   "@local/usage-center": "link:F:/DSH-Plugins/usage-center",
-   "@local/paper-ink-user": "link:F:/DSH-Plugins/paper-ink-user",
-   "@local/plugin-names": "link:F:/DSH-Plugins/plugin-names"
+   "@local/usage-center": "link:F:/DSH-Plugins/usage-center"
   }
  },
  "packages": [
@@ -777,8 +773,8 @@
     {
      "rel": "packages/plugin-hub/index.js",
      "path": "index.js",
-     "size": 29517,
-     "sha": "1e395f2df4d9a8549ff14bd3cb4dd78f5ac50d6f"
+     "size": 29776,
+     "sha": "602a986ae385a61c0795878293aa09a1fd478956"
     },
     {
      "rel": "packages/plugin-hub/locale/en.json",
