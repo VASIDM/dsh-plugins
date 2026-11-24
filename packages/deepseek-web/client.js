@@ -758,6 +758,14 @@ a { color: var(--dsw-alias-link) !important; text-underline-offset: 2px }
               'dom-ready',
               () => {
                 if (cancelled) return;
+                // The desktop shell rewrites webPreferences on attach and drops the
+                // element's useragent attribute, so set it again on the live guest
+                // before the first real navigation.
+                try {
+                  if (typeof element.setUserAgent === 'function') element.setUserAgent(plainChromeUserAgent());
+                } catch {
+                  // Older shells: the attribute remains the only lever.
+                }
                 element.loadURL(TARGET).catch((error) => {
                   if (error && (error.code === 'ERR_ABORTED' || error.errno === -3)) return;
                   fail(error);
