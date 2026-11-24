@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-24T15:39:12.661Z",
+ "generatedAt": "2026-11-24T15:40:37.765Z",
  "host": "plugin-hub",
  "bundles": [
   "@local/deepseek-web",
@@ -755,8 +755,8 @@
     {
      "rel": "packages/plugin-hub/client.js",
      "path": "client.js",
-     "size": 22542,
-     "sha": "76f00cc59e3dd449cde13495156211bf34e62744"
+     "size": 22931,
+     "sha": "4e818cc620dbd80d567a3bc21f6ac20512b166ef"
     },
     {
      "rel": "packages/plugin-hub/cordis.patch.yml",
@@ -773,8 +773,8 @@
     {
      "rel": "packages/plugin-hub/index.js",
      "path": "index.js",
-     "size": 32901,
-     "sha": "254e1db00cf75758bf086a3d21b96aca581bb9c9"
+     "size": 33280,
+     "sha": "e937fc363b52546a8f67aa52a029b5c3c927114c"
     },
     {
      "rel": "packages/plugin-hub/locale/en.json",

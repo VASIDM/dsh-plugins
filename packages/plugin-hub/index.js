@@ -822,6 +822,14 @@ export function apply(ctx) {
         send(res, 200, await restoreFromRepo(root, conf, token));
         return;
       }
+      if (action === 'reveal') {
+        const target = existsSync(root) ? root : path.dirname(root);
+        const child = spawn('explorer.exe', [target], { detached: true, windowsHide: false });
+        child.on('error', (error) => warn(`explorer failed: ${String(error)}`));
+        child.unref();
+        send(res, 200, { ok: true, opened: target });
+        return;
+      }
       if (action === 'chat') {
         send(res, 200, await chat(root, body.message));
         return;

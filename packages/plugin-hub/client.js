@@ -16,6 +16,7 @@ window.__ModuleLoader__.load({
       'guide.description': '一个面板管理所有插件：启停、备份到 GitHub、换机一键恢复，还能直接对话让它动手。',
       'bar.refresh': '刷新',
       'bar.selfcheck': '自检',
+      'bar.reveal': '目录',
       'selfcheck.title': '自检结果',
       'stat.plugins': '插件',
       'stat.enabled': '已启用',
@@ -52,6 +53,7 @@ window.__ModuleLoader__.load({
       'guide.description': 'One panel for every plugin: toggle, back up to GitHub, restore on a new machine, and just ask.',
       'bar.refresh': 'Refresh',
       'bar.selfcheck': 'Self-check',
+      'bar.reveal': 'Folder',
       'selfcheck.title': 'Self-check',
       'stat.plugins': 'Plugins',
       'stat.enabled': 'Enabled',
@@ -297,6 +299,15 @@ window.__ModuleLoader__.load({
         }
       }, [t]);
 
+      const reveal = useCallback(async () => {
+        setError('');
+        try {
+          await api('reveal', {});
+        } catch (failure) {
+          setError(String(failure.message || failure));
+        }
+      }, []);
+
       const restore = useCallback(async () => {
         setError('');
         setNote('');
@@ -378,6 +389,7 @@ window.__ModuleLoader__.load({
                 { type: 'button', className: 'ph-btn', disabled: Boolean(busy), onClick: selfcheck },
                 t('bar.selfcheck'),
               ),
+              h('button', { type: 'button', className: 'ph-btn', onClick: reveal }, t('bar.reveal')),
             ),
             h(
               'div',
