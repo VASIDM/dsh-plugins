@@ -1,4 +1,4 @@
-# 一键装回全部 DSH 插件（新机器）
+﻿# 一键装回全部 DSH 插件（新机器）
 #
 # 用法：关掉 DSH，双击 bootstrap.cmd（或在本目录运行
 #   powershell -ExecutionPolicy Bypass -File bootstrap.ps1
@@ -14,7 +14,8 @@ $ErrorActionPreference = 'Stop'
 $Owner = 'VASIDM'
 $Repo = 'dsh-plugins'
 $Branch = 'main'
-$Root = 'F:\DSH-Plugins'
+# Overridable so the script can be rehearsed into a scratch directory.
+$Root = if ($env:DSH_PLUGIN_ROOT) { $env:DSH_PLUGIN_ROOT } else { 'F:\DSH-Plugins' }
 
 function Say($message) { Write-Host "  $message" }
 
@@ -78,7 +79,10 @@ foreach ($pkg in $manifest.packages) {
   $profile.dependencies | Add-Member -NotePropertyName $pkg.name -NotePropertyValue $spec -Force
 }
 $profile.dsh.profile | Add-Member -NotePropertyName bundles -NotePropertyValue $wantedBundles -Force
-$profile | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $profileFile -Encoding utf8
+# BOM-less UTF-8 is mandatory: the DSH loader parses package.json with JSON.parse,
+# which rejects a byte-order mark and would fail to boot the profile.
+$json = $profile | ConvertTo-Json -Depth 20
+[System.IO.File]::WriteAllText($profileFile, $json, (New-Object System.Text.UTF8Encoding($false)))
 Say ("profile 已写入：{0} 个 bundle / {1} 个依赖" -f $wantedBundles.Count, $manifest.packages.Count)
 
 if ((Test-Path $node) -and (Test-Path $pnpm)) {
