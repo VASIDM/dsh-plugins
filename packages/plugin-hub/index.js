@@ -477,38 +477,49 @@ export function apply(ctx) {
     if (!manifest || !Array.isArray(manifest.packages)) throw new AppError(502, 'manifest-shape', 'manifest.json 结构不正确。');
 
     await fs.mkdir(root, { recursive: true });
-    const written = [];
+    const jobs = [];
     for (const pkg of manifest.packages) {
       if (!pkg.dir || !Array.isArray(pkg.files)) continue;
-      for (const file of pkg.files) {
-        const rel = `packages/${pkg.dir}/${file.path}`;
-        if (token && file.sha) {
-          const response = await fetch(`${GH}/repos/${repo.owner}/${repo.repo}/git/blobs/${file.sha}`, {
-            headers: {
-              accept: 'application/vnd.github.raw',
-              authorization: `Bearer ${token}`,
-              'user-agent': 'dsh-plugin-hub',
-            },
-          });
-          if (!response.ok) throw new AppError(502, 'download', `下载 ${rel} 失败 (${response.status})。`);
-          const buffer = Buffer.from(await response.arrayBuffer());
-          const target = path.join(root, pkg.dir, file.path);
-          await fs.mkdir(path.dirname(target), { recursive: true });
-          await fs.writeFile(target, buffer);
-          written.push(target);
-          continue;
-        }
+      for (const file of pkg.files) jobs.push({ pkg, file });
+    }
+
+    const downloadOne = async ({ pkg, file }) => {
+      const rel = `packages/${pkg.dir}/${file.path}`;
+      const target = path.join(root, pkg.dir, file.path);
+      let response;
+      if (token && file.sha) {
+        // Immutable blob endpoint: no CDN cache, byte-exact.
+        response = await fetch(`${GH}/repos/${repo.owner}/${repo.repo}/git/blobs/${file.sha}`, {
+          headers: {
+            accept: 'application/vnd.github.raw',
+            authorization: `Bearer ${token}`,
+            'user-agent': 'dsh-plugin-hub',
+          },
+        });
+      } else {
         const encoded = rel.split('/').map(encodeURIComponent).join('/');
         const url = `${RAW}/${repo.owner}/${repo.repo}/${repo.branch || 'main'}/${encoded}?t=${encodeURIComponent(manifest.generatedAt || '')}`;
-        const response = await fetch(url, { headers: token ? { authorization: `Bearer ${token}` } : {} });
-        if (!response.ok) throw new AppError(502, 'download', `下载 ${rel} 失败 (${response.status})。`);
-        const buffer = Buffer.from(await response.arrayBuffer());
-        const target = path.join(root, pkg.dir, file.path);
-        await fs.mkdir(path.dirname(target), { recursive: true });
-        await fs.writeFile(target, buffer);
-        written.push(target);
+        response = await fetch(url, { headers: token ? { authorization: `Bearer ${token}` } : {} });
       }
-    }
+      if (!response.ok) throw new AppError(502, 'download', `下载 ${rel} 失败 (${response.status})。`);
+      const buffer = Buffer.from(await response.arrayBuffer());
+      await fs.mkdir(path.dirname(target), { recursive: true });
+      await fs.writeFile(target, buffer);
+      return target;
+    };
+
+    // Bounded concurrency: 200+ small files sequentially took ~2 minutes.
+    const written = [];
+    const CONCURRENCY = 6;
+    let cursor = 0;
+    const workers = Array.from({ length: Math.min(CONCURRENCY, Math.max(jobs.length, 1)) }, async () => {
+      while (cursor < jobs.length) {
+        const job = jobs[cursor];
+        cursor += 1;
+        written.push(await downloadOne(job));
+      }
+    });
+    await Promise.all(workers);
 
     const profile = await readProfile();
     profile.dsh = profile.dsh || {};

@@ -712,6 +712,7 @@ a { color: var(--dsw-alias-link) !important; text-underline-offset: 2px }
         let unsubscribe = null;
         let watchdog = 0;
         let everReady = false;
+        let uaHealed = false;
         setPhase('loading');
         setDetail('');
 
@@ -793,6 +794,27 @@ a { color: var(--dsw-alias-link) !important; text-underline-offset: 2px }
             });
             element.addEventListener('did-finish-load', () => {
               if (!cancelled) applySkin();
+              // One-shot self-heal: the desktop shell rewrites webPreferences on
+              // attach, so if the guest still reports an Electron UA, force the
+              // plain Chrome one and reload exactly once.
+              if (cancelled || uaHealed) return;
+              uaHealed = true;
+              setTimeout(async () => {
+                if (cancelled) return;
+                try {
+                  const ua = await element.executeJavaScript('navigator.userAgent');
+                  if (typeof ua === 'string' && /electron/i.test(ua)) {
+                    try {
+                      element.setUserAgent(plainChromeUserAgent());
+                    } catch {
+                      return;
+                    }
+                    element.reload();
+                  }
+                } catch {
+                  // The guest may not allow evaluation; the attribute path remains.
+                }
+              }, 1200);
             });
             element.addEventListener('did-fail-load', (event) => {
               if (cancelled || !event.isMainFrame || event.errorCode === -3) return;
