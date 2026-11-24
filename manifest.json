@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-24T15:21:24.136Z",
+ "generatedAt": "2026-11-24T15:23:51.287Z",
  "host": "plugin-hub",
  "bundles": [
   "@local/deepseek-web",
@@ -21,16 +21,18 @@
   "bundles": [
    "@deepseek-ai/dsh-base",
    "@deepseek-ai/dsh-web-app",
-   "@local/dsh-scifi-boot",
-   "@local/l",
-   "@local/session-purge",
-   "@local/paper-ink",
-   "@local/usage-center",
-   "@local/poetry",
-   "@local/github-vault",
-   "@local/olympiad",
    "@local/deepseek-web",
+   "@local/dsh-scifi-boot",
+   "@local/github-vault",
+   "@local/l",
+   "@local/olympiad",
+   "@local/paper-ink",
+   "@local/paper-ink-user",
+   "@local/plugin-names",
+   "@local/poetry",
+   "@local/session-purge",
    "@local/sudoku",
+   "@local/usage-center",
    "@local/plugin-hub"
   ],
   "dependencies": {
@@ -48,7 +50,9 @@
    "@local/poetry": "link:F:/DSH-Plugins/poetry",
    "@local/session-purge": "link:F:/DSH-Plugins/session-purge",
    "@local/sudoku": "link:F:/DSH-Plugins/sudoku",
-   "@local/usage-center": "link:F:/DSH-Plugins/usage-center"
+   "@local/usage-center": "link:F:/DSH-Plugins/usage-center",
+   "@local/paper-ink-user": "link:F:/DSH-Plugins/paper-ink-user",
+   "@local/plugin-names": "link:F:/DSH-Plugins/plugin-names"
   }
  },
  "packages": [
@@ -62,47 +66,56 @@
     {
      "rel": "packages/deepseek-web/client.js",
      "path": "client.js",
-     "size": 43137
+     "size": 43137,
+     "sha": "3b0cc0281bf8cfb96b7cd23d046995d728a5777d"
     },
     {
      "rel": "packages/deepseek-web/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 67
+     "size": 67,
+     "sha": "dc946421d5bf06d7caf28c1f0e2b8617c71e5367"
     },
     {
      "rel": "packages/deepseek-web/icon.svg",
      "path": "icon.svg",
-     "size": 890
+     "size": 890,
+     "sha": "e074dbe56bed0b8026c6317bfa59dbebbd50ffa0"
     },
     {
      "rel": "packages/deepseek-web/index.js",
      "path": "index.js",
-     "size": 320
+     "size": 320,
+     "sha": "00809bdc90700740c097dcadaf300be07d65f0ed"
     },
     {
      "rel": "packages/deepseek-web/locale/en.json",
      "path": "locale/en.json",
-     "size": 184
+     "size": 184,
+     "sha": "db803481376bd02f03cf5461ea7f35ba967d6413"
     },
     {
      "rel": "packages/deepseek-web/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 194
+     "size": 194,
+     "sha": "01c98ace8bdb54820998ffd8be25a678285b9990"
     },
     {
      "rel": "packages/deepseek-web/package.json",
      "path": "package.json",
-     "size": 801
+     "size": 801,
+     "sha": "a370cba4971e155b59d1436db910cba85f4dedd4"
     },
     {
      "rel": "packages/deepseek-web/README.md",
      "path": "README.md",
-     "size": 5770
+     "size": 5770,
+     "sha": "47ab4777a24343eb5ef4047f6d319d34041be12b"
     },
     {
      "rel": "packages/deepseek-web/tools/patch-persistent-partition.mjs",
      "path": "tools/patch-persistent-partition.mjs",
-     "size": 5077
+     "size": 5077,
+     "sha": "254ed1458cb0f9d2220a437b2c7ddce84c01fb41"
     }
    ]
   },
@@ -116,52 +129,62 @@
     {
      "rel": "packages/dsh-scifi-boot/client.js",
      "path": "client.js",
-     "size": 36886
+     "size": 36886,
+     "sha": "f29a62371555f311a9eea2b92e3abcc2119eedde"
     },
     {
      "rel": "packages/dsh-scifi-boot/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 67
+     "size": 67,
+     "sha": "8c684fc370fcb25b397a77972895d2b5ca600da1"
     },
     {
      "rel": "packages/dsh-scifi-boot/icon.svg",
      "path": "icon.svg",
-     "size": 637
+     "size": 637,
+     "sha": "f634898a9eb00844732bb43300496463523a4ec5"
     },
     {
      "rel": "packages/dsh-scifi-boot/index.js",
      "path": "index.js",
-     "size": 306
+     "size": 306,
+     "sha": "e2632f89332fa15344f2884b9f36e94cae80b0c1"
     },
     {
      "rel": "packages/dsh-scifi-boot/locale/en.json",
      "path": "locale/en.json",
-     "size": 267
+     "size": 267,
+     "sha": "5b3e94fed1785f71acac7198e3e1b6e27bcaa0ec"
     },
     {
      "rel": "packages/dsh-scifi-boot/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 342
+     "size": 342,
+     "sha": "ec1134f877f3e0955093daf03ae47b49d0f070ec"
     },
     {
      "rel": "packages/dsh-scifi-boot/meter-check.mjs",
      "path": "meter-check.mjs",
-     "size": 2722
+     "size": 2722,
+     "sha": "cdc746ada3443f05d12ac3b85b1835a21ccfff20"
     },
     {
      "rel": "packages/dsh-scifi-boot/package.json",
      "path": "package.json",
-     "size": 703
+     "size": 703,
+     "sha": "ba8dcbbd52cef0fa1bf6460c0857f72c797f161d"
     },
     {
      "rel": "packages/dsh-scifi-boot/test/harness.mjs",
      "path": "test/harness.mjs",
-     "size": 12989
+     "size": 12989,
+     "sha": "ed0e82337bb1cefe202b2b05379d93fa91136d2f"
     },
     {
      "rel": "packages/dsh-scifi-boot/test/meter-bench.mjs",
      "path": "test/meter-bench.mjs",
-     "size": 2989
+     "size": 2989,
+     "sha": "20dee5af997029980f5d86c7f0ee121080cd20bf"
     }
    ]
   },
@@ -175,67 +198,80 @@
     {
      "rel": "packages/github-vault/client.js",
      "path": "client.js",
-     "size": 84472
+     "size": 84472,
+     "sha": "6c12f6e435782e67259520bc7f1a56d4e63301ae"
     },
     {
      "rel": "packages/github-vault/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 133
+     "size": 133,
+     "sha": "d30f39e70ef84665c2e1a39507c545bd43af0983"
     },
     {
      "rel": "packages/github-vault/icon.svg",
      "path": "icon.svg",
-     "size": 507
+     "size": 507,
+     "sha": "8fdb23008e63e01e196d8f5203f5228ddd300c37"
     },
     {
      "rel": "packages/github-vault/index.js",
      "path": "index.js",
-     "size": 41088
+     "size": 41088,
+     "sha": "bed985af1113ae6460f2d9d46b90712d7cd9ea0f"
     },
     {
      "rel": "packages/github-vault/lib/api.js",
      "path": "lib/api.js",
-     "size": 7533
+     "size": 7533,
+     "sha": "0121991df1021929accbae781dbb64b2cc0311bb"
     },
     {
      "rel": "packages/github-vault/lib/docs.js",
      "path": "lib/docs.js",
-     "size": 23078
+     "size": 23078,
+     "sha": "dabf733e54bc3374637287b7338ee1cc158d6d29"
     },
     {
      "rel": "packages/github-vault/lib/scan.js",
      "path": "lib/scan.js",
-     "size": 15795
+     "size": 15795,
+     "sha": "286f41d698df988dc02bad030cf88d91043f5c24"
     },
     {
      "rel": "packages/github-vault/locale/en.json",
      "path": "locale/en.json",
-     "size": 175
+     "size": 175,
+     "sha": "ef1e3d5f8226e8e68258018036a00d76a2fbeca5"
     },
     {
      "rel": "packages/github-vault/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 161
+     "size": 161,
+     "sha": "344959469384c653950732b2d37a7d1658fce462"
     },
     {
      "rel": "packages/github-vault/package.json",
      "path": "package.json",
-     "size": 837
+     "size": 837,
+     "sha": "4f9e413cce522b68dd770bc601a07a42117cd127"
     },
     {
      "rel": "packages/github-vault/README.md",
      "path": "README.md",
-     "size": 5201
+     "size": 5201,
+     "sha": "403279e1e097a506030a1f12f009ee97cf069339"
     },
     {
      "rel": "packages/github-vault/test-client-smoke.mjs",
      "path": "test-client-smoke.mjs",
-     "size": 6011
+     "size": 6011,
+     "sha": "a0e87d63e319f0d65adf9314987da359f70ca8d0"
     },
     {
      "rel": "packages/github-vault/test-host-upload.mjs",
      "path": "test-host-upload.mjs",
-     "size": 14593
+     "size": 14593,
+     "sha": "d6275e4cb0e3088256e8a0d93f2afda30ad71c8c"
     }
    ]
   },
@@ -249,42 +285,50 @@
     {
      "rel": "packages/l/client.js",
      "path": "client.js",
-     "size": 28008
+     "size": 28008,
+     "sha": "ac68d5542ec590cfddbf4a537b00e2b6c219aa9a"
     },
     {
      "rel": "packages/l/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 249
+     "size": 249,
+     "sha": "a2eeaec8f800fb9890b961190d542b02bb15d065"
     },
     {
      "rel": "packages/l/icon.svg",
      "path": "icon.svg",
-     "size": 914
+     "size": 914,
+     "sha": "f852817e971284e49ac54a6b43f1e74cd8e40158"
     },
     {
      "rel": "packages/l/index.js",
      "path": "index.js",
-     "size": 41111
+     "size": 41111,
+     "sha": "9cc98f8b5d18ca8eb6825d3edf0e5e8dcfc69d11"
     },
     {
      "rel": "packages/l/locale/en.json",
      "path": "locale/en.json",
-     "size": 249
+     "size": 249,
+     "sha": "e41201aa4c407f8978075f8ef71e6c1504795fba"
     },
     {
      "rel": "packages/l/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 248
+     "size": 248,
+     "sha": "95feceaf9584b1da76c912b9c3ec51b01bcbd81c"
     },
     {
      "rel": "packages/l/package.json",
      "path": "package.json",
-     "size": 721
+     "size": 721,
+     "sha": "5c80239b5675cf04ed66594670a63c4f339822b6"
     },
     {
      "rel": "packages/l/README.md",
      "path": "README.md",
-     "size": 2407
+     "size": 2407,
+     "sha": "e5e8e89540627f404d8920ea77a8f45b35c4146c"
     }
    ]
   },
@@ -298,87 +342,104 @@
     {
      "rel": "packages/olympiad/build-corpus.mjs",
      "path": "build-corpus.mjs",
-     "size": 3312
+     "size": 3312,
+     "sha": "658b879eb99de069762d06fa6f1bb8b125dfde72"
     },
     {
      "rel": "packages/olympiad/build.mjs",
      "path": "build.mjs",
-     "size": 919
+     "size": 919,
+     "sha": "e94b815569cde647ac1e495422e47adc072e7602"
     },
     {
      "rel": "packages/olympiad/client.js",
      "path": "client.js",
-     "size": 28056
+     "size": 28056,
+     "sha": "0c88b5d26313fb1791ed2447cecdb5eed13d46c8"
     },
     {
      "rel": "packages/olympiad/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 120
+     "size": 120,
+     "sha": "cfa91ce08eee711f5e9c34fb17c15401404c68dc"
     },
     {
      "rel": "packages/olympiad/debug2.mjs",
      "path": "debug2.mjs",
-     "size": 4233
+     "size": 4233,
+     "sha": "87ed03a468911456b4066f68710bb8af64a6633f"
     },
     {
      "rel": "packages/olympiad/icon.svg",
      "path": "icon.svg",
-     "size": 820
+     "size": 820,
+     "sha": "721046711635bbd2ce7914036a166f158bd9704d"
     },
     {
      "rel": "packages/olympiad/index.js",
      "path": "index.js",
-     "size": 3037
+     "size": 3037,
+     "sha": "1e6b0bf7ca789e32226f80be099c8148d22db12d"
     },
     {
      "rel": "packages/olympiad/locale/en.json",
      "path": "locale/en.json",
-     "size": 312
+     "size": 312,
+     "sha": "8e33c79fd3bb532184b6937e310db87063a55605"
     },
     {
      "rel": "packages/olympiad/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 312
+     "size": 312,
+     "sha": "8e33c79fd3bb532184b6937e310db87063a55605"
     },
     {
      "rel": "packages/olympiad/package.json",
      "path": "package.json",
-     "size": 735
+     "size": 735,
+     "sha": "97f1fc638665ecbbc613ac919e31449692e060a1"
     },
     {
      "rel": "packages/olympiad/problems.json",
      "path": "problems.json",
-     "size": 10708
+     "size": 10708,
+     "sha": "33c2f0c155065d632434315eace1941cd0f0d379"
     },
     {
      "rel": "packages/olympiad/README.md",
      "path": "README.md",
-     "size": 1589
+     "size": 1589,
+     "sha": "162acdc39e2fdce37ec690d57e2472b5f4f64bb8"
     },
     {
      "rel": "packages/olympiad/template-new.js",
      "path": "template-new.js",
-     "size": 27839
+     "size": 27839,
+     "sha": "57a3a4542185b298e8f542fb784c03b537181b5d"
     },
     {
      "rel": "packages/olympiad/template.js",
      "path": "template.js",
-     "size": 28056
+     "size": 28056,
+     "sha": "0c88b5d26313fb1791ed2447cecdb5eed13d46c8"
     },
     {
      "rel": "packages/olympiad/ui-test.mjs",
      "path": "ui-test.mjs",
-     "size": 7965
+     "size": 7965,
+     "sha": "9b3f3673e83f26af3bc8ee4a9f2c5ddff9a7348f"
     },
     {
      "rel": "packages/olympiad/ui-test2.mjs",
      "path": "ui-test2.mjs",
-     "size": 8319
+     "size": 8319,
+     "sha": "258747c3ee1b1e978270a50e3f7e17f92e63ffb2"
     },
     {
      "rel": "packages/olympiad/ui-test3.mjs",
      "path": "ui-test3.mjs",
-     "size": 7205
+     "size": 7205,
+     "sha": "e419f621f39ea357d32bad4f0272a543a0abf005"
     }
    ]
   },
@@ -392,32 +453,38 @@
     {
      "rel": "packages/paper-ink/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 315
+     "size": 315,
+     "sha": "29d64e7598c9179ddaa45267a8eb04854129c5e0"
     },
     {
      "rel": "packages/paper-ink/icon.svg",
      "path": "icon.svg",
-     "size": 504
+     "size": 504,
+     "sha": "ca2056e23d8f9a35d5b558d9f40657da0ce71bc1"
     },
     {
      "rel": "packages/paper-ink/index.js",
      "path": "index.js",
-     "size": 113
+     "size": 113,
+     "sha": "b2b6bd970927860ff98c100fe37f8cca32954893"
     },
     {
      "rel": "packages/paper-ink/locale/en.json",
      "path": "locale/en.json",
-     "size": 158
+     "size": 158,
+     "sha": "b2854285d4552fe41a90b742a76f45d77bf42763"
     },
     {
      "rel": "packages/paper-ink/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 171
+     "size": 171,
+     "sha": "8bdbf25845011889e7f468d048119b9d95d287be"
     },
     {
      "rel": "packages/paper-ink/package.json",
      "path": "package.json",
-     "size": 430
+     "size": 430,
+     "sha": "7be535e34e565e197250e762b87234ea5953083b"
     }
    ]
   },
@@ -431,37 +498,44 @@
     {
      "rel": "packages/paper-ink-design/client.js",
      "path": "client.js",
-     "size": 2279
+     "size": 2279,
+     "sha": "f8838d839e6d884c0a8376257f8b0339cb6ae3f3"
     },
     {
      "rel": "packages/paper-ink-design/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 118
+     "size": 118,
+     "sha": "4bea76c3a0991ae60d8ef3698ebf77f986ef4df6"
     },
     {
      "rel": "packages/paper-ink-design/icon.svg",
      "path": "icon.svg",
-     "size": 406
+     "size": 406,
+     "sha": "f85c5c82b215d870024bf62a98c4005b35642eba"
     },
     {
      "rel": "packages/paper-ink-design/index.js",
      "path": "index.js",
-     "size": 99
+     "size": 99,
+     "sha": "95e35eb686d02cfda06b05dd7312b5a7dba08814"
     },
     {
      "rel": "packages/paper-ink-design/locale/en.json",
      "path": "locale/en.json",
-     "size": 171
+     "size": 171,
+     "sha": "d19f093a4af2451bcaee7ba791dafbf299f39941"
     },
     {
      "rel": "packages/paper-ink-design/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 138
+     "size": 138,
+     "sha": "8de335cdb4e0c17877c91c2b0c5c112babb052f3"
     },
     {
      "rel": "packages/paper-ink-design/package.json",
      "path": "package.json",
-     "size": 703
+     "size": 703,
+     "sha": "7c6ec16f922acffd1cedb0fc7a7974a891a4ab17"
     }
    ]
   },
@@ -475,37 +549,44 @@
     {
      "rel": "packages/paper-ink-layout/client.js",
      "path": "client.js",
-     "size": 678
+     "size": 678,
+     "sha": "eeff7ef392ade71d9afb50eb2d27ee8510446721"
     },
     {
      "rel": "packages/paper-ink-layout/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 118
+     "size": 118,
+     "sha": "406988bf4c5315f5868b25b3350bfd2e1c3abcd4"
     },
     {
      "rel": "packages/paper-ink-layout/icon.svg",
      "path": "icon.svg",
-     "size": 520
+     "size": 520,
+     "sha": "f8310ea129737b43954cd47ec9495daa717bb7ae"
     },
     {
      "rel": "packages/paper-ink-layout/index.js",
      "path": "index.js",
-     "size": 99
+     "size": 99,
+     "sha": "82f44d1b6b5648c4ed86a325d5f5b1d16f30eeac"
     },
     {
      "rel": "packages/paper-ink-layout/locale/en.json",
      "path": "locale/en.json",
-     "size": 157
+     "size": 157,
+     "sha": "975fbc6973db424375ae8e5db69e2b10aa43bf22"
     },
     {
      "rel": "packages/paper-ink-layout/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 128
+     "size": 128,
+     "sha": "be010c6d6aab2b184e9ae72dc13e2efc9d0b5701"
     },
     {
      "rel": "packages/paper-ink-layout/package.json",
      "path": "package.json",
-     "size": 689
+     "size": 689,
+     "sha": "e24c6dac4a1406bc2abb44f0d44b64af0cc438b1"
     }
    ]
   },
@@ -519,42 +600,50 @@
     {
      "rel": "packages/paper-ink-theme/client.js",
      "path": "client.js",
-     "size": 10251
+     "size": 10251,
+     "sha": "f8dcbb83549a0bb80d20fc95db870bb537c4a78b"
     },
     {
      "rel": "packages/paper-ink-theme/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 116
+     "size": 116,
+     "sha": "ef8a98500ded3b870f7a5e08eeb0002ec5bac0ce"
     },
     {
      "rel": "packages/paper-ink-theme/icon.svg",
      "path": "icon.svg",
-     "size": 504
+     "size": 504,
+     "sha": "ca2056e23d8f9a35d5b558d9f40657da0ce71bc1"
     },
     {
      "rel": "packages/paper-ink-theme/index.js",
      "path": "index.js",
-     "size": 99
+     "size": 99,
+     "sha": "a1906b8954c1dfeeca26299989e24bd250fd3be1"
     },
     {
      "rel": "packages/paper-ink-theme/locale/en.json",
      "path": "locale/en.json",
-     "size": 168
+     "size": 168,
+     "sha": "76d8aaf2a61ba44d178efaf116dc2cde723a64b6"
     },
     {
      "rel": "packages/paper-ink-theme/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 144
+     "size": 144,
+     "sha": "8111a1eb503acfe4714a94b280493ee8b908d5c7"
     },
     {
      "rel": "packages/paper-ink-theme/package.json",
      "path": "package.json",
-     "size": 698
+     "size": 698,
+     "sha": "21b1592ed3b36934ea88e16fdc02342f542d7642"
     },
     {
      "rel": "packages/paper-ink-theme/README.md",
      "path": "README.md",
-     "size": 2446
+     "size": 2446,
+     "sha": "07ae6513619baf05536916983d573a37b6841024"
     }
    ]
   },
@@ -568,37 +657,44 @@
     {
      "rel": "packages/paper-ink-type/client.js",
      "path": "client.js",
-     "size": 1233
+     "size": 1233,
+     "sha": "c67522a3dd15cbdca2d8168264f3fd12b835e016"
     },
     {
      "rel": "packages/paper-ink-type/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 114
+     "size": 114,
+     "sha": "1935e054f6e7cdf56cb4af7cf28b5a2b3139768a"
     },
     {
      "rel": "packages/paper-ink-type/icon.svg",
      "path": "icon.svg",
-     "size": 354
+     "size": 354,
+     "sha": "50dc0c6448b4072b8b0828435944525dc708b278"
     },
     {
      "rel": "packages/paper-ink-type/index.js",
      "path": "index.js",
-     "size": 99
+     "size": 99,
+     "sha": "47811afdd36b187a7da8b417f7a45d3cd9395b3d"
     },
     {
      "rel": "packages/paper-ink-type/locale/en.json",
      "path": "locale/en.json",
-     "size": 146
+     "size": 146,
+     "sha": "d711f2df45efef57ebedd5295369bf3abda5f4ab"
     },
     {
      "rel": "packages/paper-ink-type/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 135
+     "size": 135,
+     "sha": "8730f4a44fc84d53f7e3fece4c973cdd39bccd56"
     },
     {
      "rel": "packages/paper-ink-type/package.json",
      "path": "package.json",
-     "size": 678
+     "size": 678,
+     "sha": "ec26a09af389acbee4332100590ce435d140cf29"
     }
    ]
   },
@@ -612,37 +708,44 @@
     {
      "rel": "packages/paper-ink-user/client.js",
      "path": "client.js",
-     "size": 10810
+     "size": 10810,
+     "sha": "602eb1ad41bfa3cb90d1f180664aa4efbb2bd99d"
     },
     {
      "rel": "packages/paper-ink-user/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 126
+     "size": 126,
+     "sha": "b50eda26b0201b0a0dcda926a6282ff515292702"
     },
     {
      "rel": "packages/paper-ink-user/icon.svg",
      "path": "icon.svg",
-     "size": 567
+     "size": 567,
+     "sha": "51f5ca8397547113f294f1d6fc84839929f37070"
     },
     {
      "rel": "packages/paper-ink-user/index.js",
      "path": "index.js",
-     "size": 3452
+     "size": 3452,
+     "sha": "06dcdd323cf36de913eaba92fc7f93da131bbb4e"
     },
     {
      "rel": "packages/paper-ink-user/locale/en.json",
      "path": "locale/en.json",
-     "size": 210
+     "size": 210,
+     "sha": "1b8ea9f69b7be7f0c970d4d752cef85b138fc525"
     },
     {
      "rel": "packages/paper-ink-user/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 183
+     "size": 183,
+     "sha": "0629f772632a0896729b704b9b6dc19fc96ee1fd"
     },
     {
      "rel": "packages/paper-ink-user/package.json",
      "path": "package.json",
-     "size": 719
+     "size": 719,
+     "sha": "0ec94ff63fc5c7f85b181a0c73173c00443312e5"
     }
    ]
   },
@@ -656,42 +759,50 @@
     {
      "rel": "packages/plugin-hub/client.js",
      "path": "client.js",
-     "size": 20742
+     "size": 20742,
+     "sha": "e18764df88ca1f9729fa4586c68f7ee7b0031535"
     },
     {
      "rel": "packages/plugin-hub/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 124
+     "size": 124,
+     "sha": "91e427f7e830f057a9836c2a972905cd2d3976a7"
     },
     {
      "rel": "packages/plugin-hub/icon.svg",
      "path": "icon.svg",
-     "size": 420
+     "size": 420,
+     "sha": "ec1ee3a305dc9b5062cfce3477ffd3a33abdc5e9"
     },
     {
      "rel": "packages/plugin-hub/index.js",
      "path": "index.js",
-     "size": 28079
+     "size": 29517,
+     "sha": "1e395f2df4d9a8549ff14bd3cb4dd78f5ac50d6f"
     },
     {
      "rel": "packages/plugin-hub/locale/en.json",
      "path": "locale/en.json",
-     "size": 171
+     "size": 171,
+     "sha": "844ab23ea7517656335722b5e27e0d6bc00218ef"
     },
     {
      "rel": "packages/plugin-hub/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 186
+     "size": 186,
+     "sha": "71534a337608f28e2f7d54a72b4ea6c7f7b3cca4"
     },
     {
      "rel": "packages/plugin-hub/package.json",
      "path": "package.json",
-     "size": 822
+     "size": 822,
+     "sha": "70a5d23fc3e8cc0fffae6ef48c436adf747c602b"
     },
     {
      "rel": "packages/plugin-hub/README.md",
      "path": "README.md",
-     "size": 2079
+     "size": 2079,
+     "sha": "aa545d72df731937103549a99c90cd5a1701f206"
     }
    ]
   },
@@ -705,37 +816,44 @@
     {
      "rel": "packages/plugin-names/client.js",
      "path": "client.js",
-     "size": 14925
+     "size": 14925,
+     "sha": "fcc3f9a6f83e959379610bc3dc4101b0ade047ce"
     },
     {
      "rel": "packages/plugin-names/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 140
+     "size": 140,
+     "sha": "c090a1910d940c5485940b3360c9356d18906654"
     },
     {
      "rel": "packages/plugin-names/icon.svg",
      "path": "icon.svg",
-     "size": 521
+     "size": 521,
+     "sha": "4fc0f40d90c890c0c167a0f74d410a9ee6add55f"
     },
     {
      "rel": "packages/plugin-names/index.js",
      "path": "index.js",
-     "size": 4953
+     "size": 4953,
+     "sha": "b217a06b88992296ae8bd205a41f0b5e6294bc0e"
     },
     {
      "rel": "packages/plugin-names/locale/en.json",
      "path": "locale/en.json",
-     "size": 202
+     "size": 202,
+     "sha": "06d8487aaa7445c444ba6facba28199834be98b7"
     },
     {
      "rel": "packages/plugin-names/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 207
+     "size": 207,
+     "sha": "4d02fc35cc31778888d7f045c4670dcb5d6ef912"
     },
     {
      "rel": "packages/plugin-names/package.json",
      "path": "package.json",
-     "size": 711
+     "size": 711,
+     "sha": "81296309eb97546871cd0d07582f7b8bffd973d8"
     }
    ]
   },
@@ -749,127 +867,152 @@
     {
      "rel": "packages/poetry/build.mjs",
      "path": "build.mjs",
-     "size": 1149
+     "size": 1149,
+     "sha": "bc533a8c0f04d0de940babfbfc08ac897346f82b"
     },
     {
      "rel": "packages/poetry/client.js",
      "path": "client.js",
-     "size": 85773
+     "size": 85773,
+     "sha": "701dd69c86b8ddd5f6172bf358420e10be8b5297"
     },
     {
      "rel": "packages/poetry/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 108
+     "size": 108,
+     "sha": "b3b709677dc05c99326e2ae820a97f7a797a8a93"
     },
     {
      "rel": "packages/poetry/corpus-test.mjs",
      "path": "corpus-test.mjs",
-     "size": 7420
+     "size": 7420,
+     "sha": "3b4b11748510027e76017b56d7b6900f86300d0f"
     },
     {
      "rel": "packages/poetry/cover.mjs",
      "path": "cover.mjs",
-     "size": 5269
+     "size": 5269,
+     "sha": "033dd81972acaa706fc47ee9874100db4cb82f0b"
     },
     {
      "rel": "packages/poetry/data-ci.json",
      "path": "data-ci.json",
-     "size": 13635
+     "size": 13635,
+     "sha": "2395ba2c0c8134a698b62fb60850f8d27270418d"
     },
     {
      "rel": "packages/poetry/data-extra.json",
      "path": "data-extra.json",
-     "size": 14058
+     "size": 14058,
+     "sha": "e1b47220d7092d15a37e00cbb312620b7fc2a267"
     },
     {
      "rel": "packages/poetry/data-qu.json",
      "path": "data-qu.json",
-     "size": 4616
+     "size": 4616,
+     "sha": "c9ebabf923a8822a04da1cb066d0410b4a4fa873"
     },
     {
      "rel": "packages/poetry/data-shi.json",
      "path": "data-shi.json",
-     "size": 18431
+     "size": 18431,
+     "sha": "c11b68359576be886c85fffcf8924463c6fe692b"
     },
     {
      "rel": "packages/poetry/en-check.mjs",
      "path": "en-check.mjs",
-     "size": 7474
+     "size": 7474,
+     "sha": "3501b562ed468c2f71dd5a732d0334b1997bac34"
     },
     {
      "rel": "packages/poetry/fix-genres.mjs",
      "path": "fix-genres.mjs",
-     "size": 3113
+     "size": 3113,
+     "sha": "5da4e32bb6564dc1d990c8d58d03241aa3c831b7"
     },
     {
      "rel": "packages/poetry/i18n.mjs",
      "path": "i18n.mjs",
-     "size": 5364
+     "size": 5364,
+     "sha": "dbaa95a33b4bf3aa20adf08a17343b28adab346f"
     },
     {
      "rel": "packages/poetry/icon.svg",
      "path": "icon.svg",
-     "size": 910
+     "size": 910,
+     "sha": "67ee480b465d5b144c60f7c11c724103c3028d95"
     },
     {
      "rel": "packages/poetry/index.js",
      "path": "index.js",
-     "size": 329
+     "size": 329,
+     "sha": "22a61cdac2a50bd8acefea03c87ac80cfd393fcb"
     },
     {
      "rel": "packages/poetry/inline-notes.mjs",
      "path": "inline-notes.mjs",
-     "size": 10309
+     "size": 10309,
+     "sha": "c54be95ed160d90b005ad6ae4f4d8e01ce46dc8e"
     },
     {
      "rel": "packages/poetry/inline-test.mjs",
      "path": "inline-test.mjs",
-     "size": 7457
+     "size": 7457,
+     "sha": "de1145311ac75104e57d0df26a019cf19e4073f7"
     },
     {
      "rel": "packages/poetry/locale/en.json",
      "path": "locale/en.json",
-     "size": 371
+     "size": 371,
+     "sha": "260c5f4128be55b02cadec311a99181d4031a2f5"
     },
     {
      "rel": "packages/poetry/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 381
+     "size": 381,
+     "sha": "fa58f7dfd48f36efea14520464101c5cc24b3213"
     },
     {
      "rel": "packages/poetry/package.json",
      "path": "package.json",
-     "size": 787
+     "size": 787,
+     "sha": "0042dc9ea453b5577639c9b45d008dbb192f6ce4"
     },
     {
      "rel": "packages/poetry/patch-client.mjs",
      "path": "patch-client.mjs",
-     "size": 4480
+     "size": 4480,
+     "sha": "c48a7449d7ce7b6ffe628e6da142deb0e7e0a21f"
     },
     {
      "rel": "packages/poetry/README.md",
      "path": "README.md",
-     "size": 2817
+     "size": 2817,
+     "sha": "71869ebffd68f96ad47ab7c4a087918b21f23604"
     },
     {
      "rel": "packages/poetry/template.js",
      "path": "template.js",
-     "size": 26052
+     "size": 26052,
+     "sha": "3de43f4e094c00a9920fc9e748d746224e919361"
     },
     {
      "rel": "packages/poetry/title-notes.mjs",
      "path": "title-notes.mjs",
-     "size": 2786
+     "size": 2786,
+     "sha": "8d30dd72e7a4d4b75eebf3f5b6f1eb2b1f13469b"
     },
     {
      "rel": "packages/poetry/tools/build-corpus.mjs",
      "path": "tools/build-corpus.mjs",
-     "size": 7683
+     "size": 7683,
+     "sha": "7edbbc9ff3240b2c530b3688186a6598c4ec0017"
     },
     {
      "rel": "packages/poetry/ui-test.mjs",
      "path": "ui-test.mjs",
-     "size": 8923
+     "size": 8923,
+     "sha": "905290526c2087d9e77d24e763ed9beb3df2aef7"
     }
    ]
   },
@@ -883,102 +1026,122 @@
     {
      "rel": "packages/session-purge/client.js",
      "path": "client.js",
-     "size": 21581
+     "size": 21581,
+     "sha": "ebfbf6604a9bd80fb8a1c74d246b3450303a54dc"
     },
     {
      "rel": "packages/session-purge/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 138
+     "size": 138,
+     "sha": "d330b4fd6ca92f7504bca1de5c17206fc120a5e9"
     },
     {
      "rel": "packages/session-purge/icon.svg",
      "path": "icon.svg",
-     "size": 525
+     "size": 525,
+     "sha": "9f830eba880f88633edfd5d4a1111bf7f1a8a340"
     },
     {
      "rel": "packages/session-purge/index.js",
      "path": "index.js",
-     "size": 68177
+     "size": 68177,
+     "sha": "95fe23713585641c39567ab1a39704042d513435"
     },
     {
      "rel": "packages/session-purge/install-backup/cordis.patch.yml.bak",
      "path": "install-backup/cordis.patch.yml.bak",
-     "size": 1002
+     "size": 1002,
+     "sha": "538efaec2c32302d1ef341e744bf3637141dd163"
     },
     {
      "rel": "packages/session-purge/install-backup/package.json.bak",
      "path": "install-backup/package.json.bak",
-     "size": 1526
+     "size": 1526,
+     "sha": "cae92b8c2eabe1863c2faac24f3238b994a401ad"
     },
     {
      "rel": "packages/session-purge/install-backup/pnpm-lock.yaml.bak",
      "path": "install-backup/pnpm-lock.yaml.bak",
-     "size": 2340
+     "size": 2340,
+     "sha": "3ca69678ad45a1011a9d1c32652a48c597008d21"
     },
     {
      "rel": "packages/session-purge/legacy/client.v1.js",
      "path": "legacy/client.v1.js",
-     "size": 15272
+     "size": 15272,
+     "sha": "842c629ea0f3961f3c8b0b12fe6754def6198ff4"
     },
     {
      "rel": "packages/session-purge/legacy/index.v1.js",
      "path": "legacy/index.v1.js",
-     "size": 32643
+     "size": 32643,
+     "sha": "6a6b6eb80a4e12d5c964f74638087857ae5dd103"
     },
     {
      "rel": "packages/session-purge/legacy/test-client.v1.mjs",
      "path": "legacy/test-client.v1.mjs",
-     "size": 6394
+     "size": 6394,
+     "sha": "693d7982879685575bebdfb6c4f1cf99f84d96bb"
     },
     {
      "rel": "packages/session-purge/legacy/test-host.v1.mjs",
      "path": "legacy/test-host.v1.mjs",
-     "size": 10414
+     "size": 10414,
+     "sha": "bdb68e02970d400ea28765df182b4c8142296bec"
     },
     {
      "rel": "packages/session-purge/LICENSE",
      "path": "LICENSE",
-     "size": 1149
+     "size": 1149,
+     "sha": "62a9f71c6fba0d4abe63ef32a61e69779827ceb5"
     },
     {
      "rel": "packages/session-purge/locale/en.json",
      "path": "locale/en.json",
-     "size": 326
+     "size": 326,
+     "sha": "97f275159884a17f58f4ef18e5dc607c783d6d2e"
     },
     {
      "rel": "packages/session-purge/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 302
+     "size": 302,
+     "sha": "bf984d44fdda5837a268804a6327e28aa8899eab"
     },
     {
      "rel": "packages/session-purge/NOTICE",
      "path": "NOTICE",
-     "size": 1109
+     "size": 1109,
+     "sha": "e37fe30168289c33a924fcb539b8fe4b58d2ed0a"
     },
     {
      "rel": "packages/session-purge/package.json",
      "path": "package.json",
-     "size": 1107
+     "size": 1107,
+     "sha": "3df82f84aaf19204912b79fa2b724c2e74abd701"
     },
     {
      "rel": "packages/session-purge/README.md",
      "path": "README.md",
-     "size": 4813
+     "size": 4813,
+     "sha": "ec84529960ef5b1414352d6f6ac48ef4db5b1d84"
     },
     {
      "rel": "packages/session-purge/test-client-smoke.mjs",
      "path": "test-client-smoke.mjs",
-     "size": 3347
+     "size": 3347,
+     "sha": "def4934c858bfa9153a70e4caae3cbb74b1f5cb9"
     },
     {
      "rel": "packages/session-purge/test-client.mjs",
      "path": "test-client.mjs",
-     "size": 6394
+     "size": 6394,
+     "sha": "693d7982879685575bebdfb6c4f1cf99f84d96bb"
     },
     {
      "rel": "packages/session-purge/test-host.mjs",
      "path": "test-host.mjs",
-     "size": 10414
+     "size": 10414,
+     "sha": "bdb68e02970d400ea28765df182b4c8142296bec"
     }
    ]
   },
@@ -992,232 +1155,278 @@
     {
      "rel": "packages/sudoku/apply-css.mjs",
      "path": "apply-css.mjs",
-     "size": 1094
+     "size": 1094,
+     "sha": "c69ccca87f9749096344cc0a0d6ad5d5cbb2d980"
     },
     {
      "rel": "packages/sudoku/apply-css2.mjs",
      "path": "apply-css2.mjs",
-     "size": 1220
+     "size": 1220,
+     "sha": "981577403be3a8de17a6a3a1675cb0f31e554f83"
     },
     {
      "rel": "packages/sudoku/client.js",
      "path": "client.js",
-     "size": 46787
+     "size": 46787,
+     "sha": "9dffdc1aae69e3fb78a16d80bed711f3f93744d3"
     },
     {
      "rel": "packages/sudoku/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 118
+     "size": 118,
+     "sha": "ff5af5523ffe380c020de089b30f61b02a23a382"
     },
     {
      "rel": "packages/sudoku/density-test.mjs",
      "path": "density-test.mjs",
-     "size": 6908
+     "size": 6908,
+     "sha": "5ec8bdf90b518c6861adf4344aa7a5a12a08ca1c"
     },
     {
      "rel": "packages/sudoku/design-test.mjs",
      "path": "design-test.mjs",
-     "size": 8019
+     "size": 8019,
+     "sha": "d8f95222abd098e38cce1a1791e0717dd617ff3e"
     },
     {
      "rel": "packages/sudoku/en-test.mjs",
      "path": "en-test.mjs",
-     "size": 6292
+     "size": 6292,
+     "sha": "d33e674635f8deabfb577956dd80bc970dcb989d"
     },
     {
      "rel": "packages/sudoku/engine-test.mjs",
      "path": "engine-test.mjs",
-     "size": 1265
+     "size": 1265,
+     "sha": "04217ebc6fc8bb94ad92b7d3ab72ff82f3cc5aa8"
     },
     {
      "rel": "packages/sudoku/fit-test.mjs",
      "path": "fit-test.mjs",
-     "size": 5972
+     "size": 5972,
+     "sha": "95379b28822155039101d7bf4258dc02cccbfdb0"
     },
     {
      "rel": "packages/sudoku/fix-grow.mjs",
      "path": "fix-grow.mjs",
-     "size": 1808
+     "size": 1808,
+     "sha": "d1062598f69c2c634a11c12dba47c81727a4bdde"
     },
     {
      "rel": "packages/sudoku/fix1.mjs",
      "path": "fix1.mjs",
-     "size": 8989
+     "size": 8989,
+     "sha": "764f53644b61d35bb9db29a375012196151bc3af"
     },
     {
      "rel": "packages/sudoku/fix2.mjs",
      "path": "fix2.mjs",
-     "size": 5199
+     "size": 5199,
+     "sha": "66e4d92b1fffc70e6d80373fc9012b1891ad54a7"
     },
     {
      "rel": "packages/sudoku/fix3.mjs",
      "path": "fix3.mjs",
-     "size": 1043
+     "size": 1043,
+     "sha": "4cfe1d8df9e7b8bbd8baaacf87144e2470097c19"
     },
     {
      "rel": "packages/sudoku/fix4.mjs",
      "path": "fix4.mjs",
-     "size": 725
+     "size": 725,
+     "sha": "27aeae7f16086d1c9e87af6240db184af5b9e472"
     },
     {
      "rel": "packages/sudoku/fix5.mjs",
      "path": "fix5.mjs",
-     "size": 1254
+     "size": 1254,
+     "sha": "cb20e8a7adf9cc8fcbdfd3ace081c162597305fb"
     },
     {
      "rel": "packages/sudoku/grow-test.mjs",
      "path": "grow-test.mjs",
-     "size": 4790
+     "size": 4790,
+     "sha": "70db265db1d34ea6506071d8c080e2bfccc5dcf3"
     },
     {
      "rel": "packages/sudoku/i18n.mjs",
      "path": "i18n.mjs",
-     "size": 12869
+     "size": 12869,
+     "sha": "55d316ab750dbfbe99bcc1c3df51b991d8f8949c"
     },
     {
      "rel": "packages/sudoku/icon.svg",
      "path": "icon.svg",
-     "size": 1090
+     "size": 1090,
+     "sha": "b9dd3d3b5eb54e6a56ee38f52285e55d52c1e63e"
     },
     {
      "rel": "packages/sudoku/index.js",
      "path": "index.js",
-     "size": 408
+     "size": 408,
+     "sha": "9e01c6dc0946b6d444305e2664e0f824a9e65e0c"
     },
     {
      "rel": "packages/sudoku/lines-test.mjs",
      "path": "lines-test.mjs",
-     "size": 6642
+     "size": 6642,
+     "sha": "a40761e176fd2608aa56fd2405749cd7980b1b03"
     },
     {
      "rel": "packages/sudoku/locale/en.json",
      "path": "locale/en.json",
-     "size": 299
+     "size": 299,
+     "sha": "b5edcccab1ba35abf2ca6e1301b9ec4857375299"
     },
     {
      "rel": "packages/sudoku/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 318
+     "size": 318,
+     "sha": "506653e3acb87bf3b0ba4ffda0b0226f8364a497"
     },
     {
      "rel": "packages/sudoku/master-test.mjs",
      "path": "master-test.mjs",
-     "size": 6418
+     "size": 6418,
+     "sha": "522991997fdd3ee9d0109fcc26dde230a6bc6e69"
     },
     {
      "rel": "packages/sudoku/newcss.txt",
      "path": "newcss.txt",
-     "size": 12412
+     "size": 12412,
+     "sha": "b9eb750e364cca6f758564edf1a9a39dc3bbb525"
     },
     {
      "rel": "packages/sudoku/package.json",
      "path": "package.json",
-     "size": 733
+     "size": 733,
+     "sha": "fa3e2e58189d757979de0fa4d49572ed366d8f06"
     },
     {
      "rel": "packages/sudoku/polish-test.mjs",
      "path": "polish-test.mjs",
-     "size": 9475
+     "size": 9475,
+     "sha": "d1f24ce4224fb4dd2f7b5772e36cef96aa278871"
     },
     {
      "rel": "packages/sudoku/polish.mjs",
      "path": "polish.mjs",
-     "size": 2697
+     "size": 2697,
+     "sha": "2317e212ce07bc80b7f10ec6651b59533ede7271"
     },
     {
      "rel": "packages/sudoku/polish2.mjs",
      "path": "polish2.mjs",
-     "size": 1668
+     "size": 1668,
+     "sha": "e1ede46bd1b929e54615169bde9bf33140e843ac"
     },
     {
      "rel": "packages/sudoku/polish3.mjs",
      "path": "polish3.mjs",
-     "size": 1328
+     "size": 1328,
+     "sha": "97ee0c5ee74fb8b902b4750751fa9a09e81d35ca"
     },
     {
      "rel": "packages/sudoku/polish4.mjs",
      "path": "polish4.mjs",
-     "size": 4929
+     "size": 4929,
+     "sha": "3815d916795d074a57804590f4bbc5c331e77d26"
     },
     {
      "rel": "packages/sudoku/polish5.mjs",
      "path": "polish5.mjs",
-     "size": 2381
+     "size": 2381,
+     "sha": "0b30972dd8892bb52703f0e7457c8bcc4e0a32bc"
     },
     {
      "rel": "packages/sudoku/polish6.mjs",
      "path": "polish6.mjs",
-     "size": 1420
+     "size": 1420,
+     "sha": "84c44cd122eb5894b9904057e67fa422233a93ea"
     },
     {
      "rel": "packages/sudoku/rate-debug.mjs",
      "path": "rate-debug.mjs",
-     "size": 1189
+     "size": 1189,
+     "sha": "a017a1fb46f26d26403061ae5b3f10654bf86b02"
     },
     {
      "rel": "packages/sudoku/README.md",
      "path": "README.md",
-     "size": 2620
+     "size": 2620,
+     "sha": "0b323a9852873997074baa52943255a6631473ad"
     },
     {
      "rel": "packages/sudoku/restyle.mjs",
      "path": "restyle.mjs",
-     "size": 9277
+     "size": 9277,
+     "sha": "d2c7c74fc4a2fa1a9bfd52af6d104772beff4ea2"
     },
     {
      "rel": "packages/sudoku/restyle2.mjs",
      "path": "restyle2.mjs",
-     "size": 998
+     "size": 998,
+     "sha": "48d1da2d6cd32374355af7f87effcf660c29ce54"
     },
     {
      "rel": "packages/sudoku/shot.mjs",
      "path": "shot.mjs",
-     "size": 5098
+     "size": 5098,
+     "sha": "95ceaef6f38feaea5954038896ff3e4c93e37656"
     },
     {
      "rel": "packages/sudoku/splice.mjs",
      "path": "splice.mjs",
-     "size": 477
+     "size": 477,
+     "sha": "16605755e0c1e7bca211e25ce2a9b7aaaf2cf11f"
     },
     {
      "rel": "packages/sudoku/tail.txt",
      "path": "tail.txt",
-     "size": 45784
+     "size": 45784,
+     "sha": "21c21e66421ba3e9bdf302449eaf32e6b7ee3bfa"
     },
     {
      "rel": "packages/sudoku/theme-fix.mjs",
      "path": "theme-fix.mjs",
-     "size": 2646
+     "size": 2646,
+     "sha": "811b4932236f2469e2ea8fb85a11f9036310d1ae"
     },
     {
      "rel": "packages/sudoku/theme-fix2.mjs",
      "path": "theme-fix2.mjs",
-     "size": 1504
+     "size": 1504,
+     "sha": "edd837f55043f79bac6c375c8386cc0f8f4ca1d4"
     },
     {
      "rel": "packages/sudoku/theme-splice.mjs",
      "path": "theme-splice.mjs",
-     "size": 3010
+     "size": 3010,
+     "sha": "ac8ebee6ebb9438e63cb5708fb2bf0beef936a55"
     },
     {
      "rel": "packages/sudoku/ui-test.mjs",
      "path": "ui-test.mjs",
-     "size": 7182
+     "size": 7182,
+     "sha": "594bfcceb5a755b8f5bb7ea4baee6d6e413196fa"
     },
     {
      "rel": "packages/sudoku/ui-test3.mjs",
      "path": "ui-test3.mjs",
-     "size": 7609
+     "size": 7609,
+     "sha": "e1f0b56978b4296f5271988447e047624401f42e"
     },
     {
      "rel": "packages/sudoku/uniform-test.mjs",
      "path": "uniform-test.mjs",
-     "size": 5986
+     "size": 5986,
+     "sha": "6b3716c458dfbb620fea7078b3827ed823bdba89"
     },
     {
      "rel": "packages/sudoku/walk-test.mjs",
      "path": "walk-test.mjs",
-     "size": 1551
+     "size": 1551,
+     "sha": "e590bf1212549c9e110002bf8d7408a5bb9956fa"
     }
    ]
   },
@@ -1231,47 +1440,56 @@
     {
      "rel": "packages/usage-center/client.js",
      "path": "client.js",
-     "size": 78266
+     "size": 78266,
+     "sha": "4041fb760c8899c15028118a2a234714ad4c83e7"
     },
     {
      "rel": "packages/usage-center/cordis.patch.yml",
      "path": "cordis.patch.yml",
-     "size": 151
+     "size": 151,
+     "sha": "810aae81913d02e0f665fc2511e07183f111ae2b"
     },
     {
      "rel": "packages/usage-center/icon.svg",
      "path": "icon.svg",
-     "size": 636
+     "size": 636,
+     "sha": "796a3d68d4febae1e1c668b44ed6bb5c42de6728"
     },
     {
      "rel": "packages/usage-center/index.js",
      "path": "index.js",
-     "size": 47846
+     "size": 47846,
+     "sha": "d20917c1c14b656c58e3607a2fe7dcfc416f9700"
     },
     {
      "rel": "packages/usage-center/locale/en.json",
      "path": "locale/en.json",
-     "size": 219
+     "size": 219,
+     "sha": "46db04b4ad3d9359c92a97f70d588d0253d1836d"
     },
     {
      "rel": "packages/usage-center/locale/zh.json",
      "path": "locale/zh.json",
-     "size": 198
+     "size": 198,
+     "sha": "65e52364ea748b50964f9e49f8db94285b427f99"
     },
     {
      "rel": "packages/usage-center/package.json",
      "path": "package.json",
-     "size": 750
+     "size": 750,
+     "sha": "db74cda72c7d1c7ddcc624d290693b98471da152"
     },
     {
      "rel": "packages/usage-center/README.md",
      "path": "README.md",
-     "size": 2426
+     "size": 2426,
+     "sha": "ce44acbc597667d14dbe7124981a3f441f64e813"
     },
     {
      "rel": "packages/usage-center/TUTORIAL.md",
      "path": "TUTORIAL.md",
-     "size": 35535
+     "size": 35535,
+     "sha": "3baeb12a451af68aafd3d143a5c507c7db24c0d0"
     }
    ]
   }

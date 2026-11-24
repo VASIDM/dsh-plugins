@@ -278,15 +278,22 @@ export function apply(ctx) {
     const head = await headRef(gh, owner, repo.repo, branch);
     const { packages, files } = await collect(root);
 
+    const { createHash } = await import('node:crypto');
+    const blobSha = (bytes) =>
+      createHash('sha1').update(Buffer.concat([Buffer.from(`blob ${bytes.length}\0`, 'utf8'), bytes])).digest('hex');
+    const source = await readProfile();
+    const fileShas = new Map();
+    for (const file of files) fileShas.set(file.rel, blobSha(await fs.readFile(file.abs)));
+
     const manifest = {
       version: 1,
       generatedAt: new Date().toISOString(),
       host: name,
       bundles: packages.filter((item) => item.hasBundle).map((item) => item.name),
       profile: {
-        bundles: (await readProfile()).dsh?.profile?.bundles || [],
+        bundles: source.dsh?.profile?.bundles || [],
         dependencies: Object.fromEntries(
-          Object.entries((await readProfile()).dependencies || {}).filter(([, spec]) => String(spec).startsWith('link:')),
+          Object.entries(source.dependencies || {}).filter(([, spec]) => String(spec).startsWith('link:')),
         ),
       },
       packages: packages.map((item) => ({
@@ -295,16 +302,18 @@ export function apply(ctx) {
         version: item.version,
         title: item.title,
         hasBundle: item.hasBundle,
-        files: files.filter((file) => file.rel.startsWith(`packages/${item.dir}/`)).map((file) => ({
-          rel: file.rel,
-          path: file.rel.slice(`packages/${item.dir}/`.length),
-          size: file.size,
-        })),
+        files: files
+          .filter((file) => file.rel.startsWith(`packages/${item.dir}/`))
+          .map((file) => ({
+            rel: file.rel,
+            path: file.rel.slice(`packages/${item.dir}/`.length),
+            size: file.size,
+            sha: fileShas.get(file.rel),
+          })),
       })),
     };
 
-    const uploads = [];
-    for (const file of files) uploads.push({ rel: file.rel, abs: file.abs });
+    const uploads = files.map((file) => ({ rel: file.rel, abs: file.abs }));
     const manifestBuffer = Buffer.from(JSON.stringify(manifest, null, 1), 'utf8');
     const manifestPath = path.join(root, '.plugin-hub-manifest.json');
     await fs.writeFile(manifestPath, manifestBuffer);
@@ -323,9 +332,7 @@ export function apply(ctx) {
     let skipped = 0;
     for (const file of uploads) {
       const bytes = await fs.readFile(file.abs);
-      const contentSha = Buffer.concat([Buffer.from(`blob ${bytes.length}\0`, 'utf8'), bytes]);
-      const { createHash } = await import('node:crypto');
-      const sha = createHash('sha1').update(contentSha).digest('hex');
+      const sha = file.rel === 'manifest.json' ? blobSha(bytes) : fileShas.get(file.rel) || blobSha(bytes);
       if (existing.get(file.rel) === sha) {
         skipped += 1;
         entries.push({ path: file.rel, mode: '100644', type: 'blob', sha });
@@ -374,10 +381,20 @@ export function apply(ctx) {
   }
 
   async function fetchManifest(repo, token) {
-    const url = `${RAW}/${repo.owner}/${repo.repo}/${repo.branch || 'main'}/manifest.json`;
-    const response = await fetch(url, {
-      headers: token ? { authorization: `Bearer ${token}` } : {},
-    });
+    // raw.githubusercontent.com caches for minutes, which silently returns a
+    // stale manifest right after a push. Prefer the API, which never caches.
+    if (token) {
+      const response = await fetch(`${GH}/repos/${repo.owner}/${repo.repo}/contents/manifest.json?ref=${repo.branch || 'main'}`, {
+        headers: {
+          accept: 'application/vnd.github.raw',
+          authorization: `Bearer ${token}`,
+          'user-agent': 'dsh-plugin-hub',
+        },
+      });
+      if (response.ok) return response.json();
+    }
+    const url = `${RAW}/${repo.owner}/${repo.repo}/${repo.branch || 'main'}/manifest.json?t=${Date.now()}`;
+    const response = await fetch(url, { headers: token ? { authorization: `Bearer ${token}` } : {} });
     if (!response.ok) throw new AppError(502, 'manifest', `读取 manifest.json 失败 (${response.status})。请先在旧机器上执行一次“备份到 GitHub”。`);
     return response.json();
   }
@@ -392,7 +409,24 @@ export function apply(ctx) {
       if (!pkg.dir || !Array.isArray(pkg.files)) continue;
       for (const file of pkg.files) {
         const rel = `packages/${pkg.dir}/${file.path}`;
-        const url = `${RAW}/${repo.owner}/${repo.repo}/${repo.branch || 'main'}/${rel.split('/').map(encodeURIComponent).join('/')}`;
+        if (token && file.sha) {
+          const response = await fetch(`${GH}/repos/${repo.owner}/${repo.repo}/git/blobs/${file.sha}`, {
+            headers: {
+              accept: 'application/vnd.github.raw',
+              authorization: `Bearer ${token}`,
+              'user-agent': 'dsh-plugin-hub',
+            },
+          });
+          if (!response.ok) throw new AppError(502, 'download', `下载 ${rel} 失败 (${response.status})。`);
+          const buffer = Buffer.from(await response.arrayBuffer());
+          const target = path.join(root, pkg.dir, file.path);
+          await fs.mkdir(path.dirname(target), { recursive: true });
+          await fs.writeFile(target, buffer);
+          written.push(target);
+          continue;
+        }
+        const encoded = rel.split('/').map(encodeURIComponent).join('/');
+        const url = `${RAW}/${repo.owner}/${repo.repo}/${repo.branch || 'main'}/${encoded}?t=${encodeURIComponent(manifest.generatedAt || '')}`;
         const response = await fetch(url, { headers: token ? { authorization: `Bearer ${token}` } : {} });
         if (!response.ok) throw new AppError(502, 'download', `下载 ${rel} 失败 (${response.status})。`);
         const buffer = Buffer.from(await response.arrayBuffer());
@@ -415,15 +449,10 @@ export function apply(ctx) {
       profile.dependencies[pkg.name] = savedDeps?.[pkg.name] || `link:${root.replace(/\\/g, '/')}/${pkg.dir}`;
     }
     // Reproduce the source profile's exact working set: a bundle the source kept
-    // off must stay off here, and built-ins are preserved as they are.
+    // off stays off here, and DSH built-ins are preserved as they are.
     let bundles;
     if (Array.isArray(manifest.profile?.bundles) && manifest.profile.bundles.length) {
       bundles = manifest.profile.bundles.filter((item) => !String(item).startsWith('@local/') || localNames.has(item));
-      for (const name of localNames) {
-        if (!bundles.includes(name) && manifest.bundles?.includes(name) && profile.dsh.profile.bundles.includes(name)) {
-          bundles.push(name);
-        }
-      }
     } else {
       const kept = profile.dsh.profile.bundles.filter((item) => !String(item).startsWith('@local/'));
       bundles = [...kept, ...manifest.packages.filter((pkg) => pkg.hasBundle && pkg.name).map((pkg) => pkg.name)];
