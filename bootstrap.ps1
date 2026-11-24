@@ -36,17 +36,32 @@ New-Item -ItemType Directory -Force $tmpRoot | Out-Null
 $zip = Join-Path $tmpRoot 'repo.zip'
 
 Say "下载仓库 $Owner/$Repo ..."
-$url = "https://codeload.github.com/$Owner/$Repo/zip/refs/heads/$Branch"
-try {
-  Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing -TimeoutSec 120
-} catch {
-  throw "下载失败：$($_.Exception.Message)。若仓库是私有的，请先用 Token 手动下载。"
+$Token = $env:DSH_GH_TOKEN
+$downloaded = $false
+if ($Token) {
+  # Private (or any) repo through the API: curl follows the signed redirect and
+  # drops the Authorization header on the cross-host hop, which is what GitHub wants.
+  Say '使用 DSH_GH_TOKEN 通过 API 下载 ...'
+  $apiZip = "https://api.github.com/repos/$Owner/$Repo/zipball/$Branch"
+  & curl.exe -s -L -H "Authorization: Bearer $Token" -H 'User-Agent: dsh-plugin-hub' -o $zip $apiZip
+  if ((Test-Path $zip) -and (Get-Item $zip).Length -gt 1024) { $downloaded = $true }
+}
+if (-not $downloaded) {
+  $url = "https://codeload.github.com/$Owner/$Repo/zip/refs/heads/$Branch"
+  try {
+    Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing -TimeoutSec 120
+    $downloaded = $true
+  } catch {
+    throw "下载失败：$($_.Exception.Message)。仓库若是私有的，请先设置环境变量 DSH_GH_TOKEN 再运行。"
+  }
 }
 Say ("已下载 {0:N1} MB" -f ((Get-Item $zip).Length / 1MB))
 
 Say '解压 ...'
 Expand-Archive -LiteralPath $zip -DestinationPath $tmpRoot -Force
-$src = Get-ChildItem $tmpRoot -Directory | Where-Object { $_.Name -like "$Repo-*" } | Select-Object -First 1
+# codeload names the folder "<repo>-main"; the API zipball names it "<owner>-<repo>-<sha>".
+$src = Get-ChildItem $tmpRoot -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'manifest.json') } | Select-Object -First 1
+if (-not $src) { $src = Get-ChildItem $tmpRoot -Directory | Select-Object -First 1 }
 if (-not $src) { throw '压缩包结构不正确，找不到仓库目录。' }
 
 $manifestPath = Join-Path $src.FullName 'manifest.json'
