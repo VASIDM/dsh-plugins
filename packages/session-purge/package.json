@@ -1,0 +1,38 @@
+{
+  "name": "@local/session-purge",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Permanently erase one DSH conversation and its local traces: releases a running agent, removes logs (zero-overwritten), subagent descendants, projection cache, workspace accounting, unshared attachments and file-cache records.",
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "icon": "./icon.svg",
+  "meta": {
+    "title": "彻底删除对话",
+    "description": "从会话头部或侧栏菜单彻底抹除一个会话：先释放运行中的 Agent，再写零并删除日志，级联删除子代理会话，清理投影缓存、工作区记账与未共享附件。"
+  }
+}

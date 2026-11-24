@@ -1,0 +1,4 @@
+# 纸墨 · 字体: one Paper & Ink layer.
+- insert:
+    - id: paper-ink-type
+      name: '@local/paper-ink-type'

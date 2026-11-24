@@ -1,0 +1,4 @@
+# 纸墨 · 布局: one Paper & Ink layer.
+- insert:
+    - id: paper-ink-layout
+      name: '@local/paper-ink-layout'

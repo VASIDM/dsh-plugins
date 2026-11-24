@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "title": "Sudoku · local generator",
+    "description": "A draggable, resizable Sudoku window opened from the sidebar; puzzles are generated locally and cost no tokens."
+  },
+  "panel": "Sudoku",
+  "title": "Sudoku",
+  "description": "Locally generated high-difficulty Sudoku."
+}

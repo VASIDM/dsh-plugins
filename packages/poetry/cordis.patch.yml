@@ -1,0 +1,5 @@
+# 诗笺 — a local poetry reader.
+- insert:
+    - id: poetry
+      name: '@local/poetry'
+      config: {}

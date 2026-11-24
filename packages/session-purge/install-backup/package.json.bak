@@ -1,0 +1,30 @@
+{
+  "name": "dsh-profile-desktop",
+  "private": true,
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@local/usage-center",
+        "@local/dsh-scifi-boot",
+        "@local/plugin-names",
+        "@local/paper-ink",
+        "@local/github-vault",
+        "@local/azl-habits"
+      ]
+    }
+  },
+  "dependencies": {
+    "@local/azl-habits": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/azl-habits",
+    "@local/dsh-scifi-boot": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/dsh-scifi-boot",
+    "@local/github-vault": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/github-vault",
+    "@local/paper-ink": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink",
+    "@local/paper-ink-design": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-design",
+    "@local/paper-ink-layout": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-layout",
+    "@local/paper-ink-theme": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-theme",
+    "@local/paper-ink-type": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/paper-ink-type",
+    "@local/plugin-names": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/plugin-names",
+    "@local/usage-center": "link:C:/Users/GIGAC5C6/Documents/deepseek-harness/default-workspace/usage-center"
+  }
+}

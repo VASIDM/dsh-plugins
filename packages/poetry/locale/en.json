@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "title": "Poetry Notes · local reader",
+    "description": "Open a random classical Chinese poem with notes, vernacular translation, appreciation, author biography and historical background. Everything is local and costs no tokens."
+  },
+  "panel": "Poetry",
+  "title": "Poetry",
+  "description": "A random classical poem with notes and commentary."
+}

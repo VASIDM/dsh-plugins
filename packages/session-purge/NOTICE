@@ -1,0 +1,26 @@
+# NOTICE
+
+This package integrates work from these MIT-licensed projects:
+
+- **@liuyu-f/dsh-plugin-session-cascade-delete** 1.0.6
+  https://github.com/liuyu-f/dsh-plugin-session-cascade-delete
+  Copyright (c) 2026 liuyu-f
+  The Host deletion engine (live agent/session release, log-first ordering,
+  subagent cascade, storage-domain cleanup, `api-session/removed`
+  announcement) and the Client slot integration (header action, sidebar row
+  menu, native confirmation dialog) are adapted from this project.
+
+- **@huanlin/dsh-plugin-session-delete** (upstream of the project above)
+  https://github.com/lsz-asd/dsh-plugin-session-delete
+  Copyright (c) 2026 lsz-asd
+
+Additions in this package:
+
+- Zero-overwrite before unlinking session logs, projection documents and
+  attachment objects (`shred` config, on by default).
+- Attachment reclamation with a cross-session reference check, and cleanup of
+  `llm-deepseek/files-v3.json` records.
+- The session-purge naming, route, tool name and Chinese/English copy.
+- Extra reporting for reclaimed attachments.
+
+The full MIT license text is in [LICENSE](./LICENSE).

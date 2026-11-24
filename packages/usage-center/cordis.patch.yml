@@ -1,0 +1,4 @@
+# Usage Center: account balance, token usage and Platform shortcuts in the sidebar.
+- insert:
+    - id: usage-center
+      name: '@local/usage-center'

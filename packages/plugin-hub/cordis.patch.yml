@@ -1,0 +1,4 @@
+# Plugin Hub: one right-sidebar home for every local plugin.
+- insert:
+    - id: plugin-hub
+      name: '@local/plugin-hub'

@@ -1,0 +1,4 @@
+# 纸墨 · 用户：侧栏底部的本地账户卡。
+- insert:
+    - id: paper-ink-user
+      name: '@local/paper-ink-user'

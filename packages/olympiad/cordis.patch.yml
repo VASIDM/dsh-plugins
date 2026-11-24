@@ -1,0 +1,5 @@
+# Olympiad — an IMO-level problem reader.
+- insert:
+    - id: olympiad
+      name: '@local/olympiad'
+      config: {}

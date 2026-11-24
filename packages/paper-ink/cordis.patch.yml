@@ -1,0 +1,10 @@
+# 纸墨：一个插件，四个独立组件。
+- insert:
+    - id: paper-ink-palette
+      name: '@local/paper-ink-theme'
+    - id: paper-ink-type
+      name: '@local/paper-ink-type'
+    - id: paper-ink-layout
+      name: '@local/paper-ink-layout'
+    - id: paper-ink-design
+      name: '@local/paper-ink-design'

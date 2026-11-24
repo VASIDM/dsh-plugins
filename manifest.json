@@ -1,0 +1,1245 @@
+{
+ "version": 1,
+ "generatedAt": "2026-11-24T15:15:59.055Z",
+ "host": "plugin-hub",
+ "bundles": [
+  "@local/deepseek-web",
+  "@local/dsh-scifi-boot",
+  "@local/github-vault",
+  "@local/l",
+  "@local/olympiad",
+  "@local/paper-ink",
+  "@local/paper-ink-user",
+  "@local/plugin-hub",
+  "@local/plugin-names",
+  "@local/poetry",
+  "@local/session-purge",
+  "@local/sudoku",
+  "@local/usage-center"
+ ],
+ "packages": [
+  {
+   "dir": "deepseek-web",
+   "name": "@local/deepseek-web",
+   "version": "1.0.0",
+   "title": "DeepSeek 网页版",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/deepseek-web/client.js",
+     "path": "client.js",
+     "size": 43137
+    },
+    {
+     "rel": "packages/deepseek-web/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 67
+    },
+    {
+     "rel": "packages/deepseek-web/icon.svg",
+     "path": "icon.svg",
+     "size": 890
+    },
+    {
+     "rel": "packages/deepseek-web/index.js",
+     "path": "index.js",
+     "size": 320
+    },
+    {
+     "rel": "packages/deepseek-web/locale/en.json",
+     "path": "locale/en.json",
+     "size": 184
+    },
+    {
+     "rel": "packages/deepseek-web/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 194
+    },
+    {
+     "rel": "packages/deepseek-web/package.json",
+     "path": "package.json",
+     "size": 801
+    },
+    {
+     "rel": "packages/deepseek-web/README.md",
+     "path": "README.md",
+     "size": 5770
+    },
+    {
+     "rel": "packages/deepseek-web/tools/patch-persistent-partition.mjs",
+     "path": "tools/patch-persistent-partition.mjs",
+     "size": 5077
+    }
+   ]
+  },
+  {
+   "dir": "dsh-scifi-boot",
+   "name": "@local/dsh-scifi-boot",
+   "version": "1.8.0",
+   "title": "太初 开机序列",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/dsh-scifi-boot/client.js",
+     "path": "client.js",
+     "size": 36886
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 67
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/icon.svg",
+     "path": "icon.svg",
+     "size": 637
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/index.js",
+     "path": "index.js",
+     "size": 306
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/locale/en.json",
+     "path": "locale/en.json",
+     "size": 267
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 342
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/meter-check.mjs",
+     "path": "meter-check.mjs",
+     "size": 2722
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/package.json",
+     "path": "package.json",
+     "size": 703
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/test/harness.mjs",
+     "path": "test/harness.mjs",
+     "size": 12989
+    },
+    {
+     "rel": "packages/dsh-scifi-boot/test/meter-bench.mjs",
+     "path": "test/meter-bench.mjs",
+     "size": 2989
+    }
+   ]
+  },
+  {
+   "dir": "github-vault",
+   "name": "@local/github-vault",
+   "version": "1.0.0",
+   "title": "插件上行",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/github-vault/client.js",
+     "path": "client.js",
+     "size": 84472
+    },
+    {
+     "rel": "packages/github-vault/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 133
+    },
+    {
+     "rel": "packages/github-vault/icon.svg",
+     "path": "icon.svg",
+     "size": 507
+    },
+    {
+     "rel": "packages/github-vault/index.js",
+     "path": "index.js",
+     "size": 41088
+    },
+    {
+     "rel": "packages/github-vault/lib/api.js",
+     "path": "lib/api.js",
+     "size": 7533
+    },
+    {
+     "rel": "packages/github-vault/lib/docs.js",
+     "path": "lib/docs.js",
+     "size": 23078
+    },
+    {
+     "rel": "packages/github-vault/lib/scan.js",
+     "path": "lib/scan.js",
+     "size": 15795
+    },
+    {
+     "rel": "packages/github-vault/locale/en.json",
+     "path": "locale/en.json",
+     "size": 175
+    },
+    {
+     "rel": "packages/github-vault/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 161
+    },
+    {
+     "rel": "packages/github-vault/package.json",
+     "path": "package.json",
+     "size": 837
+    },
+    {
+     "rel": "packages/github-vault/README.md",
+     "path": "README.md",
+     "size": 5201
+    },
+    {
+     "rel": "packages/github-vault/test-client-smoke.mjs",
+     "path": "test-client-smoke.mjs",
+     "size": 6011
+    },
+    {
+     "rel": "packages/github-vault/test-host-upload.mjs",
+     "path": "test-host-upload.mjs",
+     "size": 14593
+    }
+   ]
+  },
+  {
+   "dir": "l",
+   "name": "@local/l",
+   "version": "2.0.0",
+   "title": "L",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/l/client.js",
+     "path": "client.js",
+     "size": 28008
+    },
+    {
+     "rel": "packages/l/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 249
+    },
+    {
+     "rel": "packages/l/icon.svg",
+     "path": "icon.svg",
+     "size": 914
+    },
+    {
+     "rel": "packages/l/index.js",
+     "path": "index.js",
+     "size": 41111
+    },
+    {
+     "rel": "packages/l/locale/en.json",
+     "path": "locale/en.json",
+     "size": 249
+    },
+    {
+     "rel": "packages/l/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 248
+    },
+    {
+     "rel": "packages/l/package.json",
+     "path": "package.json",
+     "size": 721
+    },
+    {
+     "rel": "packages/l/README.md",
+     "path": "README.md",
+     "size": 2407
+    }
+   ]
+  },
+  {
+   "dir": "olympiad",
+   "name": "@local/olympiad",
+   "version": "1.0.0",
+   "title": "Olympiad · IMO-level problems",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/olympiad/build-corpus.mjs",
+     "path": "build-corpus.mjs",
+     "size": 3312
+    },
+    {
+     "rel": "packages/olympiad/build.mjs",
+     "path": "build.mjs",
+     "size": 919
+    },
+    {
+     "rel": "packages/olympiad/client.js",
+     "path": "client.js",
+     "size": 28056
+    },
+    {
+     "rel": "packages/olympiad/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 120
+    },
+    {
+     "rel": "packages/olympiad/debug2.mjs",
+     "path": "debug2.mjs",
+     "size": 4233
+    },
+    {
+     "rel": "packages/olympiad/icon.svg",
+     "path": "icon.svg",
+     "size": 820
+    },
+    {
+     "rel": "packages/olympiad/index.js",
+     "path": "index.js",
+     "size": 3037
+    },
+    {
+     "rel": "packages/olympiad/locale/en.json",
+     "path": "locale/en.json",
+     "size": 312
+    },
+    {
+     "rel": "packages/olympiad/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 312
+    },
+    {
+     "rel": "packages/olympiad/package.json",
+     "path": "package.json",
+     "size": 735
+    },
+    {
+     "rel": "packages/olympiad/problems.json",
+     "path": "problems.json",
+     "size": 10708
+    },
+    {
+     "rel": "packages/olympiad/README.md",
+     "path": "README.md",
+     "size": 1589
+    },
+    {
+     "rel": "packages/olympiad/template-new.js",
+     "path": "template-new.js",
+     "size": 27839
+    },
+    {
+     "rel": "packages/olympiad/template.js",
+     "path": "template.js",
+     "size": 28056
+    },
+    {
+     "rel": "packages/olympiad/ui-test.mjs",
+     "path": "ui-test.mjs",
+     "size": 7965
+    },
+    {
+     "rel": "packages/olympiad/ui-test2.mjs",
+     "path": "ui-test2.mjs",
+     "size": 8319
+    },
+    {
+     "rel": "packages/olympiad/ui-test3.mjs",
+     "path": "ui-test3.mjs",
+     "size": 7205
+    }
+   ]
+  },
+  {
+   "dir": "paper-ink",
+   "name": "@local/paper-ink",
+   "version": "1.0.0",
+   "title": "纸墨",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/paper-ink/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 315
+    },
+    {
+     "rel": "packages/paper-ink/icon.svg",
+     "path": "icon.svg",
+     "size": 504
+    },
+    {
+     "rel": "packages/paper-ink/index.js",
+     "path": "index.js",
+     "size": 113
+    },
+    {
+     "rel": "packages/paper-ink/locale/en.json",
+     "path": "locale/en.json",
+     "size": 158
+    },
+    {
+     "rel": "packages/paper-ink/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 171
+    },
+    {
+     "rel": "packages/paper-ink/package.json",
+     "path": "package.json",
+     "size": 430
+    }
+   ]
+  },
+  {
+   "dir": "paper-ink-design",
+   "name": "@local/paper-ink-design",
+   "version": "1.0.0",
+   "title": "纸墨 · 设计",
+   "hasBundle": false,
+   "files": [
+    {
+     "rel": "packages/paper-ink-design/client.js",
+     "path": "client.js",
+     "size": 2279
+    },
+    {
+     "rel": "packages/paper-ink-design/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 118
+    },
+    {
+     "rel": "packages/paper-ink-design/icon.svg",
+     "path": "icon.svg",
+     "size": 406
+    },
+    {
+     "rel": "packages/paper-ink-design/index.js",
+     "path": "index.js",
+     "size": 99
+    },
+    {
+     "rel": "packages/paper-ink-design/locale/en.json",
+     "path": "locale/en.json",
+     "size": 171
+    },
+    {
+     "rel": "packages/paper-ink-design/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 138
+    },
+    {
+     "rel": "packages/paper-ink-design/package.json",
+     "path": "package.json",
+     "size": 703
+    }
+   ]
+  },
+  {
+   "dir": "paper-ink-layout",
+   "name": "@local/paper-ink-layout",
+   "version": "1.0.0",
+   "title": "纸墨 · 布局",
+   "hasBundle": false,
+   "files": [
+    {
+     "rel": "packages/paper-ink-layout/client.js",
+     "path": "client.js",
+     "size": 678
+    },
+    {
+     "rel": "packages/paper-ink-layout/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 118
+    },
+    {
+     "rel": "packages/paper-ink-layout/icon.svg",
+     "path": "icon.svg",
+     "size": 520
+    },
+    {
+     "rel": "packages/paper-ink-layout/index.js",
+     "path": "index.js",
+     "size": 99
+    },
+    {
+     "rel": "packages/paper-ink-layout/locale/en.json",
+     "path": "locale/en.json",
+     "size": 157
+    },
+    {
+     "rel": "packages/paper-ink-layout/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 128
+    },
+    {
+     "rel": "packages/paper-ink-layout/package.json",
+     "path": "package.json",
+     "size": 689
+    }
+   ]
+  },
+  {
+   "dir": "paper-ink-theme",
+   "name": "@local/paper-ink-theme",
+   "version": "1.0.0",
+   "title": "纸墨 · 配色",
+   "hasBundle": false,
+   "files": [
+    {
+     "rel": "packages/paper-ink-theme/client.js",
+     "path": "client.js",
+     "size": 10251
+    },
+    {
+     "rel": "packages/paper-ink-theme/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 116
+    },
+    {
+     "rel": "packages/paper-ink-theme/icon.svg",
+     "path": "icon.svg",
+     "size": 504
+    },
+    {
+     "rel": "packages/paper-ink-theme/index.js",
+     "path": "index.js",
+     "size": 99
+    },
+    {
+     "rel": "packages/paper-ink-theme/locale/en.json",
+     "path": "locale/en.json",
+     "size": 168
+    },
+    {
+     "rel": "packages/paper-ink-theme/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 144
+    },
+    {
+     "rel": "packages/paper-ink-theme/package.json",
+     "path": "package.json",
+     "size": 698
+    },
+    {
+     "rel": "packages/paper-ink-theme/README.md",
+     "path": "README.md",
+     "size": 2446
+    }
+   ]
+  },
+  {
+   "dir": "paper-ink-type",
+   "name": "@local/paper-ink-type",
+   "version": "1.0.0",
+   "title": "纸墨 · 字体",
+   "hasBundle": false,
+   "files": [
+    {
+     "rel": "packages/paper-ink-type/client.js",
+     "path": "client.js",
+     "size": 1233
+    },
+    {
+     "rel": "packages/paper-ink-type/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 114
+    },
+    {
+     "rel": "packages/paper-ink-type/icon.svg",
+     "path": "icon.svg",
+     "size": 354
+    },
+    {
+     "rel": "packages/paper-ink-type/index.js",
+     "path": "index.js",
+     "size": 99
+    },
+    {
+     "rel": "packages/paper-ink-type/locale/en.json",
+     "path": "locale/en.json",
+     "size": 146
+    },
+    {
+     "rel": "packages/paper-ink-type/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 135
+    },
+    {
+     "rel": "packages/paper-ink-type/package.json",
+     "path": "package.json",
+     "size": 678
+    }
+   ]
+  },
+  {
+   "dir": "paper-ink-user",
+   "name": "@local/paper-ink-user",
+   "version": "1.0.0",
+   "title": "纸墨 · 用户",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/paper-ink-user/client.js",
+     "path": "client.js",
+     "size": 10810
+    },
+    {
+     "rel": "packages/paper-ink-user/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 126
+    },
+    {
+     "rel": "packages/paper-ink-user/icon.svg",
+     "path": "icon.svg",
+     "size": 567
+    },
+    {
+     "rel": "packages/paper-ink-user/index.js",
+     "path": "index.js",
+     "size": 3452
+    },
+    {
+     "rel": "packages/paper-ink-user/locale/en.json",
+     "path": "locale/en.json",
+     "size": 210
+    },
+    {
+     "rel": "packages/paper-ink-user/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 183
+    },
+    {
+     "rel": "packages/paper-ink-user/package.json",
+     "path": "package.json",
+     "size": 719
+    }
+   ]
+  },
+  {
+   "dir": "plugin-hub",
+   "name": "@local/plugin-hub",
+   "version": "1.0.0",
+   "title": "插件管家",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/plugin-hub/client.js",
+     "path": "client.js",
+     "size": 20742
+    },
+    {
+     "rel": "packages/plugin-hub/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 124
+    },
+    {
+     "rel": "packages/plugin-hub/icon.svg",
+     "path": "icon.svg",
+     "size": 420
+    },
+    {
+     "rel": "packages/plugin-hub/index.js",
+     "path": "index.js",
+     "size": 26933
+    },
+    {
+     "rel": "packages/plugin-hub/locale/en.json",
+     "path": "locale/en.json",
+     "size": 171
+    },
+    {
+     "rel": "packages/plugin-hub/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 186
+    },
+    {
+     "rel": "packages/plugin-hub/package.json",
+     "path": "package.json",
+     "size": 822
+    },
+    {
+     "rel": "packages/plugin-hub/README.md",
+     "path": "README.md",
+     "size": 2079
+    }
+   ]
+  },
+  {
+   "dir": "plugin-names",
+   "name": "@local/plugin-names",
+   "version": "1.0.0",
+   "title": "插件改名",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/plugin-names/client.js",
+     "path": "client.js",
+     "size": 14925
+    },
+    {
+     "rel": "packages/plugin-names/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 140
+    },
+    {
+     "rel": "packages/plugin-names/icon.svg",
+     "path": "icon.svg",
+     "size": 521
+    },
+    {
+     "rel": "packages/plugin-names/index.js",
+     "path": "index.js",
+     "size": 4953
+    },
+    {
+     "rel": "packages/plugin-names/locale/en.json",
+     "path": "locale/en.json",
+     "size": 202
+    },
+    {
+     "rel": "packages/plugin-names/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 207
+    },
+    {
+     "rel": "packages/plugin-names/package.json",
+     "path": "package.json",
+     "size": 711
+    }
+   ]
+  },
+  {
+   "dir": "poetry",
+   "name": "@local/poetry",
+   "version": "1.0.0",
+   "title": "诗笺 · 本地诗词阅读",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/poetry/build.mjs",
+     "path": "build.mjs",
+     "size": 1149
+    },
+    {
+     "rel": "packages/poetry/client.js",
+     "path": "client.js",
+     "size": 85773
+    },
+    {
+     "rel": "packages/poetry/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 108
+    },
+    {
+     "rel": "packages/poetry/corpus-test.mjs",
+     "path": "corpus-test.mjs",
+     "size": 7420
+    },
+    {
+     "rel": "packages/poetry/cover.mjs",
+     "path": "cover.mjs",
+     "size": 5269
+    },
+    {
+     "rel": "packages/poetry/data-ci.json",
+     "path": "data-ci.json",
+     "size": 13635
+    },
+    {
+     "rel": "packages/poetry/data-extra.json",
+     "path": "data-extra.json",
+     "size": 14058
+    },
+    {
+     "rel": "packages/poetry/data-qu.json",
+     "path": "data-qu.json",
+     "size": 4616
+    },
+    {
+     "rel": "packages/poetry/data-shi.json",
+     "path": "data-shi.json",
+     "size": 18431
+    },
+    {
+     "rel": "packages/poetry/en-check.mjs",
+     "path": "en-check.mjs",
+     "size": 7474
+    },
+    {
+     "rel": "packages/poetry/fix-genres.mjs",
+     "path": "fix-genres.mjs",
+     "size": 3113
+    },
+    {
+     "rel": "packages/poetry/i18n.mjs",
+     "path": "i18n.mjs",
+     "size": 5364
+    },
+    {
+     "rel": "packages/poetry/icon.svg",
+     "path": "icon.svg",
+     "size": 910
+    },
+    {
+     "rel": "packages/poetry/index.js",
+     "path": "index.js",
+     "size": 329
+    },
+    {
+     "rel": "packages/poetry/inline-notes.mjs",
+     "path": "inline-notes.mjs",
+     "size": 10309
+    },
+    {
+     "rel": "packages/poetry/inline-test.mjs",
+     "path": "inline-test.mjs",
+     "size": 7457
+    },
+    {
+     "rel": "packages/poetry/locale/en.json",
+     "path": "locale/en.json",
+     "size": 371
+    },
+    {
+     "rel": "packages/poetry/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 381
+    },
+    {
+     "rel": "packages/poetry/package.json",
+     "path": "package.json",
+     "size": 787
+    },
+    {
+     "rel": "packages/poetry/patch-client.mjs",
+     "path": "patch-client.mjs",
+     "size": 4480
+    },
+    {
+     "rel": "packages/poetry/README.md",
+     "path": "README.md",
+     "size": 2817
+    },
+    {
+     "rel": "packages/poetry/template.js",
+     "path": "template.js",
+     "size": 26052
+    },
+    {
+     "rel": "packages/poetry/title-notes.mjs",
+     "path": "title-notes.mjs",
+     "size": 2786
+    },
+    {
+     "rel": "packages/poetry/tools/build-corpus.mjs",
+     "path": "tools/build-corpus.mjs",
+     "size": 7683
+    },
+    {
+     "rel": "packages/poetry/ui-test.mjs",
+     "path": "ui-test.mjs",
+     "size": 8923
+    }
+   ]
+  },
+  {
+   "dir": "session-purge",
+   "name": "@local/session-purge",
+   "version": "2.0.0",
+   "title": "彻底删除对话",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/session-purge/client.js",
+     "path": "client.js",
+     "size": 21581
+    },
+    {
+     "rel": "packages/session-purge/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 138
+    },
+    {
+     "rel": "packages/session-purge/icon.svg",
+     "path": "icon.svg",
+     "size": 525
+    },
+    {
+     "rel": "packages/session-purge/index.js",
+     "path": "index.js",
+     "size": 68177
+    },
+    {
+     "rel": "packages/session-purge/install-backup/cordis.patch.yml.bak",
+     "path": "install-backup/cordis.patch.yml.bak",
+     "size": 1002
+    },
+    {
+     "rel": "packages/session-purge/install-backup/package.json.bak",
+     "path": "install-backup/package.json.bak",
+     "size": 1526
+    },
+    {
+     "rel": "packages/session-purge/install-backup/pnpm-lock.yaml.bak",
+     "path": "install-backup/pnpm-lock.yaml.bak",
+     "size": 2340
+    },
+    {
+     "rel": "packages/session-purge/legacy/client.v1.js",
+     "path": "legacy/client.v1.js",
+     "size": 15272
+    },
+    {
+     "rel": "packages/session-purge/legacy/index.v1.js",
+     "path": "legacy/index.v1.js",
+     "size": 32643
+    },
+    {
+     "rel": "packages/session-purge/legacy/test-client.v1.mjs",
+     "path": "legacy/test-client.v1.mjs",
+     "size": 6394
+    },
+    {
+     "rel": "packages/session-purge/legacy/test-host.v1.mjs",
+     "path": "legacy/test-host.v1.mjs",
+     "size": 10414
+    },
+    {
+     "rel": "packages/session-purge/LICENSE",
+     "path": "LICENSE",
+     "size": 1149
+    },
+    {
+     "rel": "packages/session-purge/locale/en.json",
+     "path": "locale/en.json",
+     "size": 326
+    },
+    {
+     "rel": "packages/session-purge/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 302
+    },
+    {
+     "rel": "packages/session-purge/NOTICE",
+     "path": "NOTICE",
+     "size": 1109
+    },
+    {
+     "rel": "packages/session-purge/package.json",
+     "path": "package.json",
+     "size": 1107
+    },
+    {
+     "rel": "packages/session-purge/README.md",
+     "path": "README.md",
+     "size": 4813
+    },
+    {
+     "rel": "packages/session-purge/test-client-smoke.mjs",
+     "path": "test-client-smoke.mjs",
+     "size": 3347
+    },
+    {
+     "rel": "packages/session-purge/test-client.mjs",
+     "path": "test-client.mjs",
+     "size": 6394
+    },
+    {
+     "rel": "packages/session-purge/test-host.mjs",
+     "path": "test-host.mjs",
+     "size": 10414
+    }
+   ]
+  },
+  {
+   "dir": "sudoku",
+   "name": "@local/sudoku",
+   "version": "1.0.2",
+   "title": "数独 · 本地生成",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/sudoku/apply-css.mjs",
+     "path": "apply-css.mjs",
+     "size": 1094
+    },
+    {
+     "rel": "packages/sudoku/apply-css2.mjs",
+     "path": "apply-css2.mjs",
+     "size": 1220
+    },
+    {
+     "rel": "packages/sudoku/client.js",
+     "path": "client.js",
+     "size": 46787
+    },
+    {
+     "rel": "packages/sudoku/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 118
+    },
+    {
+     "rel": "packages/sudoku/density-test.mjs",
+     "path": "density-test.mjs",
+     "size": 6908
+    },
+    {
+     "rel": "packages/sudoku/design-test.mjs",
+     "path": "design-test.mjs",
+     "size": 8019
+    },
+    {
+     "rel": "packages/sudoku/en-test.mjs",
+     "path": "en-test.mjs",
+     "size": 6292
+    },
+    {
+     "rel": "packages/sudoku/engine-test.mjs",
+     "path": "engine-test.mjs",
+     "size": 1265
+    },
+    {
+     "rel": "packages/sudoku/fit-test.mjs",
+     "path": "fit-test.mjs",
+     "size": 5972
+    },
+    {
+     "rel": "packages/sudoku/fix-grow.mjs",
+     "path": "fix-grow.mjs",
+     "size": 1808
+    },
+    {
+     "rel": "packages/sudoku/fix1.mjs",
+     "path": "fix1.mjs",
+     "size": 8989
+    },
+    {
+     "rel": "packages/sudoku/fix2.mjs",
+     "path": "fix2.mjs",
+     "size": 5199
+    },
+    {
+     "rel": "packages/sudoku/fix3.mjs",
+     "path": "fix3.mjs",
+     "size": 1043
+    },
+    {
+     "rel": "packages/sudoku/fix4.mjs",
+     "path": "fix4.mjs",
+     "size": 725
+    },
+    {
+     "rel": "packages/sudoku/fix5.mjs",
+     "path": "fix5.mjs",
+     "size": 1254
+    },
+    {
+     "rel": "packages/sudoku/grow-test.mjs",
+     "path": "grow-test.mjs",
+     "size": 4790
+    },
+    {
+     "rel": "packages/sudoku/i18n.mjs",
+     "path": "i18n.mjs",
+     "size": 12869
+    },
+    {
+     "rel": "packages/sudoku/icon.svg",
+     "path": "icon.svg",
+     "size": 1090
+    },
+    {
+     "rel": "packages/sudoku/index.js",
+     "path": "index.js",
+     "size": 408
+    },
+    {
+     "rel": "packages/sudoku/lines-test.mjs",
+     "path": "lines-test.mjs",
+     "size": 6642
+    },
+    {
+     "rel": "packages/sudoku/locale/en.json",
+     "path": "locale/en.json",
+     "size": 299
+    },
+    {
+     "rel": "packages/sudoku/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 318
+    },
+    {
+     "rel": "packages/sudoku/master-test.mjs",
+     "path": "master-test.mjs",
+     "size": 6418
+    },
+    {
+     "rel": "packages/sudoku/newcss.txt",
+     "path": "newcss.txt",
+     "size": 12412
+    },
+    {
+     "rel": "packages/sudoku/package.json",
+     "path": "package.json",
+     "size": 733
+    },
+    {
+     "rel": "packages/sudoku/polish-test.mjs",
+     "path": "polish-test.mjs",
+     "size": 9475
+    },
+    {
+     "rel": "packages/sudoku/polish.mjs",
+     "path": "polish.mjs",
+     "size": 2697
+    },
+    {
+     "rel": "packages/sudoku/polish2.mjs",
+     "path": "polish2.mjs",
+     "size": 1668
+    },
+    {
+     "rel": "packages/sudoku/polish3.mjs",
+     "path": "polish3.mjs",
+     "size": 1328
+    },
+    {
+     "rel": "packages/sudoku/polish4.mjs",
+     "path": "polish4.mjs",
+     "size": 4929
+    },
+    {
+     "rel": "packages/sudoku/polish5.mjs",
+     "path": "polish5.mjs",
+     "size": 2381
+    },
+    {
+     "rel": "packages/sudoku/polish6.mjs",
+     "path": "polish6.mjs",
+     "size": 1420
+    },
+    {
+     "rel": "packages/sudoku/rate-debug.mjs",
+     "path": "rate-debug.mjs",
+     "size": 1189
+    },
+    {
+     "rel": "packages/sudoku/README.md",
+     "path": "README.md",
+     "size": 2620
+    },
+    {
+     "rel": "packages/sudoku/restyle.mjs",
+     "path": "restyle.mjs",
+     "size": 9277
+    },
+    {
+     "rel": "packages/sudoku/restyle2.mjs",
+     "path": "restyle2.mjs",
+     "size": 998
+    },
+    {
+     "rel": "packages/sudoku/shot.mjs",
+     "path": "shot.mjs",
+     "size": 5098
+    },
+    {
+     "rel": "packages/sudoku/splice.mjs",
+     "path": "splice.mjs",
+     "size": 477
+    },
+    {
+     "rel": "packages/sudoku/tail.txt",
+     "path": "tail.txt",
+     "size": 45784
+    },
+    {
+     "rel": "packages/sudoku/theme-fix.mjs",
+     "path": "theme-fix.mjs",
+     "size": 2646
+    },
+    {
+     "rel": "packages/sudoku/theme-fix2.mjs",
+     "path": "theme-fix2.mjs",
+     "size": 1504
+    },
+    {
+     "rel": "packages/sudoku/theme-splice.mjs",
+     "path": "theme-splice.mjs",
+     "size": 3010
+    },
+    {
+     "rel": "packages/sudoku/ui-test.mjs",
+     "path": "ui-test.mjs",
+     "size": 7182
+    },
+    {
+     "rel": "packages/sudoku/ui-test3.mjs",
+     "path": "ui-test3.mjs",
+     "size": 7609
+    },
+    {
+     "rel": "packages/sudoku/uniform-test.mjs",
+     "path": "uniform-test.mjs",
+     "size": 5986
+    },
+    {
+     "rel": "packages/sudoku/walk-test.mjs",
+     "path": "walk-test.mjs",
+     "size": 1551
+    }
+   ]
+  },
+  {
+   "dir": "usage-center",
+   "name": "@local/usage-center",
+   "version": "1.0.0",
+   "title": "用量与额度",
+   "hasBundle": true,
+   "files": [
+    {
+     "rel": "packages/usage-center/client.js",
+     "path": "client.js",
+     "size": 78266
+    },
+    {
+     "rel": "packages/usage-center/cordis.patch.yml",
+     "path": "cordis.patch.yml",
+     "size": 151
+    },
+    {
+     "rel": "packages/usage-center/icon.svg",
+     "path": "icon.svg",
+     "size": 636
+    },
+    {
+     "rel": "packages/usage-center/index.js",
+     "path": "index.js",
+     "size": 47846
+    },
+    {
+     "rel": "packages/usage-center/locale/en.json",
+     "path": "locale/en.json",
+     "size": 219
+    },
+    {
+     "rel": "packages/usage-center/locale/zh.json",
+     "path": "locale/zh.json",
+     "size": 198
+    },
+    {
+     "rel": "packages/usage-center/package.json",
+     "path": "package.json",
+     "size": 750
+    },
+    {
+     "rel": "packages/usage-center/README.md",
+     "path": "README.md",
+     "size": 2426
+    },
+    {
+     "rel": "packages/usage-center/TUTORIAL.md",
+     "path": "TUTORIAL.md",
+     "size": 35535
+    }
+   ]
+  }
+ ]
+}

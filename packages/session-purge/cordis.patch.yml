@@ -1,0 +1,4 @@
+# Session Purge: a destructive row action for the workspace browser.
+- insert:
+    - id: session-purge
+      name: '@local/session-purge'

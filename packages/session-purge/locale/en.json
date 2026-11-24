@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Erase Conversation",
+    "description": "Permanently erase a conversation from the header or the sidebar row menu: release a running agent, zero-overwrite and remove the log, cascade into subagent sessions, and clean projection cache, workspace accounting and unshared attachments. No undo."
+  }
+}

@@ -1,0 +1,10 @@
+# L — habit memory as a standing preset.
+- insert:
+    - id: l
+      name: '@local/l'
+      config:
+        enabled: true
+        learnFromConversations: true
+        injectIntoPrompt: true
+        maxHabits: 40
+        maxEvidencePerSession: 200
