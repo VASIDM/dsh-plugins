@@ -10,7 +10,16 @@ window.__ModuleLoader__.load({
     const TAB_ID = '@local/deepseek-web';
     const TARGET = 'https://chat.deepseek.com/';
 
-    /** The guest's real engine with every Electron/app token removed. */
+    /**
+     * The guest's real engine with every Electron/app token removed.
+     *
+     * chat.deepseek.com shows "使用环境异常 / 数据与隐私泄露风险" when either
+     *   navigator.userAgent includes "electron" (case-insensitive), or
+     *   window.process.type === 'renderer', or
+     *   the page looks Tauri-hosted.
+     * A sandboxed, context-isolated guest has no `process` and no Tauri marker,
+     * so the UA string is the only signal left — dropping it is the whole fix.
+     */
     function plainChromeUserAgent() {
       const raw = globalThis.navigator?.userAgent || '';
       const chrome = /Chrome\/([\d.]+)/.exec(raw)?.[1] || '138.0.0.0';
