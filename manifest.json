@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-24T15:15:59.055Z",
+ "generatedAt": "2026-11-24T15:21:24.136Z",
  "host": "plugin-hub",
  "bundles": [
   "@local/deepseek-web",
@@ -17,6 +17,40 @@
   "@local/sudoku",
   "@local/usage-center"
  ],
+ "profile": {
+  "bundles": [
+   "@deepseek-ai/dsh-base",
+   "@deepseek-ai/dsh-web-app",
+   "@local/dsh-scifi-boot",
+   "@local/l",
+   "@local/session-purge",
+   "@local/paper-ink",
+   "@local/usage-center",
+   "@local/poetry",
+   "@local/github-vault",
+   "@local/olympiad",
+   "@local/deepseek-web",
+   "@local/sudoku",
+   "@local/plugin-hub"
+  ],
+  "dependencies": {
+   "@local/deepseek-web": "link:F:/DSH-Plugins/deepseek-web",
+   "@local/dsh-scifi-boot": "link:F:/DSH-Plugins/dsh-scifi-boot",
+   "@local/github-vault": "link:F:/DSH-Plugins/github-vault",
+   "@local/l": "link:F:/DSH-Plugins/l",
+   "@local/olympiad": "link:F:/DSH-Plugins/olympiad",
+   "@local/paper-ink": "link:F:/DSH-Plugins/paper-ink",
+   "@local/paper-ink-design": "link:F:/DSH-Plugins/paper-ink-design",
+   "@local/paper-ink-layout": "link:F:/DSH-Plugins/paper-ink-layout",
+   "@local/paper-ink-theme": "link:F:/DSH-Plugins/paper-ink-theme",
+   "@local/paper-ink-type": "link:F:/DSH-Plugins/paper-ink-type",
+   "@local/plugin-hub": "link:F:/DSH-Plugins/plugin-hub",
+   "@local/poetry": "link:F:/DSH-Plugins/poetry",
+   "@local/session-purge": "link:F:/DSH-Plugins/session-purge",
+   "@local/sudoku": "link:F:/DSH-Plugins/sudoku",
+   "@local/usage-center": "link:F:/DSH-Plugins/usage-center"
+  }
+ },
  "packages": [
   {
    "dir": "deepseek-web",
@@ -637,7 +671,7 @@
     {
      "rel": "packages/plugin-hub/index.js",
      "path": "index.js",
-     "size": 26933
+     "size": 28079
     },
     {
      "rel": "packages/plugin-hub/locale/en.json",

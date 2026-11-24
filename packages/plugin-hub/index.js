@@ -283,6 +283,12 @@ export function apply(ctx) {
       generatedAt: new Date().toISOString(),
       host: name,
       bundles: packages.filter((item) => item.hasBundle).map((item) => item.name),
+      profile: {
+        bundles: (await readProfile()).dsh?.profile?.bundles || [],
+        dependencies: Object.fromEntries(
+          Object.entries((await readProfile()).dependencies || {}).filter(([, spec]) => String(spec).startsWith('link:')),
+        ),
+      },
       packages: packages.map((item) => ({
         dir: item.dir,
         name: item.name,
@@ -402,13 +408,27 @@ export function apply(ctx) {
     profile.dsh.profile = profile.dsh.profile || {};
     profile.dsh.profile.bundles = profile.dsh.profile.bundles || [];
     profile.dependencies = profile.dependencies || {};
+    const localNames = new Set(manifest.packages.map((pkg) => pkg.name).filter(Boolean));
+    const savedDeps = manifest.profile?.dependencies || null;
     for (const pkg of manifest.packages) {
       if (!pkg.name || !pkg.dir) continue;
-      profile.dependencies[pkg.name] = `link:${root.replace(/\\/g, '/')}/${pkg.dir}`;
+      profile.dependencies[pkg.name] = savedDeps?.[pkg.name] || `link:${root.replace(/\\/g, '/')}/${pkg.dir}`;
     }
-    const localBundles = manifest.packages.filter((pkg) => pkg.hasBundle && pkg.name).map((pkg) => pkg.name);
-    const kept = profile.dsh.profile.bundles.filter((item) => !String(item).startsWith('@local/'));
-    profile.dsh.profile.bundles = [...kept, ...localBundles];
+    // Reproduce the source profile's exact working set: a bundle the source kept
+    // off must stay off here, and built-ins are preserved as they are.
+    let bundles;
+    if (Array.isArray(manifest.profile?.bundles) && manifest.profile.bundles.length) {
+      bundles = manifest.profile.bundles.filter((item) => !String(item).startsWith('@local/') || localNames.has(item));
+      for (const name of localNames) {
+        if (!bundles.includes(name) && manifest.bundles?.includes(name) && profile.dsh.profile.bundles.includes(name)) {
+          bundles.push(name);
+        }
+      }
+    } else {
+      const kept = profile.dsh.profile.bundles.filter((item) => !String(item).startsWith('@local/'));
+      bundles = [...kept, ...manifest.packages.filter((pkg) => pkg.hasBundle && pkg.name).map((pkg) => pkg.name)];
+    }
+    profile.dsh.profile.bundles = [...new Set(bundles)];
     await writeJson(profileFile, profile);
 
     const install = await runPnpmInstall();
@@ -416,7 +436,7 @@ export function apply(ctx) {
       ok: true,
       files: written.length,
       packages: manifest.packages.length,
-      bundles: localBundles.length,
+      bundles: profile.dsh.profile.bundles.filter((item) => String(item).startsWith('@local/')).length,
       install,
       needRestart: true,
     };
@@ -430,7 +450,7 @@ export function apply(ctx) {
       return { ok: false, message: '未找到随附的 Node/pnpm 运行时，请重启 DSH 让它在启动时自行安装依赖。' };
     }
     return new Promise((resolve) => {
-      const child = spawn(node, [pnpm, 'install', '--reporter=append-only'], {
+      const child = spawn(node, [pnpm, 'install', '--no-frozen-lockfile', '--reporter=append-only'], {
         cwd: profileDir,
         windowsHide: true,
         env: { ...process.env, CI: '1' },
