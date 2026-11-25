@@ -527,142 +527,110 @@ window.__ModuleLoader__.load({
 
     const CSS = `
 .sdk-launcher { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 30px; padding: 0 9px; border: 0; border-radius: 8px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; cursor: pointer; }
-.sdk-launcher:hover { background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
-.sdk-launcher[aria-pressed="true"] { background: color-mix(in srgb, #6f8fae 18%, transparent); color: #6f8fae; }
+.sdk-launcher:hover { background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-bg-layer-2)); color: var(--dsw-alias-label-primary); }
+.sdk-launcher[aria-pressed="true"] { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 16%, transparent); color: var(--dsw-alias-brand-primary); }
 .sdk-launcher-icon { display: inline-flex; width: 18px; height: 18px; }
 .sdk-launcher-icon svg { width: 18px; height: 18px; }
-
-/* A calm, paper-like game window: Sudoku Universe's light, airy palette. */
 .sdk-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
 .sdk-win, .sdk-win * { box-sizing: border-box; }
 .sdk-win {
-  --sdk-paper: #f8f6f1;
-  --sdk-card: #fffdf9;
-  --sdk-line: #e4ded2;
-  --sdk-line-strong: #c9c2b3;
-  --sdk-ink: #2f3a45;
-  --sdk-ink-soft: #6f7884;
-  --sdk-blue: #5f86a8;
-  --sdk-blue-soft: #e8f0f6;
-  --sdk-blue-mid: #cddce8;
-  --sdk-red: #c25b57;
   position: fixed;
   display: flex;
   flex-direction: column;
-  min-width: 336px;
-  min-height: 500px;
-  max-width: 92vw;
-  max-height: calc(100vh - 24px);
-  border: 1px solid #e2dccf;
-  border-radius: 18px;
-  background: var(--sdk-paper);
-  color: var(--sdk-ink);
-  box-shadow: 0 30px 80px rgba(34, 40, 48, .28), 0 2px 8px rgba(34, 40, 48, .08);
+  min-width: 300px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-xl, 16px);
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  box-shadow: var(--dsw-shadow-lv3, 0 30px 80px rgba(0,0,0,.32));
   overflow: hidden;
   pointer-events: auto;
-  resize: both;
-  font-family: var(--dsw-font-sans, "Segoe UI", system-ui, sans-serif);
+  font-family: var(--dsh-font-family-text-default, "Segoe UI", system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
-.sdk-head { display: flex; align-items: center; gap: 10px; padding: 13px 14px 11px 16px; cursor: move; user-select: none; touch-action: none; }
-.sdk-seal { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: var(--sdk-blue); color: #fff; font-size: 12px; font-weight: 600; box-shadow: 0 2px 6px rgba(95, 134, 168, .35); }
+.sdk-head { display: flex; align-items: center; gap: 9px; padding: 11px 12px 8px 13px; cursor: move; user-select: none; touch-action: none; }
+.sdk-seal { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: color-mix(in srgb, var(--dsw-alias-brand-primary) 16%, transparent); color: var(--dsw-alias-brand-primary); font-family: var(--dsh-font-family-brand, var(--dsh-font-family-text-default)); font-size: 14px; font-weight: 600; letter-spacing: 0; }
 .sdk-title { display: flex; flex-direction: column; min-width: 0; }
-.sdk-title b { font-size: 14px; font-weight: 650; letter-spacing: .02em; color: var(--sdk-ink); }
-.sdk-title span { margin-top: 1px; color: var(--sdk-ink-soft); font-size: 10.5px; }
+.sdk-title b { color: var(--dsw-alias-label-primary); font-family: var(--dsh-font-family-brand, var(--dsh-font-family-text-default)); font-size: 14px; font-weight: 650; letter-spacing: .06em; }
+.sdk-title span { margin-top: 1px; color: var(--dsw-alias-label-secondary); font-size: 10px; letter-spacing: .02em; }
 .sdk-spacer { flex: 1; }
-.sdk-iconbtn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--sdk-ink-soft); font: inherit; font-size: 13px; cursor: pointer; }
-.sdk-iconbtn:hover { background: #efece4; color: var(--sdk-ink); }
-.sdk-body { display: flex; flex-direction: column; gap: 9px; flex: 1; min-height: 0; padding: 0 16px 12px; overflow: auto; }
-.sdk-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.sdk-seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: #efece4; }
-.sdk-seg button { height: 25px; padding: 0 12px; border: 0; border-radius: 7px; background: transparent; color: var(--sdk-ink-soft); font: inherit; font-size: 11.5px; cursor: pointer; transition: background .15s ease, color .15s ease; }
-.sdk-seg button:hover { color: var(--sdk-ink); }
-.sdk-seg button.on { background: var(--sdk-card); color: var(--sdk-blue); font-weight: 600; box-shadow: 0 1px 3px rgba(34, 40, 48, .12); }
-.sdk-btn { height: 27px; padding: 0 11px; border: 1px solid var(--sdk-line); border-radius: 8px; background: var(--sdk-card); color: var(--sdk-ink); font: inherit; font-size: 11.5px; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
-.sdk-btn:hover { border-color: var(--sdk-blue-mid); background: #fdfcf8; }
-.sdk-btn.accent { border-color: transparent; background: var(--sdk-blue); color: #fff; box-shadow: 0 2px 6px rgba(95, 134, 168, .28); }
-.sdk-btn.accent:hover { background: #547a9c; }
-.sdk-meta { display: flex; align-items: center; gap: 14px; color: var(--sdk-ink-soft); font-size: 11px; font-variant-numeric: tabular-nums; }
-.sdk-meta b { color: var(--sdk-ink); font-weight: 600; }
-.sdk-meta .sdk-tool { margin-left: auto; }
-.sdk-board-wrap { position: relative; align-self: center; width: min(100%, calc(100vh - 330px)); max-width: 368px; margin-top: 1px; }
-.sdk-board {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(9, 1fr);
-  gap: 1px;
-  aspect-ratio: 1;
-  padding: 1px;
-  border-radius: 10px;
-  background: var(--sdk-line-strong);
-  box-shadow: 0 10px 26px rgba(47, 58, 69, .08), 0 1px 2px rgba(47, 58, 69, .06);
-  overflow: hidden;
-}
-.sdk-cell {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: var(--sdk-card);
-  color: var(--sdk-ink);
-  font: inherit;
-  font-size: clamp(15px, 3vmin, 21px);
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-  transition: background .12s ease;
-}
-.sdk-cell:hover { background: #fbfaf5; }
-.sdk-cell.given { color: #33414f; font-weight: 650; }
-.sdk-cell.entered { color: var(--sdk-blue); font-weight: 500; }
-.sdk-cell.peer { background: #f3f7fa; }
-.sdk-cell.same { background: var(--sdk-blue-soft); }
-.sdk-cell.sel { background: var(--sdk-blue-soft); box-shadow: inset 0 0 0 2px var(--sdk-blue); }
-.sdk-cell.conflict { background: #fbeeed; }
-.sdk-cell.wrong { color: var(--sdk-red); }
-.sdk-cell.hinted { color: #4f8a74; }
-.sdk-notes { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); width: 100%; height: 100%; padding: 3px; color: #9aa3ad; font-size: 8.5px; line-height: 1; }
+.sdk-iconbtn { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; padding: 0; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; line-height: 1; cursor: pointer; }
+.sdk-iconbtn:hover { background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-bg-layer-2)); color: var(--dsw-alias-label-primary); }
+.sdk-body { display: flex; flex-direction: column; gap: 7px; flex: 1; min-height: 0; padding: 0 13px 11px 15px; overflow: auto; }
+.sdk-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.sdk-seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 9px; background: var(--dsw-alias-bg-base); }
+.sdk-seg button { height: 24px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-family: var(--dsh-font-family-brand, var(--dsh-font-family-text-default)); font-size: 11.5px; letter-spacing: .04em; cursor: pointer; }
+.sdk-seg button:hover { color: var(--dsw-alias-label-primary); }
+.sdk-seg button.on { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent); color: var(--dsw-alias-brand-primary); font-weight: 600; }
+.sdk-btn { height: 26px; padding: 0 11px; border: 1px solid var(--dsw-alias-border-l2); border-radius: 8px; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font: inherit; font-size: 11.5px; cursor: pointer; }
+.sdk-btn:hover { border-color: var(--dsw-alias-brand-primary); }
+.sdk-btn[disabled] { opacity: .45; cursor: default; }
+.sdk-btn.accent { border-color: transparent; background: var(--dsw-alias-brand-primary); color: #fff; }
+.sdk-btn.accent:hover { filter: brightness(1.05); }
+.sdk-meta { display: flex; align-items: center; gap: 12px; color: var(--dsw-alias-label-secondary); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.sdk-meta b { color: var(--dsw-alias-label-primary); font-weight: 600; }
+.sdk-board-wrap { position: relative; align-self: center; margin: 1px 0 0; }
+.sdk-board { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(9, 1fr); gap: 1px; aspect-ratio: 1; padding: 1px; border-radius: var(--dsw-radius-md, 8px); background: color-mix(in srgb, var(--dsw-alias-label-secondary) 46%, transparent); box-shadow: 0 8px 20px rgba(0,0,0,.10); overflow: hidden; }
+.sdk-cell { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; padding: 0; border: 0; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font: inherit; font-size: calc(var(--sdk-board, 360px) / 9 * 0.56); font-variant-numeric: tabular-nums; cursor: pointer; transition: background .12s ease; }
+.sdk-cell:hover { background: var(--dsw-alias-bg-layer-2); }
+.sdk-cell.given { color: var(--dsw-alias-label-primary); font-weight: 650; }
+.sdk-cell.entered { color: var(--dsw-alias-brand-primary); font-weight: 550; }
+.sdk-cell.peer { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 6%, var(--dsw-alias-bg-base)); }
+.sdk-cell.same { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, var(--dsw-alias-bg-base)); }
+.sdk-cell.sel { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 18%, var(--dsw-alias-bg-base)); box-shadow: inset 0 0 0 2px var(--dsw-alias-brand-primary); }
+.sdk-cell.conflict { background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 14%, var(--dsw-alias-bg-base)); }
+.sdk-cell.wrong { color: var(--dsw-alias-state-error-primary); }
+.sdk-cell.hinted { color: var(--dsw-alias-state-success-primary); }
+.sdk-cell.review { cursor: default; }
+.sdk-cell.review-hit { box-shadow: inset 0 0 0 2px var(--dsw-alias-brand-primary); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 16%, var(--dsw-alias-bg-base)); }
+.sdk-notes { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); width: 100%; height: 100%; padding: calc(var(--sdk-board, 360px) / 9 * 0.07); color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); font-size: calc(var(--sdk-board, 360px) / 9 * 0.21); line-height: 1; }
 .sdk-notes span { display: flex; align-items: center; justify-content: center; }
 .sdk-gridlines { position: absolute; inset: 1px; pointer-events: none; }
-.sdk-gridlines i { position: absolute; background: var(--sdk-ink-soft); opacity: .55; border-radius: 1px; }
+.sdk-gridlines i { position: absolute; background: var(--dsw-alias-label-secondary); opacity: .42; border-radius: 1px; }
 .sdk-gridlines .v1 { top: 0; bottom: 0; left: calc(100% / 3); width: 2px; transform: translateX(-1px); }
 .sdk-gridlines .v2 { top: 0; bottom: 0; left: calc(200% / 3); width: 2px; transform: translateX(-1px); }
 .sdk-gridlines .h1 { left: 0; right: 0; top: calc(100% / 3); height: 2px; transform: translateY(-1px); }
 .sdk-gridlines .h2 { left: 0; right: 0; top: calc(200% / 3); height: 2px; transform: translateY(-1px); }
-.sdk-pad { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; }
-.sdk-num { position: relative; height: 33px; border: 1px solid var(--sdk-line); border-radius: 9px; background: var(--sdk-card); color: var(--sdk-blue); font: inherit; font-size: 15px; font-weight: 550; font-variant-numeric: tabular-nums; cursor: pointer; transition: background .12s ease, border-color .12s ease, transform .08s ease; }
-.sdk-num:hover { border-color: var(--sdk-blue-mid); background: var(--sdk-blue-soft); }
-.sdk-num:active { transform: translateY(1px); }
-.sdk-num.done { color: #c3c9cf; background: #f4f2ec; border-color: #eeeae1; }
-.sdk-num small { position: absolute; right: 4px; bottom: 1px; color: #a9b1b9; font-size: 8px; font-weight: 400; }
-.sdk-tools { display: flex; flex-wrap: wrap; gap: 6px; }
-.sdk-tool { height: 26px; padding: 0 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--sdk-ink-soft); font: inherit; font-size: 11px; cursor: pointer; transition: background .12s ease, color .12s ease; }
-.sdk-tool:hover { background: #efece4; color: var(--sdk-ink); }
-.sdk-tool.on { background: var(--sdk-blue-soft); color: var(--sdk-blue); }
+.sdk-pad { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; }
+.sdk-num { position: relative; height: 31px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font: inherit; font-size: calc(var(--sdk-board, 360px) / 9 * 0.38); font-variant-numeric: tabular-nums; cursor: pointer; transition: background .12s ease, border-color .12s ease; }
+.sdk-num:hover { border-color: var(--dsw-alias-brand-primary); color: var(--dsw-alias-brand-primary); }
+.sdk-num.done { color: var(--dsw-alias-label-secondary); opacity: .4; }
+.sdk-num small { position: absolute; right: 3px; bottom: 0; color: var(--dsw-alias-label-secondary); font-size: 8px; font-weight: 400; }
+.sdk-tools { display: flex; flex-wrap: wrap; gap: 3px; }
+.sdk-tool { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-width: 42px; height: auto; padding: 4px 8px 3px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 11px; line-height: 1.2; cursor: pointer; }
+.sdk-tool:hover { background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-bg-layer-2)); color: var(--dsw-alias-label-primary); }
+.sdk-tool.on { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 12%, transparent); color: var(--dsw-alias-brand-primary); }
 .sdk-tool[disabled] { opacity: .35; cursor: default; background: transparent; }
-.sdk-foot { margin-top: auto; padding-top: 2px; color: #9aa3ad; font-size: 9.5px; line-height: 1.5; }
-.sdk-win-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 10px; background: color-mix(in srgb, var(--sdk-card) 94%, transparent); backdrop-filter: blur(3px); text-align: center; }
-.sdk-win-overlay strong { color: var(--sdk-blue); font-size: 19px; font-weight: 650; }
-.sdk-win-overlay span { color: var(--sdk-ink-soft); font-size: 12px; }
-.sdk-generating { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border-radius: 10px; background: color-mix(in srgb, var(--sdk-card) 90%, transparent); color: var(--sdk-ink-soft); font-size: 12px; }
-.sdk-spin { width: 24px; height: 24px; border: 2px solid var(--sdk-blue-soft); border-top-color: var(--sdk-blue); border-radius: 50%; animation: sdk-spin .8s linear infinite; }
+.sdk-tool small { color: var(--dsw-alias-label-secondary); font-size: 8.5px; font-weight: 400; letter-spacing: .04em; }
+.sdk-tool.on small { color: color-mix(in srgb, var(--dsw-alias-brand-primary) 72%, transparent); }
+.sdk-walk { display: flex; flex-direction: column; gap: 7px; }
+.sdk-walk-head { display: flex; align-items: baseline; gap: 8px; }
+.sdk-walk-head b { color: var(--dsw-alias-brand-primary); font-family: var(--dsh-font-family-brand, var(--dsh-font-family-text-default)); font-size: 12.5px; letter-spacing: .05em; }
+.sdk-walk-head span { color: var(--dsw-alias-label-secondary); font-size: 10px; font-variant-numeric: tabular-nums; }
+.sdk-walk-text { min-height: 42px; margin: 0; padding: 7px 9px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font-size: 11.5px; line-height: 1.6; }
+.sdk-walk-nav { display: flex; gap: 4px; }
+.sdk-walk-nav button { flex: 1; height: 26px; border: 1px solid var(--dsw-alias-border-l2); border-radius: 7px; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font: inherit; font-size: 11px; cursor: pointer; }
+.sdk-walk-nav button:hover { border-color: var(--dsw-alias-brand-primary); }
+.sdk-walk-nav button[disabled] { opacity: .4; cursor: default; }
+.sdk-walk-nav button.exit { color: var(--dsw-alias-label-secondary); }
+.sdk-win-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-radius: var(--dsw-radius-md, 8px); background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent); backdrop-filter: blur(3px); text-align: center; }
+.sdk-win-overlay strong { color: var(--dsw-alias-brand-primary); font-family: var(--dsh-font-family-brand, var(--dsh-font-family-text-default)); font-size: 18px; letter-spacing: .08em; }
+.sdk-win-overlay span { color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
+.sdk-generating { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: var(--dsw-radius-md, 8px); background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 88%, transparent); color: var(--dsw-alias-label-secondary); font-size: 11.5px; }
+.sdk-spin { width: 22px; height: 22px; border: 2px solid color-mix(in srgb, var(--dsw-alias-brand-primary) 20%, transparent); border-top-color: var(--dsw-alias-brand-primary); border-radius: 50%; animation: sdk-spin .8s linear infinite; }
 @keyframes sdk-spin { to { transform: rotate(360deg); } }
-.sdk-mini .sdk-body, .sdk-mini .sdk-foot { display: none; }
-.sdk-mini { min-height: 0; resize: none; }
-@media (max-width: 520px) { .sdk-win { min-width: 306px; } .sdk-num { height: 30px; } }
+.sdk-resize { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; touch-action: none; background: linear-gradient(135deg, transparent 48%, var(--dsw-alias-label-secondary) 49%, var(--dsw-alias-label-secondary) 51%, transparent 52%, transparent 60%, var(--dsw-alias-label-secondary) 61%, var(--dsw-alias-label-secondary) 63%, transparent 64%); opacity: .55; }
+.sdk-resize:hover { opacity: 1; }
+.sdk-mini .sdk-body, .sdk-mini .sdk-tools, .sdk-mini .sdk-pad, .sdk-mini .sdk-resize { display: none; }
 `;
-
-    /* ------------------------------------------------------------- component */
 
     function IconGrid() {
       return h('svg', { viewBox: '0 0 20 20', width: 18, height: 18, 'aria-hidden': true, fill: 'none', stroke: 'currentColor', strokeWidth: 1.4 },
         h('rect', { x: 3, y: 3, width: 14, height: 14, rx: 2 }),
         h('path', { d: 'M8.7 3v14M13.7 3v14M3 8.7h14M3 13.7h14' }),
-        h('rect', { x: 3.7, y: 3.7, width: 4.6, height: 4.6, fill: '#a63a2e', stroke: 'none' }));
+        h('rect', { x: 3.8, y: 3.8, width: 4.4, height: 4.4, rx: .8, fill: 'currentColor', stroke: 'none', opacity: .8 }));
     }
 
     function FooterButton({ wide }) {
@@ -679,6 +647,219 @@ window.__ModuleLoader__.load({
       wide ? h('span', null, '数独') : null);
     }
 
+    /* ------------------------------------------------------------ walkthrough */
+
+    const RATIO = 0.62;
+
+    function unitName(unit) {
+      const row = rowOf(unit[0]);
+      const col = colOf(unit[0]);
+      if (unit.every((i) => rowOf(i) === row)) return '第' + (row + 1) + '行';
+      if (unit.every((i) => colOf(i) === col)) return '第' + (col + 1) + '列';
+      return '第' + (boxOf(unit[0]) + 1) + '宫';
+    }
+
+    function cellName(index) {
+      return 'R' + (rowOf(index) + 1) + 'C' + (colOf(index) + 1);
+    }
+
+    /**
+     * Full solution walkthrough: one step per human technique, and an explicit
+     * trial step when the standard techniques stall (which is what master puzzles
+     * are selected for).
+     */
+    function buildWalkthrough(puzzle, solution) {
+      const grid = puzzle.slice();
+      let cands = candidatesOf(grid);
+      const steps = [];
+
+      const record = (technique, title, detail, cells, digit) => {
+        steps.push({ technique, title, detail, cells: cells.slice(), digit, grid: grid.slice() });
+      };
+
+      record('初始', '初始盘面', '共 ' + puzzle.filter((value) => value !== 0).length + ' 个已给数字。先看唯一候选与隐藏唯一，再做数对、区块与 X-Wing 排除。', [], 0);
+
+      const tryPairs = () => {
+        for (const unit of UNITS) {
+          const empties = unit.filter((i) => !grid[i]);
+          for (let a = 0; a < empties.length; a += 1) {
+            const ca = cands[empties[a]];
+            if (popcount(ca) !== 2) continue;
+            for (let b = a + 1; b < empties.length; b += 1) {
+              if (cands[empties[b]] !== ca) continue;
+              const cells = [empties[a], empties[b]];
+              let removed = 0;
+              for (const cell of unit) {
+                if (cell === cells[0] || cell === cells[1] || grid[cell]) continue;
+                if (cands[cell] & ca) { cands[cell] &= ~ca; removed += 1; }
+              }
+              if (removed > 0) {
+                record('数对', '显性数对：' + unitName(unit), '在' + unitName(unit) + '中，' + cellName(cells[0]) + ' 与 ' + cellName(cells[1]) + ' 都只剩 ' + bitsOf(ca).join('、') + ' 两个候选。这两个数必然占住这两格，所以同单元的其它格可以排除 ' + bitsOf(ca).join('、') + '（共 ' + removed + ' 处）。', cells, 0);
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      };
+
+      const tryPointing = () => {
+        for (let box = 0; box < 9; box += 1) {
+          const unit = UNITS[18 + box];
+          for (let d = 1; d <= 9; d += 1) {
+            const bit = 1 << (d - 1);
+            if (unit.some((i) => grid[i] === d)) continue;
+            const spots = unit.filter((i) => !grid[i] && (cands[i] & bit));
+            if (spots.length < 2 || spots.length > 3) continue;
+            const rows = new Set(spots.map(rowOf));
+            const cols = new Set(spots.map(colOf));
+            if (rows.size === 1) {
+              const row = [...rows][0];
+              let removed = 0;
+              for (let c = 0; c < 9; c += 1) {
+                const cell = row * 9 + c;
+                if (boxOf(cell) === box || grid[cell]) continue;
+                if (cands[cell] & bit) { cands[cell] &= ~bit; removed += 1; }
+              }
+              if (removed > 0) {
+                record('区块', '区块指向：第' + (row + 1) + '行', '在第' + (box + 1) + '宫中，' + d + ' 只可能出现在第' + (row + 1) + '行（' + spots.map(cellName).join('、') + '）。因此这一行的 ' + d + ' 必在该宫内，行内其它格的 ' + d + ' 可以排除（' + removed + ' 处）。', spots, 0);
+                return true;
+              }
+            }
+            if (cols.size === 1) {
+              const col = [...cols][0];
+              let removed = 0;
+              for (let r = 0; r < 9; r += 1) {
+                const cell = r * 9 + col;
+                if (boxOf(cell) === box || grid[cell]) continue;
+                if (cands[cell] & bit) { cands[cell] &= ~bit; removed += 1; }
+              }
+              if (removed > 0) {
+                record('区块', '区块指向：第' + (col + 1) + '列', '在第' + (box + 1) + '宫中，' + d + ' 只可能出现在第' + (col + 1) + '列（' + spots.map(cellName).join('、') + '）。列内其它格的 ' + d + ' 因此可以排除（' + removed + ' 处）。', spots, 0);
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      };
+
+      const tryBoxLine = () => {
+        for (const unit of UNITS.slice(0, 18)) {
+          for (let d = 1; d <= 9; d += 1) {
+            const bit = 1 << (d - 1);
+            if (unit.some((i) => grid[i] === d)) continue;
+            const spots = unit.filter((i) => !grid[i] && (cands[i] & bit));
+            if (spots.length < 2) continue;
+            const boxes = new Set(spots.map(boxOf));
+            if (boxes.size !== 1) continue;
+            const box = [...boxes][0];
+            let removed = 0;
+            for (const cell of UNITS[18 + box]) {
+              if (unit.includes(cell) || grid[cell]) continue;
+              if (cands[cell] & bit) { cands[cell] &= ~bit; removed += 1; }
+            }
+            if (removed > 0) {
+              record('区块', '行列区块：' + unitName(unit), '在' + unitName(unit) + '中，' + d + ' 只能落在第' + (box + 1) + '宫（' + spots.map(cellName).join('、') + '）。宫内的 ' + d + ' 因此锁定在这一' + (unit.length === 9 && rowOf(unit[0]) === rowOf(unit[1]) ? '行' : '列') + '上，宫内其它格的 ' + d + ' 可以排除（' + removed + ' 处）。', spots, 0);
+              return true;
+            }
+          }
+        }
+        return false;
+      };
+
+      const tryWing = () => {
+        for (let d = 1; d <= 9; d += 1) {
+          const bit = 1 << (d - 1);
+          const rowSpots = [];
+          for (let r = 0; r < 9; r += 1) {
+            const cols = [];
+            for (let c = 0; c < 9; c += 1) {
+              const cell = r * 9 + c;
+              if (!grid[cell] && (cands[cell] & bit)) cols.push(c);
+            }
+            if (cols.length === 2) rowSpots.push({ r, cols });
+          }
+          for (let a = 0; a < rowSpots.length; a += 1) {
+            for (let b = a + 1; b < rowSpots.length; b += 1) {
+              const first = rowSpots[a];
+              const second = rowSpots[b];
+              if (first.cols[0] !== second.cols[0] || first.cols[1] !== second.cols[1]) continue;
+              const cells = [first.r * 9 + first.cols[0], first.r * 9 + first.cols[1], second.r * 9 + second.cols[0], second.r * 9 + second.cols[1]];
+              let removed = 0;
+              for (let r = 0; r < 9; r += 1) {
+                if (r === first.r || r === second.r) continue;
+                for (const c of first.cols) {
+                  const cell = r * 9 + c;
+                  if (!grid[cell] && (cands[cell] & bit)) { cands[cell] &= ~bit; removed += 1; }
+                }
+              }
+              if (removed > 0) {
+                record('X-Wing', 'X-Wing：' + d, '数字 ' + d + ' 在第' + (first.r + 1) + '行与第' + (second.r + 1) + '行都只剩两个位置，且列相同（第' + (first.cols[0] + 1) + '、' + (first.cols[1] + 1) + '列）。这四个位置构成矩形，其中两格必为 ' + d + '，因此这两列其它行的 ' + d + ' 可以排除（' + removed + ' 处）。', cells, 0);
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      };
+
+      for (let guard = 0; guard < 1000; guard += 1) {
+        if (grid.every((value) => value !== 0)) break;
+        let placed = false;
+
+        for (let i = 0; i < 81; i += 1) {
+          if (!grid[i] && popcount(cands[i]) === 1) {
+            const digit = bitsOf(cands[i])[0];
+            grid[i] = digit;
+            cands = candidatesOf(grid);
+            record('唯一候选', '唯一候选：' + cellName(i), cellName(i) + ' 所在的行、列、宫已经出现除 ' + digit + ' 以外的全部数字，因此这一格只能填 ' + digit + '。', [i], digit);
+            placed = true;
+            break;
+          }
+        }
+        if (placed) continue;
+
+        outer: for (const unit of UNITS) {
+          for (let d = 1; d <= 9; d += 1) {
+            const bit = 1 << (d - 1);
+            if (unit.some((i) => grid[i] === d)) continue;
+            const spots = unit.filter((i) => !grid[i] && (cands[i] & bit));
+            if (spots.length === 1) {
+              const index = spots[0];
+              grid[index] = d;
+              cands = candidatesOf(grid);
+              record('隐藏唯一', '隐藏唯一：' + cellName(index) + ' = ' + d, '在' + unitName(unit) + '里，数字 ' + d + ' 只有 ' + cellName(index) + ' 一个可行位置（其余空格都被已填数字排除），所以这里必填 ' + d + '。', [index], d);
+              placed = true;
+              break outer;
+            }
+          }
+        }
+        if (placed) continue;
+
+        if (tryPairs() || tryPointing() || tryBoxLine() || tryWing()) continue;
+
+        let best = -1;
+        let bestMask = 0;
+        let bestCount = 10;
+        for (let i = 0; i < 81; i += 1) {
+          if (grid[i]) continue;
+          const count = popcount(cands[i]);
+          if (count < bestCount) { bestCount = count; best = i; bestMask = cands[i]; }
+        }
+        if (best < 0) break;
+        const digit = solution[best];
+        if (!(bestMask & (1 << (digit - 1)))) continue;
+        grid[best] = digit;
+        cands = candidatesOf(grid);
+        record('试探', '试探：' + cellName(best) + ' = ' + digit, '唯一候选、隐藏唯一、数对、区块与 X-Wing 都无法推进。选候选最少的 ' + cellName(best) + '（' + bestCount + ' 个候选）试填 ' + digit + '，沿该分支推演可解，因此成立；若后续出现矛盾则回退换下一个候选。', [best], digit);
+      }
+
+      return { steps, solved: grid.every((value) => value !== 0) };
+    }
+
+    /* ---------------------------------------------------------------- window */
+
     function SudokuWindow({ ui }) {
       const [game, setGame] = useState(() => loadSavedGame() || emptyGame('hard'));
       const [selected, setSelected] = useState(-1);
@@ -689,12 +870,28 @@ window.__ModuleLoader__.load({
       const [checking, setChecking] = useState(false);
       const [showWin, setShowWin] = useState(false);
       const [best, setBest] = useState(readBest);
+      const [walk, setWalk] = useState(null);
+      const [, setViewportTick] = useState(0);
       const undoRef = useRef([]);
       const redoRef = useRef([]);
       const winRef = useRef(null);
       const timerRef = useRef(null);
       const gameRef = useRef(game);
       gameRef.current = game;
+
+      /* The desktop shell can be resized down to 520x600. Re-render on viewport
+         changes so the window is clamped into the viewport at the same ratio
+         instead of being clipped. */
+      useEffect(() => {
+        const onResize = () => setViewportTick((value) => value + 1);
+        window.addEventListener('resize', onResize);
+        const viewport = window.visualViewport;
+        if (viewport) viewport.addEventListener('resize', onResize);
+        return () => {
+          window.removeEventListener('resize', onResize);
+          if (viewport) viewport.removeEventListener('resize', onResize);
+        };
+      }, []);
 
       const bootedRef = useRef(false);
       useEffect(() => {
@@ -703,14 +900,12 @@ window.__ModuleLoader__.load({
         if (!game.puzzle.some((value) => value !== 0)) newGame(game.difficulty || 'hard');
       }, []);
 
-      /* persistence */
       useEffect(() => {
         try { window.localStorage.setItem(GAME_KEY, JSON.stringify(game)); } catch { /* ignore */ }
       }, [game]);
 
-      /* timer */
       useEffect(() => {
-        if (paused || game.done || !game.puzzle.some((value) => value === 0) || generating) {
+        if (paused || walk || game.done || generating) {
           if (timerRef.current) clearInterval(timerRef.current);
           return undefined;
         }
@@ -718,12 +913,13 @@ window.__ModuleLoader__.load({
           setGame((current) => (current.done ? current : { ...current, elapsed: current.elapsed + 1 }));
         }, 1000);
         return () => { if (timerRef.current) clearInterval(timerRef.current); };
-      }, [paused, game.done, generating, game.puzzle]);
+      }, [paused, walk, game.done, generating]);
 
       const newGame = async (difficulty) => {
         setGenerating(true);
         setShowWin(false);
-        await new Promise((resolve) => setTimeout(resolve, 30));
+        setWalk(null);
+        await new Promise((resolve) => setTimeout(resolve, 20));
         const created = await generatePuzzle(difficulty);
         setGenerating(false);
         if (!created) return;
@@ -744,7 +940,7 @@ window.__ModuleLoader__.load({
 
       const applyValue = (index, digit) => {
         const current = gameRef.current;
-        if (current.done || current.puzzle[index]) return;
+        if (current.done || walk || current.puzzle[index]) return;
         const prevValue = current.values[index];
         const prevNotes = current.notes[index];
         if (notesMode && !digit) {
@@ -770,16 +966,9 @@ window.__ModuleLoader__.load({
         values[index] = valueAt;
         const notes = current.notes.slice();
         notes[index] = 0;
-        const next = {
-          ...current,
-          values,
-          notes,
-          mistakes: current.mistakes + (wrong ? 1 : 0),
-          lastWrong: wrong ? index : -1,
-        };
+        const next = { ...current, values, notes, mistakes: current.mistakes + (wrong ? 1 : 0), lastWrong: wrong ? index : -1 };
         if (values.every((value, i) => value === next.solution[i])) {
           next.done = true;
-          next.elapsed = current.elapsed;
           const times = { ...best };
           if (!times[next.difficulty] || next.elapsed < times[next.difficulty]) {
             times[next.difficulty] = next.elapsed;
@@ -792,6 +981,7 @@ window.__ModuleLoader__.load({
       };
 
       const undo = () => {
+        if (walk) return;
         const step = undoRef.current.pop();
         if (!step) return;
         const current = gameRef.current;
@@ -805,6 +995,7 @@ window.__ModuleLoader__.load({
       };
 
       const redo = () => {
+        if (walk) return;
         const step = redoRef.current.pop();
         if (!step) return;
         const current = gameRef.current;
@@ -817,6 +1008,7 @@ window.__ModuleLoader__.load({
       };
 
       const hint = () => {
+        if (walk) return;
         const current = gameRef.current;
         if (current.done) return;
         const empties = current.values.map((value, i) => (value === 0 ? i : -1)).filter((i) => i >= 0);
@@ -833,34 +1025,51 @@ window.__ModuleLoader__.load({
       };
 
       const check = () => {
-        const current = gameRef.current;
-        const wrong = current.values.some((value, i) => value !== 0 && value !== current.solution[i]);
+        if (walk) return;
         setChecking(true);
-        setTimeout(() => setChecking(false), 2600);
-        if (!wrong) {
-          setGame({ ...current, mistakes: current.mistakes });
-        }
+        setTimeout(() => setChecking(false), 2400);
       };
 
       const restart = () => {
         const current = gameRef.current;
         undoRef.current = [];
         redoRef.current = [];
+        setWalk(null);
         setGame({ ...current, values: current.puzzle.slice(), notes: new Array(81).fill(0), elapsed: 0, hints: 0, mistakes: 0, done: false });
         setShowWin(false);
         setSelected(-1);
       };
 
-      /* keyboard */
+      const startWalk = () => {
+        if (!game.solution.some((value) => value !== 0)) return;
+        const result = buildWalkthrough(game.puzzle, game.solution);
+        setWalk({ steps: result.steps, index: 0, solved: result.solved });
+        setSelected(-1);
+      };
+
+      const stepWalk = (delta) => setWalk((current) => {
+        if (!current) return current;
+        return { ...current, index: Math.max(0, Math.min(current.steps.length - 1, current.index + delta)) };
+      });
+
       useEffect(() => {
         const onKey = (event) => {
           const target = event.target;
           if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+          if (walk) {
+            if (event.key === 'Escape') { setWalk(null); return; }
+            if (event.key === 'ArrowLeft') { stepWalk(-1); event.preventDefault(); return; }
+            if (event.key === 'ArrowRight') { stepWalk(1); event.preventDefault(); return; }
+            return;
+          }
           if (event.key === 'Escape') { setUi({ open: false }); return; }
+          if (event.key === 'e' || event.key === 'E') { startWalk(); return; }
           if (event.key === 'n' || event.key === 'N') { setNotesMode((value) => !value); return; }
           if (event.key === 'h' || event.key === 'H') { hint(); return; }
           if (event.key === 'u' || event.key === 'U') { undo(); return; }
           if (event.key === 'r' || event.key === 'R') { restart(); return; }
+          if (event.key === 'c' || event.key === 'C') { setAutoNotes((value) => !value); return; }
+          if (event.key === 'k' || event.key === 'K') { check(); return; }
           if (/^[1-9]$/.test(event.key)) {
             if (selected >= 0) { applyValue(selected, Number(event.key)); event.preventDefault(); }
             return;
@@ -881,18 +1090,6 @@ window.__ModuleLoader__.load({
         return () => window.removeEventListener('keydown', onKey);
       });
 
-      const saveSize = () => {
-        const node = winRef.current;
-        if (!node) return;
-        const rect = node.getBoundingClientRect();
-        const nextW = Math.round(rect.width);
-        const nextH = Math.round(rect.height);
-        if (Math.abs(nextW - ui.w) > 2 || Math.abs(nextH - ui.h) > 2) {
-          setUi({ w: nextW, h: nextH });
-        }
-      };
-
-      /* drag */
       const onHeaderDown = (event) => {
         if (event.button !== 0) return;
         if (event.target.closest('button')) return;
@@ -901,8 +1098,8 @@ window.__ModuleLoader__.load({
         const start = { px: event.clientX, py: event.clientY, x: rect.left, y: rect.top };
         const onMove = (moveEvent) => {
           setUi({
-            x: clamp(start.x + moveEvent.clientX - start.px, 8, window.innerWidth - 220),
-            y: clamp(start.y + moveEvent.clientY - start.py, 8, window.innerHeight - 80),
+            x: clamp(start.x + moveEvent.clientX - start.px, 8, Math.max(8, window.innerWidth - rect.width - 8)),
+            y: clamp(start.y + moveEvent.clientY - start.py, 8, Math.max(8, window.innerHeight - rect.height - 8)),
           });
         };
         const onUp = () => {
@@ -913,7 +1110,40 @@ window.__ModuleLoader__.load({
         window.addEventListener('pointerup', onUp);
       };
 
-      /* derived board state */
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const minW = 300;
+      /* Height is the tighter dimension in small desktop windows, so the width
+         cap derives from the viewport height and the locked aspect ratio. */
+      const maxWidth = Math.max(minW, Math.min(560, viewportW - 24, Math.round((viewportH - 40) * RATIO)));
+      const winW = clamp(Math.round(ui.w || 392), minW, maxWidth);
+      const winH = ui.minimized ? 48 : Math.round(winW / RATIO);
+      const boardSize = ui.minimized ? 0 : Math.max(220, Math.min(winW - 30, winH - 238));
+      const left = ui.x == null ? '50%' : clamp(ui.x, 8, Math.max(8, viewportW - winW - 8));
+      const top = ui.y == null ? 12 : clamp(ui.y, 8, Math.max(8, viewportH - winH - 8));
+
+      const onResizeDown = (event) => {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const startW = winW;
+        const onMove = (moveEvent) => {
+          /* Both axes drive the same ratio-locked width, so pulling the corner
+             down or sideways feels identical and never distorts the board. */
+          const delta = Math.max(moveEvent.clientX - startX, (moveEvent.clientY - startY) * RATIO);
+          const nextW = clamp(Math.round(startW + delta), minW, maxWidth);
+          setUi({ w: nextW, h: Math.round(nextW / RATIO) });
+        };
+        const onUp = () => {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', onUp);
+        };
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+      };
+
       const selectedValue = selected >= 0 ? game.values[selected] : 0;
       const cands = useMemo(() => (autoNotes ? candidatesOf(game.values) : null), [autoNotes, game.values]);
       const conflicts = useMemo(() => {
@@ -929,7 +1159,6 @@ window.__ModuleLoader__.load({
         }
         return marks;
       }, [game.values]);
-
       const row = selected >= 0 ? rowOf(selected) : -1;
       const col = selected >= 0 ? colOf(selected) : -1;
       const box = selected >= 0 ? boxOf(selected) : -1;
@@ -939,117 +1168,124 @@ window.__ModuleLoader__.load({
         return counts;
       }, [game.values]);
 
-      const style = {
-        width: ui.w + 'px',
-        height: ui.h + 'px',
-        left: ui.x == null ? '50%' : ui.x + 'px',
-        top: ui.y == null ? '3%' : ui.y + 'px',
-        transform: ui.x == null ? 'translateX(-50%)' : 'none',
-      };
-
+      const walkStep = walk ? walk.steps[walk.index] : null;
+      const values = walkStep ? walkStep.grid : game.values;
+      const highlighted = walkStep ? new Set(walkStep.cells) : null;
       const difficulty = DIFF_BY_ID[game.difficulty] || DIFF_BY_ID.hard;
 
-      return h('div', { className: 'sdk-layer' },
-        h('div', {
-          ref: winRef,
-          className: 'sdk-win' + (ui.minimized ? ' sdk-mini' : ''),
-          style,
-          role: 'dialog',
-          'aria-label': '数独',
-          onPointerUp: saveSize,
-        },
-        h('div', { className: 'sdk-head', onPointerDown: onHeaderDown },
-          h('span', { className: 'sdk-seal' }, '数'),
-          h('div', { className: 'sdk-title' },
-            h('b', null, '数独'),
-            h('span', null, difficulty.label + ' · ' + (game.effort ? '试错 ' + game.effort + ' 步' : '本地生成') + ' · 最佳 ' + (best[game.difficulty] ? fmtTime(best[game.difficulty]) : '—'))),
-          h('span', { className: 'sdk-spacer' }),
-          h('button', { type: 'button', className: 'sdk-iconbtn', title: ui.minimized ? '展开' : '收起', 'aria-label': ui.minimized ? '展开' : '收起', onClick: () => setUi({ minimized: !ui.minimized }) }, ui.minimized ? '▢' : '—'),
-          h('button', { type: 'button', className: 'sdk-iconbtn', title: '关闭', 'aria-label': '关闭数独', onClick: () => setUi({ open: false }) }, '×')),
-        h('div', { className: 'sdk-body' },
-          h('div', { className: 'sdk-row' },
-            h('div', { className: 'sdk-seg', role: 'group', 'aria-label': '难度' },
-              DIFFICULTIES.map((item) => h('button', {
-                key: item.id,
-                type: 'button',
-                className: game.difficulty === item.id ? 'on' : '',
-                title: item.note,
-                onClick: () => newGame(item.id),
-              }, item.label))),
-            h('span', { className: 'sdk-spacer' }),
-            h('button', { type: 'button', className: 'sdk-btn accent', onClick: () => newGame(game.difficulty) }, '换一题'),
-            h('button', { type: 'button', className: 'sdk-btn', onClick: restart }, '重来')),
-          h('div', { className: 'sdk-meta' },
-            h('span', null, '用时 ', h('b', null, fmtTime(game.elapsed))),
-            h('span', null, '线索 ', h('b', null, String(game.clueCount || '—'))),
-            h('span', null, '错误 ', h('b', null, String(game.mistakes))),
-            h('span', null, '提示次数 ', h('b', null, String(game.hints))),
-            h('button', { type: 'button', className: 'sdk-tool', onClick: () => setPaused(!paused) }, paused ? '继续' : '暂停')),
-          h('div', { className: 'sdk-board-wrap' },
-            h('div', { className: 'sdk-board', role: 'grid', 'aria-label': '数独棋盘' },
-              game.values.map((value, index) => {
-                const cellRow = rowOf(index);
-                const cellCol = colOf(index);
-                const isGiven = game.puzzle[index] !== 0;
-                const isPeer = selected >= 0 && index !== selected && (cellRow === row || cellCol === col || boxOf(index) === box);
-                const isSame = selectedValue !== 0 && value === selectedValue && index !== selected;
-                const isWrong = (checking || game.lastWrong === index) && value !== 0 && value !== game.solution[index];
-                const classes = ['sdk-cell'];
-                if (isGiven) classes.push('given');
-                else if (value) classes.push('entered');
-                if (isPeer) classes.push('peer');
-                if (isSame) classes.push('same');
-                if (index === selected) classes.push('sel');
-                if (conflicts.has(index)) classes.push('conflict');
-                if (isWrong) classes.push('wrong');
-                const notes = game.notes[index];
-                return h('button', {
-                  key: index,
-                  type: 'button',
-                  className: classes.join(' '),
-                  style: paused ? { filter: 'blur(3px)' } : undefined,
-                  onClick: () => setSelected(index),
-                  'aria-label': '第' + (cellRow + 1) + '行第' + (cellCol + 1) + '列' + (value ? '，' + value : '，空'),
-                },
-                value ? String(value) : (autoNotes && !paused && cands && cands[index]
-                  ? h('span', { className: 'sdk-notes' },
-                    [...Array(9).keys()].map((d) => h('span', { key: d }, (cands[index] & (1 << d)) ? String(d + 1) : '')))
-                  : notes
-                    ? h('span', { className: 'sdk-notes' },
-                      [...Array(9).keys()].map((d) => h('span', { key: d }, (notes & (1 << d)) ? String(d + 1) : '')))
-                    : null));
-              }),
-              h('div', { className: 'sdk-gridlines', 'aria-hidden': true },
-                h('i', { className: 'v1' }),
-                h('i', { className: 'v2' }),
-                h('i', { className: 'h1' }),
-                h('i', { className: 'h2' }))),
-            generating ? h('div', { className: 'sdk-generating' }, h('div', { className: 'sdk-spin' }), '正在本地生成题目…') : null,
-            showWin && !generating ? h('div', { className: 'sdk-win-overlay' },
-              h('strong', null, '完成'),
-              h('span', null, '用时 ' + fmtTime(game.elapsed) + ' · 提示 ' + game.hints + ' 次'),
-              h('div', { className: 'sdk-row' },
-                h('button', { type: 'button', className: 'sdk-btn accent', onClick: () => newGame(game.difficulty) }, '再来一局'),
-                h('button', { type: 'button', className: 'sdk-btn', onClick: () => setShowWin(false) }, '看看棋盘'))) : null),
-          h('div', { className: 'sdk-pad' },
-            [...Array(9).keys()].map((d) => h('button', {
-              key: d,
-              type: 'button',
-              className: 'sdk-num' + (digitsLeft[d + 1] >= 9 ? ' done' : ''),
-              onClick: () => { if (selected >= 0) applyValue(selected, d + 1); },
-            }, String(d + 1), h('small', null, digitsLeft[d + 1] >= 9 ? '' : String(9 - digitsLeft[d + 1]))))),
-          h('div', { className: 'sdk-tools' },
-            h('button', { type: 'button', className: 'sdk-tool', onClick: () => applyValue(selected, 0), disabled: selected < 0 }, '擦除'),
-            h('button', { type: 'button', className: 'sdk-tool' + (notesMode ? ' on' : ''), onClick: () => setNotesMode(!notesMode) }, notesMode ? '笔记 开' : '笔记'),
-            h('button', { type: 'button', className: 'sdk-tool' + (autoNotes ? ' on' : ''), onClick: () => setAutoNotes(!autoNotes) }, autoNotes ? '候选 开' : '候选'),
-            h('button', { type: 'button', className: 'sdk-tool', onClick: undo, disabled: undoRef.current.length === 0 }, '撤销'),
-            h('button', { type: 'button', className: 'sdk-tool', onClick: redo, disabled: redoRef.current.length === 0 }, '重做'),
-            h('button', { type: 'button', className: 'sdk-tool', onClick: hint, disabled: game.done }, '提示'),
-            h('button', { type: 'button', className: 'sdk-tool', onClick: check, disabled: game.done }, '检查')),
-          h('div', { className: 'sdk-foot' }, '数字键 1–9 填写，方向键移动，N 笔记，H 提示，U 撤销，R 重来，Esc 关闭。题目完全在本地生成。'))));
-    }
+      const style = {
+        width: winW + 'px',
+        height: winH + 'px',
+        left: left === '50%' ? '50%' : left + 'px',
+        top: top + 'px',
+        transform: ui.x == null ? 'translateX(-50%)' : 'none',
+        '--sdk-board': boardSize + 'px',
+      };
 
-    /* ------------------------------------------------------------------ apply */
+      return h('div', { className: 'sdk-layer' },
+        h('div', { ref: winRef, className: 'sdk-win' + (ui.minimized ? ' sdk-mini' : ''), style, role: 'dialog', 'aria-label': '数独' },
+          h('div', { className: 'sdk-head', onPointerDown: onHeaderDown },
+            h('span', { className: 'sdk-seal' }, '数'),
+            h('div', { className: 'sdk-title' },
+              h('b', null, '数独'),
+              h('span', null, difficulty.label + ' · ' + (walk ? '解答回放' : '试错 ' + (game.effort || 0) + ' 步') + ' · 最佳 ' + (best[game.difficulty] ? fmtTime(best[game.difficulty]) : '—'))),
+            h('span', { className: 'sdk-spacer' }),
+            walk ? null : h('button', { type: 'button', className: 'sdk-iconbtn', title: paused ? '继续' : '暂停', 'aria-label': paused ? '继续' : '暂停', onClick: () => setPaused(!paused) }, paused ? '▶' : '❚❚'),
+            h('button', { type: 'button', className: 'sdk-iconbtn', title: ui.minimized ? '展开' : '收起', 'aria-label': ui.minimized ? '展开' : '收起', onClick: () => setUi({ minimized: !ui.minimized }) }, ui.minimized ? '▢' : '—'),
+            h('button', { type: 'button', className: 'sdk-iconbtn', title: '关闭', 'aria-label': '关闭数独', onClick: () => setUi({ open: false }) }, '×')),
+          h('div', { className: 'sdk-body' },
+            h('div', { className: 'sdk-row' },
+              h('div', { className: 'sdk-seg', role: 'group', 'aria-label': '难度' },
+                DIFFICULTIES.map((item) => h('button', {
+                  key: item.id,
+                  type: 'button',
+                  className: !walk && game.difficulty === item.id ? 'on' : '',
+                  disabled: Boolean(walk),
+                  onClick: () => newGame(item.id),
+                }, item.label))),
+              h('span', { className: 'sdk-spacer' }),
+              h('button', { type: 'button', className: 'sdk-btn accent', disabled: Boolean(walk), onClick: () => newGame(game.difficulty) }, '换一题'),
+              h('button', { type: 'button', className: 'sdk-btn', disabled: Boolean(walk), onClick: restart }, '重来')),
+            h('div', { className: 'sdk-meta' },
+              h('span', null, '用时 ', h('b', null, fmtTime(game.elapsed))),
+              h('span', null, '线索 ', h('b', null, String(game.clueCount || '—'))),
+              h('span', null, '错误 ', h('b', null, String(game.mistakes))),
+              h('span', null, '提示 ', h('b', null, String(game.hints)))),
+            h('div', { className: 'sdk-board-wrap', style: { width: boardSize + 'px' } },
+              h('div', { className: 'sdk-board', role: 'grid', 'aria-label': walk ? '解答棋盘' : '数独棋盘' },
+                values.map((value, index) => {
+                  const cellRow = rowOf(index);
+                  const cellCol = colOf(index);
+                  const isGiven = walk ? false : game.puzzle[index] !== 0;
+                  const isPeer = !walk && selected >= 0 && index !== selected && (cellRow === row || cellCol === col || boxOf(index) === box);
+                  const isSame = !walk && selectedValue !== 0 && value === selectedValue && index !== selected;
+                  const isWrong = !walk && (checking || game.lastWrong === index) && value !== 0 && value !== game.solution[index];
+                  const classes = ['sdk-cell'];
+                  if (walk) classes.push('review');
+                  if (isGiven) classes.push('given');
+                  else if (value) classes.push('entered');
+                  if (isPeer) classes.push('peer');
+                  if (isSame) classes.push('same');
+                  if (!walk && index === selected) classes.push('sel');
+                  if (!walk && conflicts.has(index)) classes.push('conflict');
+                  if (isWrong) classes.push('wrong');
+                  if (walk && highlighted && highlighted.has(index)) classes.push('review-hit');
+                  const notes = game.notes[index];
+                  return h('button', {
+                    key: index,
+                    type: 'button',
+                    className: classes.join(' '),
+                    disabled: Boolean(walk),
+                    style: paused && !walk ? { filter: 'blur(3px)' } : undefined,
+                    onClick: () => { if (!walk) setSelected(index); },
+                    'aria-label': '第' + (cellRow + 1) + '行第' + (cellCol + 1) + '列' + (value ? '，' + value : '，空'),
+                  },
+                  value ? String(value) : (!walk && autoNotes && !paused && cands && cands[index]
+                    ? h('span', { className: 'sdk-notes' }, [...Array(9).keys()].map((d) => h('span', { key: d }, (cands[index] & (1 << d)) ? String(d + 1) : '')))
+                    : (!walk && notes
+                      ? h('span', { className: 'sdk-notes' }, [...Array(9).keys()].map((d) => h('span', { key: d }, (notes & (1 << d)) ? String(d + 1) : '')))
+                      : null)));
+                }),
+                h('div', { className: 'sdk-gridlines', 'aria-hidden': true },
+                  h('i', { className: 'v1' }), h('i', { className: 'v2' }), h('i', { className: 'h1' }), h('i', { className: 'h2' }))),
+              generating ? h('div', { className: 'sdk-generating' }, h('div', { className: 'sdk-spin' }), '正在本地生成题目…') : null,
+              showWin && !walk && !generating ? h('div', { className: 'sdk-win-overlay' },
+                h('strong', null, '完成'),
+                h('span', null, '用时 ' + fmtTime(game.elapsed) + ' · 提示 ' + game.hints + ' 次'),
+                h('div', { className: 'sdk-row' },
+                  h('button', { type: 'button', className: 'sdk-btn accent', onClick: () => newGame(game.difficulty) }, '再来一局'),
+                  h('button', { type: 'button', className: 'sdk-btn', onClick: () => setShowWin(false) }, '看看棋盘'))) : null),
+            walk
+              ? h('div', { className: 'sdk-walk' },
+                h('div', { className: 'sdk-walk-head' },
+                  h('b', null, walkStep.technique),
+                  h('span', null, '第 ' + (walk.index + 1) + ' / ' + walk.steps.length + ' 步' + (walkStep.digit ? ' · 填入 ' + walkStep.digit : '') + (walk.solved ? '' : ' · 未完成'))),
+                h('p', { className: 'sdk-walk-text' }, walkStep.detail),
+                h('div', { className: 'sdk-walk-nav' },
+                  h('button', { type: 'button', disabled: walk.index === 0, onClick: () => setWalk((c) => ({ ...c, index: 0 })) }, '首步'),
+                  h('button', { type: 'button', disabled: walk.index === 0, onClick: () => stepWalk(-1) }, '上一步'),
+                  h('button', { type: 'button', disabled: walk.index >= walk.steps.length - 1, onClick: () => stepWalk(1) }, '下一步'),
+                  h('button', { type: 'button', disabled: walk.index >= walk.steps.length - 1, onClick: () => setWalk((c) => ({ ...c, index: c.steps.length - 1 })) }, '末步'),
+                  h('button', { type: 'button', className: 'exit', onClick: () => setWalk(null) }, '退出')))
+              : h(React.Fragment, null,
+                h('div', { className: 'sdk-pad' },
+                  [...Array(9).keys()].map((d) => h('button', {
+                    key: d,
+                    type: 'button',
+                    className: 'sdk-num' + (digitsLeft[d + 1] >= 9 ? ' done' : ''),
+                    onClick: () => { if (selected >= 0) applyValue(selected, d + 1); },
+                  }, String(d + 1), h('small', null, digitsLeft[d + 1] >= 9 ? '' : String(9 - digitsLeft[d + 1]))))),
+                h('div', { className: 'sdk-tools' },
+                  h('button', { type: 'button', className: 'sdk-tool', onClick: () => applyValue(selected, 0), disabled: selected < 0 }, '擦除', h('small', null, '⌫')),
+                  h('button', { type: 'button', className: 'sdk-tool' + (notesMode ? ' on' : ''), onClick: () => setNotesMode(!notesMode) }, notesMode ? '笔记 开' : '笔记', h('small', null, 'N')),
+                  h('button', { type: 'button', className: 'sdk-tool' + (autoNotes ? ' on' : ''), onClick: () => setAutoNotes(!autoNotes) }, autoNotes ? '候选 开' : '候选', h('small', null, 'C')),
+                  h('button', { type: 'button', className: 'sdk-tool', onClick: undo, disabled: undoRef.current.length === 0 }, '撤销', h('small', null, 'U')),
+                  h('button', { type: 'button', className: 'sdk-tool', onClick: redo, disabled: redoRef.current.length === 0 }, '重做', h('small', null, 'Y')),
+                  h('button', { type: 'button', className: 'sdk-tool', onClick: hint, disabled: game.done }, '提示', h('small', null, 'H')),
+                  h('button', { type: 'button', className: 'sdk-tool', onClick: check, disabled: game.done }, '检查', h('small', null, 'K')),
+                  h('button', { type: 'button', className: 'sdk-tool', onClick: startWalk, disabled: game.done }, '完整解答', h('small', null, 'E'))))),
+          h('div', { className: 'sdk-resize', title: '拖动缩放（保持比例）', onPointerDown: onResizeDown })));
+    }
 
     return {
       inject: ['slots', 'locale'],

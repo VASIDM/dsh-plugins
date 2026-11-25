@@ -1,4 +1,5 @@
-/* Browser half of Olympiad: 1000+ olympiad problems with KaTeX-rendered solutions. */
+/* Browser half of Olympiad: a curated offline set plus the full local corpus when
+   the Host route is available, with KaTeX-rendered solutions. */
 window.__ModuleLoader__.load({
   id: '@local/olympiad',
   factory(require) {
@@ -8,13 +9,21 @@ window.__ModuleLoader__.load({
 
     const API = '/api/olympiad';
     const UI_KEY = 'olympiad.ui.v1';
-    const CATEGORIES = ['All', 'Number Theory', 'Algebra', 'Geometry', 'Combinatorics', 'Applied', 'Calculus'];
+    const CATEGORIES = ['All', 'Number Theory', 'Algebra', 'Geometry', 'Combinatorics', 'Applied', 'Calculus', 'Other'];
     const LEVELS = [
       { key: 'all', label: 'All' },
       { key: 'featured', label: 'Featured' },
       { key: 'hard', label: 'Hard 8+' },
       { key: 'medium', label: '5–7' },
     ];
+
+    /* Curated problems are always present, so the window shows a problem even
+       before the corpus request finishes (or if it fails). */
+    const FEATURED = __FEATURED__;
+    const FALLBACK = {
+      meta: { count: FEATURED.length, featured: FEATURED.length, fallback: true },
+      problems: FEATURED,
+    };
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -51,6 +60,28 @@ window.__ModuleLoader__.load({
         .trim();
     }
 
+    const KATEX_MACROS = {
+      '\\equal': '=',
+      '\\plus': '+',
+      '\\minus': '-',
+    };
+
+    /* Omni-MATH carries some AoPS BBCode and Asymptote source. Strip the parts
+       KaTeX cannot render, but keep triangle/area notation such as [ABC]. */
+    function normalizeMarkup(text) {
+      return String(text || '')
+        .replace(/\[asy\][\s\S]*?\[\/asy\]/gi, '')
+        .replace(/\[list(?:=[^\]]*)?\]([\s\S]*?)\[\/list\]/gi, (_, body) => body.replace(/\[\*\]/g, '\n• '))
+        .replace(/\[\*\]/g, '• ')
+        .replace(/\[url[^\]]*\]([\s\S]*?)\[\/url\]/gi, '$1')
+        .replace(/\[quote[^\]]*\]([\s\S]*?)\[\/quote\]/gi, '$1')
+        .replace(/\[color[^\]]*\]|\[\/color\]/gi, '')
+        .replace(/\[size[^\]]*\]|\[\/size\]/gi, '')
+        .replace(/\[\/?(?:b|i|u|hide|center|left|right|code|font)\]/gi, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
+
     function renderMath(expr, display) {
       const source = cleanExpr(expr);
       if (!source) return '';
@@ -61,23 +92,26 @@ window.__ModuleLoader__.load({
           throwOnError: false,
           strict: false,
           trust: false,
+          macros: KATEX_MACROS,
         });
       } catch {
         return escapeHtml(source);
       }
     }
 
-    const MATH_RE = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[^$\n]*?\$|\\\([\s\S]*?\\\))/g;
+    const MATH_RE = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{(align\*?|aligned|gather\*?|cases|array|matrix|pmatrix|bmatrix|vmatrix|split)\}[\s\S]*?\\end\{\2\}|\$[^$\n]*?\$|\\\([\s\S]*?\\\))/g;
+    const DISPLAY_RE = /(\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$|\\begin\{(align\*?|aligned|gather\*?|cases|array|matrix|pmatrix|bmatrix|vmatrix|split)\}[\s\S]*?\\end\{\2\})/g;
 
     function MathText({ text }) {
+      const source = normalizeMarkup(text);
       const parts = [];
       let last = 0;
       let match;
       let key = 0;
       MATH_RE.lastIndex = 0;
-      while ((match = MATH_RE.exec(text)) !== null) {
-        if (match.index > last) parts.push(escapeHtml(text.slice(last, match.index)));
-        const display = match[0].startsWith('$$') || match[0].startsWith('\\[');
+      while ((match = MATH_RE.exec(source)) !== null) {
+        if (match.index > last) parts.push(escapeHtml(source.slice(last, match.index)));
+        const display = match[0].startsWith('$$') || match[0].startsWith('\\[') || match[0].startsWith('\\begin');
         parts.push(h('span', {
           key: 'math-' + key++,
           className: display ? 'om-mathblock' : 'om-math',
@@ -85,12 +119,17 @@ window.__ModuleLoader__.load({
         }));
         last = match.index + match[0].length;
       }
-      if (last < text.length) parts.push(escapeHtml(text.slice(last)));
+      if (last < source.length) parts.push(escapeHtml(source.slice(last)));
       return h('span', null, parts);
     }
 
     function MathLines({ text, className }) {
-      const lines = String(text || '').split('\n');
+      /* Display math may span newlines; collapse only inside those blocks so
+         the per-line renderer still gets one complete \[...\], $$...$$ or
+         LaTeX environment span. */
+      const source = normalizeMarkup(text)
+        .replace(DISPLAY_RE, (block) => block.replace(/\n+/g, ' '));
+      const lines = source.split('\n');
       return h('div', { className: className || 'om-lines' },
         lines.map((line, index) => (line.trim()
           ? h('p', { className: 'om-line', key: index }, h(MathText, { text: line }))
@@ -291,6 +330,7 @@ window.__ModuleLoader__.load({
 .om-box.solution { border-left-color: var(--om-ink-2); }
 .om-answer { color: var(--om-ink); font-family: var(--om-serif); font-size: 14px; }
 .om-feedback { padding: 26px 10px; text-align: center; color: var(--om-ink-3); font-size: 12px; }
+.om-notice { margin: 8px 0 0; padding: 6px 8px; border: 1px dashed color-mix(in srgb, var(--om-line) 70%, transparent); border-radius: 5px; color: var(--om-ink-2); font-size: 10.5px; line-height: 1.55; }
 .om-foot { display: flex; align-items: center; gap: 8px; padding: 7px 0 10px; border-top: 1px solid color-mix(in srgb, var(--om-line) 45%, transparent); color: var(--om-ink-3); font-size: 9.5px; letter-spacing: .02em; }
 .om-foot b { color: var(--om-ink-2); font-weight: 600; }
 .om-resize { position: absolute; right: 2px; bottom: 2px; width: 15px; height: 15px; cursor: ew-resize; touch-action: none; background: linear-gradient(135deg, transparent 48%, var(--om-red) 49%, var(--om-red) 51%, transparent 52%, transparent 60%, var(--om-red) 61%, var(--om-red) 63%, transparent 64%); opacity: .6; }
@@ -322,12 +362,12 @@ window.__ModuleLoader__.load({
 
     function OlympiadWindow({ ui }) {
       const theme = useThemeMode();
-      const [corpus, setCorpus] = useState(null);
+      const [corpus, setCorpus] = useState(FALLBACK);
       const [error, setError] = useState('');
       const [katexReady, setKatexReady] = useState(Boolean(window.katex));
       const [category, setCategory] = useState('All');
       const [level, setLevel] = useState('all');
-      const [problem, setProblem] = useState(null);
+      const [problem, setProblem] = useState(() => pickRandom(FALLBACK.problems, null));
       const [showHint, setShowHint] = useState(false);
       const [showAnswer, setShowAnswer] = useState(false);
       const [showSolution, setShowSolution] = useState(false);
@@ -349,10 +389,16 @@ window.__ModuleLoader__.load({
           })
           .then((data) => {
             if (!alive) return;
+            if (!data || !Array.isArray(data.problems) || !data.problems.length) throw new Error('empty corpus');
             setCorpus(data);
-            setProblem(pickRandom(poolOf(data.problems, 'All', 'all'), null));
+            setError('');
           })
-          .catch((reason) => { if (alive) setError(String(reason && reason.message || reason)); });
+          .catch((reason) => {
+            /* Keep the curated set on screen: a missing corpus degrades to nine
+               problems instead of an empty reader. */
+            if (alive) setError('完整题库暂不可用，已载入 ' + FEATURED.length + ' 道精选题目。');
+            void reason;
+          });
         loadKatex().then((ready) => { if (alive) setKatexReady(ready); });
         return () => { alive = false; };
       }, []);
@@ -442,8 +488,9 @@ window.__ModuleLoader__.load({
         window.addEventListener('pointerup', onUp);
       };
 
-      const total = corpus ? corpus.meta.count : 0;
-      const count = corpus ? poolOf(corpus.problems, category, level).length : 0;
+      const total = (corpus.meta && corpus.meta.count) || corpus.problems.length;
+      const count = poolOf(corpus.problems, category, level).length;
+      const offline = Boolean(corpus.meta && corpus.meta.fallback);
 
       return h('div', { className: 'om-layer' },
         h('div', { ref: winRef, className: 'om-win' + (ui.minimized ? ' om-mini' : '') + (katexReady ? '' : ' om-katex-off'), 'data-theme': theme, style, role: 'dialog', 'aria-label': 'Olympiad' },
@@ -451,7 +498,7 @@ window.__ModuleLoader__.load({
             h('span', { className: 'om-seal' }, 'Σ'),
             h('div', { className: 'om-title' },
               h('b', null, 'Olympiad'),
-              h('span', null, corpus ? total + ' problems · ' + count + ' in view · LaTeX' : 'Loading problems · LaTeX')),
+              h('span', null, offline ? FEATURED.length + ' featured · offline' : total + ' problems · ' + count + ' in view · LaTeX')),
             h('span', { className: 'om-spacer' }),
             h('button', { type: 'button', className: 'om-btn accent', onClick: nextProblem, disabled: !corpus, title: 'Next problem (N)' }, 'Next'),
             h('button', { type: 'button', className: 'om-iconbtn', title: ui.minimized ? 'Expand' : 'Collapse', onClick: () => setUi({ minimized: !ui.minimized }) }, ui.minimized ? '▢' : '—'),
@@ -472,35 +519,34 @@ window.__ModuleLoader__.load({
                 onChange: (event) => chooseCategory(event.target.value),
               }, CATEGORIES.map((item) => h('option', { key: item, value: item }, item)))),
             h('div', { className: 'om-article' },
-              error ? h('div', { className: 'om-feedback' }, 'Could not load the corpus: ' + error)
-                : !corpus ? h('div', { className: 'om-feedback' }, 'Loading 1000+ problems…')
-                  : !problem ? h('div', { className: 'om-feedback' }, 'No problem matches this filter.')
-                    : h(React.Fragment, null,
-                      h('div', { className: 'om-meta' },
-                        h('b', null, problem.source),
-                        h('span', { className: 'om-dot' }, '·'),
-                        h('span', null, problem.category),
-                        problem.featured ? h('span', { className: 'om-badge' }, 'Featured') : null,
-                        h('span', { className: 'om-stars', 'aria-label': 'Difficulty ' + problem.stars + ' of 5' },
-                          [...Array(5).keys()].map((index) => h('i', { key: index, className: index < problem.stars ? 'on' : '' })))),
-                      h('div', { className: 'om-statement' },
-                        problem.statement.map((block, index) => h(MathLines, { key: index, text: block, className: 'om-statement' }))),
-                      problem.keyIdea ? h('div', { className: 'om-keyidea' },
-                        h('b', null, 'KEY IDEA'),
-                        h('span', null, problem.keyIdea)) : null,
-                      h('div', { className: 'om-actions' },
-                        problem.hint ? h('button', { type: 'button', className: 'om-btn', onClick: () => setShowHint(!showHint) }, showHint ? 'Hide hint' : 'Hint') : null,
-                        problem.answer ? h('button', { type: 'button', className: 'om-btn', onClick: () => setShowAnswer(!showAnswer) }, showAnswer ? 'Hide answer' : 'Answer') : null,
-                        h('button', { type: 'button', className: 'om-btn accent', onClick: () => setShowSolution(!showSolution) }, showSolution ? 'Hide solution' : 'Detailed solution')),
-                      showHint && problem.hint ? h('div', { className: 'om-box' },
-                        h('h3', null, 'HINT'),
-                        h('p', { className: 'om-line' }, h(MathText, { text: problem.hint }))) : null,
-                      showAnswer && problem.answer ? h('div', { className: 'om-box' },
-                        h('h3', null, 'ANSWER'),
-                        h('div', { className: 'om-answer' }, h(MathText, { text: problem.answer }))) : null,
-                      showSolution ? h('div', { className: 'om-box solution' },
-                        h('h3', null, 'SOLUTION'),
-                        problem.solution.map((block, index) => h(MathLines, { key: index, text: block, className: 'om-lines' }))) : null)),
+              error ? h('div', { className: 'om-notice' }, error) : null,
+              !problem ? h('div', { className: 'om-feedback' }, 'No problem matches this filter.')
+                : h(React.Fragment, null,
+                  h('div', { className: 'om-meta' },
+                    h('b', null, problem.source),
+                    h('span', { className: 'om-dot' }, '·'),
+                    h('span', null, problem.category),
+                    problem.featured ? h('span', { className: 'om-badge' }, 'Featured') : null,
+                    h('span', { className: 'om-stars', 'aria-label': 'Difficulty ' + problem.stars + ' of 5' },
+                      [...Array(5).keys()].map((index) => h('i', { key: index, className: index < problem.stars ? 'on' : '' })))),
+                  h('div', { className: 'om-statement' },
+                    problem.statement.map((block, index) => h(MathLines, { key: index, text: block, className: 'om-statement' }))),
+                  problem.keyIdea ? h('div', { className: 'om-keyidea' },
+                    h('b', null, 'KEY IDEA'),
+                    h('span', null, problem.keyIdea)) : null,
+                  h('div', { className: 'om-actions' },
+                    problem.hint ? h('button', { type: 'button', className: 'om-btn', onClick: () => setShowHint(!showHint) }, showHint ? 'Hide hint' : 'Hint') : null,
+                    problem.answer ? h('button', { type: 'button', className: 'om-btn', onClick: () => setShowAnswer(!showAnswer) }, showAnswer ? 'Hide answer' : 'Answer') : null,
+                    h('button', { type: 'button', className: 'om-btn accent', onClick: () => setShowSolution(!showSolution) }, showSolution ? 'Hide solution' : 'Detailed solution')),
+                  showHint && problem.hint ? h('div', { className: 'om-box' },
+                    h('h3', null, 'HINT'),
+                    h('p', { className: 'om-line' }, h(MathText, { text: problem.hint }))) : null,
+                  showAnswer && problem.answer ? h('div', { className: 'om-box' },
+                    h('h3', null, 'ANSWER'),
+                    h('div', { className: 'om-answer' }, h(MathText, { text: problem.answer }))) : null,
+                  showSolution ? h('div', { className: 'om-box solution' },
+                    h('h3', null, 'SOLUTION'),
+                    problem.solution.map((block, index) => h(MathLines, { key: index, text: block, className: 'om-lines' }))) : null)),
             h('div', { className: 'om-foot' },
               h('span', null, 'N ', h('b', null, 'Next')),
               h('span', null, 'A ', h('b', null, 'Answer')),

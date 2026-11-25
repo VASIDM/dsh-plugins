@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
 
 const ELITE = new Set([
   'imo', 'imo_shortlist', 'imo_longlists', 'china_national_olympiad', 'china_team_selection_test',
@@ -76,7 +77,7 @@ for (const line of lines) {
 const featured = JSON.parse(readFileSync('problems.json', 'utf8')).map((problem) => ({
   ...problem,
   featured: true,
-  level: 10,
+  level: problem.difficulty * 2,
   stars: problem.difficulty,
   answer: '',
 }));
@@ -86,7 +87,12 @@ const corpus = {
   meta: { count: all.length, featured: featured.length, generatedAt: new Date().toISOString() },
   problems: all,
 };
-writeFileSync('corpus.json', JSON.stringify(corpus), 'utf8');
+const body = JSON.stringify(corpus);
+writeFileSync('corpus.json', body, 'utf8');
+/* The plugin backup has a 2 MB per-file cap; ship the corpus gzipped and let
+   the Host route send it with Content-Encoding: gzip. */
+writeFileSync('corpus.json.gz', gzipSync(Buffer.from(body), { level: 9 }));
+try { unlinkSync('corpus.json'); } catch { /* keep a plain copy if it is locked */ }
 
 const byCategory = {};
 for (const problem of all) byCategory[problem.category] = (byCategory[problem.category] || 0) + 1;

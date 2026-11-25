@@ -5,7 +5,7 @@
  * fully offline and costs no tokens.
  */
 import { readFile, stat } from 'node:fs/promises';
-import { join, normalize, extname } from 'node:path';
+import { join, normalize, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const name = '@local/olympiad';
@@ -13,6 +13,7 @@ export const inject = ['webServer'];
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const ASSETS = join(ROOT, 'assets');
+const CORPUS_GZ = join(ROOT, 'corpus.json.gz');
 const CORPUS = join(ROOT, 'corpus.json');
 const PREFIX = '/api/olympiad';
 
@@ -49,7 +50,21 @@ export function apply(ctx) {
       }
 
       if (path === PREFIX + '/corpus') {
-        const body = await readFile(CORPUS);
+        let body;
+        try {
+          body = await readFile(CORPUS_GZ);
+          send(res, 200, {
+            'content-type': 'application/json; charset=utf-8',
+            'content-encoding': 'gzip',
+            'content-length': String(body.length),
+            'cache-control': 'no-cache',
+            'vary': 'Accept-Encoding',
+          }, body);
+          return;
+        } catch {
+          /* Fall back to a plain corpus if a local build kept one. */
+          body = await readFile(CORPUS);
+        }
         send(res, 200, {
           'content-type': 'application/json; charset=utf-8',
           'content-length': String(body.length),
@@ -61,7 +76,7 @@ export function apply(ctx) {
       if (path.startsWith(PREFIX + '/assets/')) {
         const relative = decodeURIComponent(path.slice((PREFIX + '/assets/').length));
         const target = normalize(join(ASSETS, relative));
-        if (!target.startsWith(ASSETS)) {
+        if (target !== ASSETS && !target.startsWith(ASSETS + sep)) {
           send(res, 403, { 'content-type': 'text/plain; charset=utf-8' }, 'forbidden');
           return;
         }

@@ -1,6 +1,6 @@
 {
   "name": "@local/sudoku",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "A locally generated Sudoku game in a draggable floating window, opened from the sidebar.",
   "type": "module",
